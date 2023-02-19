@@ -1,0 +1,51 @@
+:root {
+    --color-primary: #19c37d;
+    --color-secondary: #715fde;
+    --color-error: #ef4146;
+    --gradient-primary: linear-gradient(90deg, #a29bd4, #989fdd);
+    --text-primary: #202123;
+    --text-default: #353740;
+    --text-secondary: #6e6e80;
+    --text-disabled: #acacbe;
+    --text-error: var(--color-error);
+}
+
+
+.divider {
+    display: block;
+    width: 100%;
+    height: 1px;
+    margin: 1px auto;
+    background-color: rgba(128, 128, 128, 0.601);
+}
+
+
+.modal-- {
+    opacity: 0;
+    transform: scale(0);
+    transition-property: transform, opacity;
+    transition-duration: 500ms;
+    transition-timing-function: ease-in-out;
+    transform-origin: center center;
+}
+
+.modal--.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+
+.fusechat .unsent {
+    display: none;
+    pointer-events: none;
+}
+
+.fusechat.unsent .unsent {
+    display: flex;
+    pointer-events: all;
+    margin-top: .5rem;
+}
+
+.fusechat.unsent .updatedAt {
+    display: none;
+}

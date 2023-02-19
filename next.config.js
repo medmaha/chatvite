@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+    // reactStrictMode: true,
+
+    env: {
+        BASE_URL: process.env.BASE_URL,
+        OPEN_AI_KEY: process.env.OPEN_AI_KEY,
+    },
 }
 
 module.exports = nextConfig
+
