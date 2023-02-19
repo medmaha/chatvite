@@ -4,6 +4,7 @@ import TopicCollections from "./TopicCollections"
 
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/router"
+import axios from "axios"
 
 export default function Topics() {
     const [topics, setTopics] = useState([])
@@ -15,9 +16,9 @@ export default function Topics() {
     }, [])
 
     function fetchTopics() {
-        fetch("api/topic/list")
-            .then((res) => res.json())
-            .then((data) => setTopics(data))
+        axios
+            .get("api/topic/list")
+            .then((res) => setTopics(res.data))
             .catch((err) => {
                 console.log(err?.message)
             })
@@ -28,19 +29,23 @@ export default function Topics() {
             router.push("/auth/login")
             return
         }
-        fetch("api/topic/subscribe", {
-            credentials: "include",
-            body: JSON.stringify({ id: topic_id }),
-            method: "post",
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        axios
+            .post(
+                "api/topic/subscribe",
+                { id: topic_id },
+                {
+                    withCredentials: true,
+                    headers: { "Content-Type": "application/json" },
+                },
+            )
+
+            .then((res) => {
+                const data = res.data
                 if (data.joined) {
                     cb(true)
                 } else if (data.joined === false) {
                     cb()
                 }
-                console.log(data)
             })
             .catch((err) => console.log(err))
     }

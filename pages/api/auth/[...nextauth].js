@@ -1,3 +1,4 @@
+import axios from "axios"
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
@@ -15,15 +16,16 @@ export const authOptions = {
                 const email = credentials.email
                 const password = credentials.password
 
-                const res = await fetch(
+                const res = await axios.post(
                     `${process.env.BASE_URL}/api/auth/login`,
                     {
-                        method: "post",
-                        body: JSON.stringify({ email, password }),
+                        email,
+                        password,
                     },
+                    { headers: { "content-type": "application/json" } },
                 )
 
-                const data = await res.json()
+                const data = res.data
 
                 if (data?.message) {
                     throw new Error(data.message)

@@ -5,7 +5,7 @@ import { User } from "../../../src/server/mongodb/collections"
 export default async function handler(req, res) {
     await connectToDatabase()
 
-    const data = JSON.parse(req.body)
+    const data = req.body
 
     const email = data.email
     const password = data.password
@@ -14,7 +14,9 @@ export default async function handler(req, res) {
 
     if (!user) {
         res.setHeader("Content-Type", "application/json")
-        res.status(400).send({ message: "credential does not match" })
+        res.status(400).send(
+            JSON.stringify({ message: "credential does not match" }),
+        )
     } else {
         const data = {
             id: user.id,

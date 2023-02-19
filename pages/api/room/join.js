@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         return Promise.resolve()
     }
 
-    const { id } = JSON.parse(req.body)
+    const { id } = req.body
 
     const room = await Room.findById(id)
 

@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react"
 
 import SocketIOClient from "socket.io-client"
 import { useRouter } from "next/router"
+import axios from "axios"
 
 export default function Room({ data }) {
     const [room, setRoom] = useState(data)
@@ -21,7 +22,8 @@ export default function Room({ data }) {
     }, [])
 
     async function fetchRoom() {
-        fetch("/api/room/" + room.slug, { method: "get" })
+        axios
+            .get("/api/room/" + room.slug)
             .then((res) => res.json())
             .then((data) => setRoom(room))
             .catch((err) => {})
@@ -48,13 +50,16 @@ export default function Room({ data }) {
             router.push("/auth/login")
             return
         }
-        fetch("/api/room/join", {
-            method: "post",
-            credentials: "include",
-            body: JSON.stringify({ id: room._id }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        axios
+            .post(
+                "/api/room/join",
+                { id: room._id },
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
+                const data = res.data
                 if (!!data.joined) {
                     const user = session.data.user
                     setRoom((prev) => {

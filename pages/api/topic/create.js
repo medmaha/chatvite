@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         return Promise.resolve()
     }
 
-    const data = JSON.parse(req.body)
+    const data = req.body
 
     const { topic: topicName, room: roomName, description } = data
 

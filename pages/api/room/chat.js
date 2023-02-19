@@ -13,7 +13,7 @@ import {
 } from "../../../src/server/chatGPT"
 
 export default async function handler(req, res) {
-    const { fuse, roomId } = JSON.parse(req.body)
+    const { fuse, roomId } = req.body
 
     const user = await Authenticate(req, res)
 

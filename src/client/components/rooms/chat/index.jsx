@@ -2,6 +2,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import ChatCollections from "./ChatCollections"
 import Textarea from "./Textarea"
 import { useSession } from "next-auth/react"
+import axios from "axios"
 
 function handleSocketEvents(socket, updateFuses, room) {
     socket.on("fusechat", (chat) => {
@@ -54,14 +55,21 @@ export default function FuseChat({ socket, room, roomId }) {
         callback()
         // updateFuses(fakeFuse(fuse, session.data?.user))
 
-        fetch("/api/room/chat", {
-            method: "post",
-            body: JSON.stringify({ fuse, roomId }),
-            credentials: "include",
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (data.fuse) {
+        axios
+            .post(
+                "/api/room/chat",
+                {
+                    fuse,
+                    roomId,
+                },
+                {
+                    withCredentials: true,
+                    headers: { "Content-Type": "application/json" },
+                },
+            )
+
+            .then((res) => {
+                if (res.data.fuse) {
                     // updateFuses(data.fuse)
                 }
             })

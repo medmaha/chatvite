@@ -1,4 +1,5 @@
 import React from "react"
+import axios from "axios"
 
 import Feed from "../../src/client/components/feeds"
 
@@ -7,14 +8,21 @@ export default function index({ feeds }) {
 }
 
 export async function getServerSideProps() {
-    const res = await fetch(`${process.env.BASE_URL}/api/feed`, {
-        credentials: "include",
+    const res = await axios({
+        url: `${process.env.BASE_URL}/api/feed`,
+        method: "get",
     })
-    const feeds = await res.json()
 
+    if (res.data) {
+        return {
+            props: {
+                feeds: res.data,
+            },
+        }
+    }
     return {
         props: {
-            feeds,
+            feeds: [],
         },
     }
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 import ActivityCollections from "./ActivityCollections"
 import { Footer } from "../../UI/layouts"
+import axios from "axios"
 
 export default function Activities() {
     const [activities, setActivities] = useState([])
@@ -10,10 +11,10 @@ export default function Activities() {
     }, [])
 
     function fetchActivities() {
-        fetch("/api/activity/list", { credentials: "include", method: "post" })
-            .then((res) => res.json())
-            .then((data) => {
-                setActivities(data)
+        axios
+            .get("/api/activity/list", { credentials: true })
+            .then((res) => {
+                setActivities(res.data)
             })
             .catch((err) => {
                 console.log(err)

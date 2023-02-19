@@ -11,6 +11,7 @@ import { Modal } from "../"
 import Form from "./Form"
 import { useRouter } from "next/router"
 import { useSession } from "next-auth/react"
+import axios from "axios"
 
 export default function Create() {
     const [close, setClose] = useState(false)
@@ -32,16 +33,18 @@ export default function Create() {
 
         setLoading(true)
 
-        fetch("/api/topic/create", {
-            credentials: "include",
-            method: "post",
-            body: JSON.stringify({ topic, room, description }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
+        axios
+            .post(
+                "/api/topic/create",
+                { topic, room, description },
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
                 const room = new CustomEvent("room", {
                     detail: {
-                        data: data,
+                        data: res.data,
                     },
                 })
                 document.dispatchEvent(room)
@@ -51,6 +54,7 @@ export default function Create() {
             .catch((err) => {
                 console.log(err)
             })
+            .finally(() => setLoading(false))
     }
     return (
         <Modal
