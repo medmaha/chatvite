@@ -13,8 +13,8 @@ export default async function handler(req, res) {
     const user = await User.findOne({ email, password })
 
     if (!user) {
-        res.status(400).json({ message: "credential does not match" })
-        res.end()
+        res.setHeader("Content-Type", "application/json")
+        res.status(400).send({ message: "credential does not match" })
     } else {
         const data = {
             id: user.id,
@@ -22,7 +22,9 @@ export default async function handler(req, res) {
             avatar: "/img/avatar.png",
             username: user.username,
         }
-        res.status(200).json({ user: data })
-        res.end()
+
+        res.setHeader("Content-Type", "application/json")
+        res.status(200).send(JSON.stringify({ user: data }))
     }
+    return Promise.resolve()
 }

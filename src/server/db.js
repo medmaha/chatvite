@@ -4,6 +4,7 @@ let cachedConnection = null
 let cachedPromise = null
 
 async function connectToDatabase() {
+    const localConnectionString = "mongodb://localhost:27017/chatfuse"
     const connectionString =
         "mongodb+srv://medmaha:medmaha@cluster0.n6wbg5o.mongodb.net"
 

@@ -12,10 +12,11 @@ export default async function handler(req, res) {
     const room = await Room.findOne({ slug })
 
     if (!room) {
-        res.status(400).json({ message: "Bad Request" })
+        res.status(404).json({ message: "Bad Request" })
         res.end()
         return Promise.resolve()
     }
 
-    res.status(200).json(room)
+    res.setHeader("Content-Type", "application/json")
+    res.status(200).send(JSON.stringify(room))
 }

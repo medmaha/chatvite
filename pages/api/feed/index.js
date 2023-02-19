@@ -7,5 +7,7 @@ export default async function handler(req, res) {
 
     const rooms = await Room.find().sort({ chatfuses: -1 })
 
-    res.status(200).json(rooms)
+    res.setHeader("Content-Type", "application/json")
+    res.status(200).end(JSON.stringify(rooms))
+    // res.end()
 }

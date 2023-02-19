@@ -7,5 +7,6 @@ export default async function handler(req, res) {
 
     const topics = await Topic.find()
 
-    res.status(200).json(topics)
+    res.setHeader("Content-Type", "application/json")
+    res.status(200).send(JSON.stringify(topics))
 }

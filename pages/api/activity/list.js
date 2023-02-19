@@ -7,5 +7,6 @@ export default async function handler(req, res) {
 
     const activities = await Activity.find()
 
-    res.status(200).json(activities.reverse())
+    res.setHeader("Content-Type", "application/json")
+    res.status(200).send(JSON.stringify(activities.reverse()))
 }

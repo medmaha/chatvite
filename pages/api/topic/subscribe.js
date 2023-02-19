@@ -37,6 +37,6 @@ export default async function handler(req, res) {
     }
     await topic.save()
 
-    res.status(200).json({ joined: joined })
-    res.end()
+    res.setHeader("Content-Type", "application/json")
+    res.status(200).send(JSON.stringify({ joined: joined }))
 }

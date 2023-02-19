@@ -41,19 +41,22 @@ export default async function handler(req, res) {
     })
 
     // res.status(200).json({ topic: _topic })
-    res.status(201).json({
-        id: room.id,
-        name: room.name,
-        slug: room.slug,
-        topic: { id: topic.id, name: topic.name, slug: topic.slug },
-        host: {
-            id: room.host.id,
-            name: room.host.name,
-            username: room.host.username,
-            avatar: room.host.avatar,
-        },
-        chatfuses: [],
-        updatedAt: room.updatedAt,
-    })
-    res.end()
+
+    res.setHeader("Content-Type", "application/json")
+    res.status(201).send(
+        JSON.stringify({
+            id: room.id,
+            name: room.name,
+            slug: room.slug,
+            topic: { id: topic.id, name: topic.name, slug: topic.slug },
+            host: {
+                id: room.host.id,
+                name: room.host.name,
+                username: room.host.username,
+                avatar: room.host.avatar,
+            },
+            chatfuses: [],
+            updatedAt: room.updatedAt,
+        }),
+    )
 }

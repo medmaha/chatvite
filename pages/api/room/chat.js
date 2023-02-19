@@ -89,9 +89,8 @@ export default async function handler(req, res) {
         createAIResponse(room.slug, fuse, user, socketIO)
     }
 
-    res.status(200).json({
-        fuse: !!socketIO,
-    })
+    res.setHeader("Content-Type", "application/json")
+    res.status(200).send(JSON.stringify({ fuse: !!socketIO }))
 }
 
 async function createAIResponse(slug, fuse, user, socketIO) {
