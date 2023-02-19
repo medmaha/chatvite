@@ -9,7 +9,7 @@ export default function index({ feeds }) {
 
 export async function getServerSideProps() {
     const res = await axios.get(`${process.env.BASE_URL}/api/feed`, {
-        timeout: 30,
+        timeout: 30000,
     })
 
     if (res.data) {
