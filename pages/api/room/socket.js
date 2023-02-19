@@ -18,7 +18,7 @@ export default async function ConnectSocket(req, res) {
         const httpServer = res.socket.server
         const io = new ServerIO(httpServer, {
             path: "/api/room/socket",
-            cors: { origin: ["http://localhost:3000"] },
+            cors: { origin: [process.env.BASE_URL] },
         })
 
         res.socket.server.io = io

@@ -21,18 +21,10 @@ export default function Room({ data }) {
         return () => socket?.disconnect()
     }, [])
 
-    async function fetchRoom() {
-        axios
-            .get("/api/room/" + room.slug)
-            .then((res) => res.json())
-            .then((data) => setRoom(room))
-            .catch((err) => {})
-    }
+    async function fetchRoom() {}
 
     const socketInitializer = async () => {
-        // await fetch("/api/room/socket")
-
-        const _socket = SocketIOClient.connect("http://localhost:3000", {
+        const _socket = SocketIOClient.connect(process.env.BASE_URL, {
             path: "/api/room/socket",
         })
 
