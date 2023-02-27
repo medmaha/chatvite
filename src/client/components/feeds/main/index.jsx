@@ -115,7 +115,7 @@ export default function Main({ feeds: data }) {
                                             window.location.host,
                                         )[1]
 
-                                        const queryString = url.split("?")[1]
+                                        const queryString = url?.split("?")[1]
 
                                         if (queryString) {
                                             var query = ""
