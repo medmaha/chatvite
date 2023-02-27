@@ -10,53 +10,37 @@ export default async function handler(req, res) {
         return Promise.resolve()
     }
 
-    const data = req.body
-
-    const { topic: topicName, room: roomName, description } = data
+    const { topic: topicName, room: roomName, description } = req.body
 
     let topic = await Topic.findOne({ name: topicName })
 
     if (!topic) {
         topic = await Topic.create({
             name: topicName,
-            creator: {
-                id: user.id,
-                name: user.name,
-                username: user.username,
-                avatar: user.avatar,
-            },
+            author: user._id,
         })
     }
 
-    const room = await Room.create({
-        name: roomName,
-        description: description,
-        topic: { id: topic.id, name: topic.name, slug: topic.slug },
-        host: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            avatar: user.avatar,
-        },
-    })
+    try {
+        const room = await Room.create({
+            name: roomName,
+            description: description,
+            topic: topic._id,
+            host: user._id,
+        })
+        const data = await Room.findOne({ _id: room._id })
 
-    // res.status(200).json({ topic: _topic })
-
-    res.setHeader("Content-Type", "application/json")
-    res.status(201).send(
-        JSON.stringify({
-            id: room.id,
-            name: room.name,
-            slug: room.slug,
-            topic: { id: topic.id, name: topic.name, slug: topic.slug },
-            host: {
-                id: room.host.id,
-                name: room.host.name,
-                username: room.host.username,
-                avatar: room.host.avatar,
-            },
-            chatfuses: [],
-            updatedAt: room.updatedAt,
-        }),
-    )
+        res.setHeader("Content-Type", "application/json")
+        res.status(201).send(JSON.stringify(data.toJSON()))
+    } catch (error) {
+        if (error.code === 11000) {
+            res.setHeader("Content-Type", "application/json")
+            res.status(400).send(
+                JSON.stringify({ message: "Room with is name already exist" }),
+            )
+        } else {
+            res.setHeader("Content-Type", "application/json")
+            res.status(400).send(JSON.stringify())
+        }
+    }
 }

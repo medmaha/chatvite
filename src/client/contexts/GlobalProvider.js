@@ -1,17 +1,32 @@
-import React, { useContext, useState } from "react"
-import { Navbar, CreateRoom } from "../components/UI/layouts"
+import React, { useContext, useEffect, useState } from "react"
+import Navbar from "../components/UI/Navbar"
+import { CreateRoom } from "../components/UI/layouts"
 import { GlobalContext } from "./index"
 import { useSession } from "next-auth/react"
 
 export default function GlobalProvider({ children }) {
     const [createRoom, setCreateRoom] = useState(false)
+    const [user, setUser] = useState(undefined)
 
     const session = useSession()
-    const user = session.data?.user
+
+    useEffect(() => {
+        if (session.data?.user) {
+            setUser(session.data.user)
+        } else {
+            setUser(null)
+        }
+    }, [session])
 
     return (
-        <GlobalContext.Provider value={{ user, createRoom, setCreateRoom }}>
-            {session.status !== "loading" && <App>{children}</App>}
+        <GlobalContext.Provider
+            value={{ user, setUser, createRoom, setCreateRoom }}
+        >
+            {session.status === "loading" ? (
+                "Loading..."
+            ) : (
+                <>{user !== undefined && <App>{children}</App>}</>
+            )}
         </GlobalContext.Provider>
     )
 }

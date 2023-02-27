@@ -3,9 +3,19 @@ import ChatCollections from "./ChatCollections"
 import Textarea from "./Textarea"
 import { useSession } from "next-auth/react"
 import axios from "axios"
+import { create } from "../../../../server/mongodb/collections/users"
+import Input from "./Input"
+import { useRouter } from "next/router"
 
-function handleSocketEvents(socket, updateFuses, room) {
+let AUTH_USER
+
+function handleSocketEvents(socket, updateFuses) {
+    if (!socket) return
     socket.on("fusechat", (chat) => {
+        if (AUTH_USER) {
+            AUTH_USER = false
+            return
+        }
         updateFuses(chat)
     })
     socket.on("fusechat-ai", (chat) => {
@@ -13,12 +23,18 @@ function handleSocketEvents(socket, updateFuses, room) {
     })
 }
 
-export default function FuseChat({ socket, room, roomId }) {
+const queuedResendEvents = []
+let AutoScroll = true
+let cachedMessages
+
+export default function ChatVite({ socket, room, roomId }) {
     const chatContainerRef = useRef()
 
-    const [fuses, setFuses] = useState(room.chatfuses || [])
+    const [messages, setMessages] = useState(room.chatfuses || [])
+    const [inputOffset, setInputOffset] = useState(0)
 
     const session = useSession()
+    const router = useRouter()
 
     useLayoutEffect(() => {
         const container = chatContainerRef.current
@@ -26,64 +42,152 @@ export default function FuseChat({ socket, room, roomId }) {
         const screenHeight = window.innerHeight
 
         const height = screenHeight - containerPosition
-        const offset = 70
-        container.style.setProperty("--chat-height", `${height - offset}px`)
-    }, [])
+        const offset = inputOffset
+        container.style.setProperty("--chat-height", `${height - offset - 5}px`)
+
+        console.log("inputOffset: ", inputOffset)
+        console.log("offset:", offset)
+    }, [inputOffset])
 
     useEffect(() => {
-        handleSocketEvents(socket, updateFuses, room)
-        if (socket) return () => socket.disconnect()
-    }, [])
+        handleSocketEvents(socket, updateMessages)
+    }, [socket])
 
     useLayoutEffect(() => {
         const lastFuse = chatContainerRef.current?.querySelector(
             "[data-fuse-collections] [data-last-target]",
         )
 
-        if (lastFuse) {
+        if (lastFuse && AutoScroll) {
             lastFuse.scrollIntoView({ behavior: "smooth" })
         }
-    }, [fuses])
+        cachedMessages = messages
+    }, [messages, inputOffset])
 
-    function updateFuses(data) {
-        setFuses((prev) => {
-            return [...prev, data]
+    function updateMessages(data) {
+        AutoScroll = true
+
+        let idx
+        setMessages((prev) => {
+            let _data = [...prev, data]
+            idx = _data.length - 1
+            return _data
         })
+        return idx
     }
 
-    function handleFuseSubmit(fuse, callback) {
+    function displayChat(chat) {
+        const data = {
+            _id: Math.random().toString(36).substring(2, 15),
+            fuse: chat,
+            room: room._id,
+            sender: {
+                ...session.data?.user,
+                _id: session.data?.user._id,
+            },
+        }
+        let idx = updateMessages(data)
+        AUTH_USER = true
+        return data
+    }
+
+    function createChat(
+        message,
+        callback,
+        display = true,
+        resendElement,
+        chatObject,
+    ) {
+        if (!session.data?.user._id) {
+            router.push("/auth/login")
+            return
+        }
+        let chat
+        AUTH_USER = true
+
+        if (display) chat = displayChat(message)
+
         callback()
-        // updateFuses(fakeFuse(fuse, session.data?.user))
 
         axios
             .post(
                 "/api/room/chat",
                 {
-                    fuse,
+                    fuse: message,
                     roomId,
+                    slug: room.slug,
                 },
                 {
                     withCredentials: true,
                     headers: { "Content-Type": "application/json" },
                 },
             )
-
             .then((res) => {
-                if (res.data.fuse) {
-                    // updateFuses(data.fuse)
+                if (res.data._id) {
+                    if (display) updateIndividualChat(chat, res.data)
+                    else {
+                        AutoScroll = false
+                        updateIndividualChat(chatObject, res._data)
+                    }
                 }
             })
             .catch((err) => {
-                const lastFuse = [
+                console.error(err.response?.data.message || err.message)
+                handleFailedMessageResubmission(
+                    message,
+                    callback,
+                    resendElement,
+                    chat,
+                )
+            })
+    }
+
+    function updateIndividualChat(chat, data) {
+        let msgs = [...cachedMessages]
+        const chatIdx = msgs.findIndex((msg) => msg._id === chat._id)
+
+        const message = { ...chat, ...data }
+
+        msgs[chatIdx] = message
+
+        setMessages([...msgs])
+    }
+
+    function handleFailedMessageResubmission(
+        message,
+        callback,
+        resendElement,
+        chatObject,
+    ) {
+        function getLastMessage() {
+            let lastChat
+            if (resendElement) {
+                lastChat = resendElement
+            } else {
+                lastChat = [
                     ...chatContainerRef.current?.querySelectorAll(
                         "[data-fuse-collections] [data-fuse-chat]",
                     ),
                 ].reverse()[0]
+            }
+            const resendButton = lastChat.querySelector(
+                "[data-fuse-failed] button",
+            )
+            return [lastChat, resendButton]
+        }
 
-                if (lastFuse) {
-                    lastFuse.classList.add("unsent")
-                }
-            })
+        const [lastChat, resendButton] = getLastMessage()
+
+        lastChat.classList.add("unsent")
+        if (queuedResendEvents.includes(resendButton.id)) return
+
+        resendButton.id = resendButton.id || Date.now().toString()
+        queuedResendEvents.push(resendButton.id)
+
+        resendButton.addEventListener("click", () => {
+            lastChat.classList.remove("unsent")
+            createChat(message, callback, false, lastChat, chatObject)
+        })
     }
 
     return (
@@ -96,10 +200,10 @@ export default function FuseChat({ socket, room, roomId }) {
                 ref={chatContainerRef}
                 className=" overflow-hidden overflow-y-auto p-2"
             >
-                <ChatCollections fuses={fuses} />
+                <ChatCollections fuses={messages} />
             </div>
-            <div className="mt-[1px] flex h-[60px]">
-                <Textarea onSubmit={handleFuseSubmit} />
+            <div className=" min-h-[48px] py-2 items-center flex w-full bg-gray-700">
+                <Input onSubmit={createChat} setOffset={setInputOffset} />
             </div>
         </div>
     )

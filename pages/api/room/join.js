@@ -11,9 +11,15 @@ export default async function handler(req, res) {
         return Promise.resolve()
     }
 
-    const { id } = req.body
+    const { id, room: returnRoom } = req.body
 
     const room = await Room.findById(id)
+
+    if (!room) {
+        res.setHeader("content-type", "application/json")
+        res.status(400).send(JSON.stringify({ message: "Room does not exist" }))
+        return
+    }
 
     const isMember = room.members.find((member) => {
         return member.id === user.id
@@ -22,12 +28,7 @@ export default async function handler(req, res) {
     let joined
 
     if (!isMember) {
-        room.members.push({
-            name: user.name,
-            username: user.username,
-            id: user.id,
-            avatar: user.avatar,
-        })
+        room.members.push(user._id)
         joined = true
     } else {
         room.members = room.members.filter((member) => {
@@ -37,6 +38,11 @@ export default async function handler(req, res) {
     }
     await room.save()
 
+    const data = {
+        room: returnRoom ? room : false,
+        joined: joined,
+    }
+
     res.setHeader("Content-Type", "application/json")
-    res.status(200).send(JSON.stringify({ joined: joined }))
+    res.status(200).send(JSON.stringify(data))
 }

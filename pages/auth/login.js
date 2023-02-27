@@ -1,24 +1,20 @@
-import React from "react"
-
 import { Login } from "../../src/client/components/auth"
 import { authOptions } from "../api/auth/[...nextauth]"
-
 import { getServerSession } from "next-auth/next"
+import { getCsrfToken, getSession } from "next-auth/react"
 
-export default function login() {
+export default function SignIn({ csrfToken }) {
     return (
         <div className="flex justify-center mt-8 px-2">
-            <Login />
+            <Login csrfToken={csrfToken} />
         </div>
     )
 }
 
-export async function getServerSideProps(context) {
-    const session = await getServerSession(
-        context.req,
-        context.res,
-        authOptions,
-    )
+export const getServerSideProps = async (context) => {
+    const { req, res } = context
+    const session = await getServerSession(req, res, authOptions(req, res))
+    const csrfToken = await getCsrfToken(context)
 
     if (session) {
         return {
@@ -31,6 +27,6 @@ export async function getServerSideProps(context) {
     }
 
     return {
-        props: {},
+        props: { csrfToken },
     }
 }

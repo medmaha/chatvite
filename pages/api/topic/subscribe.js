@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     const user = await Authenticate(req, res)
 
     if (!user) {
-        return Promise.resolve()
+        return
     }
 
     const { id } = req.body
@@ -22,12 +22,7 @@ export default async function handler(req, res) {
     let joined
 
     if (!isMember) {
-        topic.followers.push({
-            name: user.name,
-            username: user.username,
-            id: user.id,
-            avatar: user.avatar,
-        })
+        topic.followers.push(user._id)
         joined = true
     } else {
         topic.followers = topic.followers.filter((member) => {

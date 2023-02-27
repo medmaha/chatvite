@@ -4,9 +4,14 @@ let cachedConnection = null
 let cachedPromise = null
 
 async function connectToDatabase() {
-    const localConnectionString = "mongodb://localhost:27017/chatfuse"
-    const connectionString =
-        "mongodb+srv://medmaha:medmaha@fusechat.faze1zl.mongodb.net"
+    let stringUrl = "mongodb://localhost:27017/chatfuse"
+
+    if (process.env.NODE_ENV === "production") {
+        const cluster = process.env.CLUSTER_NAME
+        const username = process.env.CLUSTER_USERNAME
+        const password = process.env.CLUSTER_PASSWORD
+        stringUrl = `mongodb+srv://${username}:${password}@${cluster}.faze1zl.mongodb.net`
+    }
 
     if (cachedConnection) {
         return cachedConnection
@@ -19,7 +24,7 @@ async function connectToDatabase() {
         }
 
         mongoose.set("strictQuery", false)
-        cachedPromise = mongoose.connect(connectionString, options)
+        cachedPromise = mongoose.connect(stringUrl, options)
     }
 
     cachedConnection = await cachedPromise

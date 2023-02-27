@@ -16,6 +16,7 @@ import axios from "axios"
 export default function Create() {
     const [close, setClose] = useState(false)
     const [loading, setLoading] = useState(false)
+    const { setCreateRoom } = useContext(GlobalContext)
 
     const session = useSession()
     const router = useRouter()
@@ -52,13 +53,21 @@ export default function Create() {
                 setClose(true)
             })
             .catch((err) => {
+                if (err.response) {
+                    alert(err.response.data.message)
+                }
                 console.log(err)
             })
             .finally(() => setLoading(false))
     }
+
+    function handleModalClose() {
+        setCreateRoom(false)
+    }
     return (
         <Modal
             close={close}
+            onClose={handleModalClose}
             loading={loading}
             title="Create Room"
             content={

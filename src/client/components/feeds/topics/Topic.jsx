@@ -1,4 +1,5 @@
 import React from "react"
+import Link from "next/link"
 
 export default function Topic({ topic: data, subscribe, user }) {
     const [topic, setTopic] = React.useState(data)
@@ -23,15 +24,19 @@ export default function Topic({ topic: data, subscribe, user }) {
     }
 
     return (
-        <div className="flex justify-between items-center cursor-pointer min-h-[50px] py-2 my-1 px-1 rounded-md transition hover:bg-gray-700">
-            <div className="md:text-lg lg:text-base">
-                <button>{topic.name}</button>
-            </div>
+        <div className="flex justify-between gap-1 items-center cursor-pointer min-h-[50px] my-1 px-1 rounded-md transition hover:bg-gray-700">
+            <Link
+                href={`?q=${topic.slug}&tid=${topic.id || topic._id}`}
+                shallow={true}
+                className="md:text-lg lg:text-base flex-1 py-2 truncate"
+            >
+                <span title={topic.name}>{topic.name}</span>
+            </Link>
             <div
                 onClick={() =>
                     subscribe(topic.id || topic._id, subscribeCallback)
                 }
-                className="W-max"
+                className="W-max py-2"
             >
                 {(() => {
                     const follower = topic.followers.find((follower) => {

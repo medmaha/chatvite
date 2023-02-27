@@ -6,7 +6,7 @@ export default function RoomCollections({ feeds }) {
         <div>
             {feeds.map((room) => {
                 return (
-                    <span key={room.id || room._id}>
+                    <span key={room._id}>
                         <Room room={room} />
                     </span>
                 )

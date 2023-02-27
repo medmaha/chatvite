@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react"
 import ActivityCollections from "./ActivityCollections"
 import { Footer } from "../../UI/layouts"
 import axios from "axios"
+import Pending from "../../UI/Pending"
 
 export default function Activities() {
-    const [activities, setActivities] = useState([])
+    const [activities, setActivities] = useState(false)
 
     useEffect(() => {
         fetchActivities()
@@ -30,7 +31,11 @@ export default function Activities() {
                     </h3>
                 </div>
                 <div className="p-2 max-h-[calc(100vh-135px)] overflow-hidden overflow-y-auto h-full mt-1">
-                    <ActivityCollections activities={activities} />
+                    {activities ? (
+                        <ActivityCollections activities={activities} />
+                    ) : (
+                        <Pending h={"400px"} />
+                    )}
                 </div>
             </div>
             <Footer />

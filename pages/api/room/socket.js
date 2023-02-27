@@ -68,48 +68,21 @@ async function createAIResponse(slug, fuse, user_id, socket_id, socketIO) {
 
     if (room && user) {
         let prompt = buildPromptBody(fuse, room, null, true)
-        let introduction = `A new member just join the group chat username="${user.username}"\nIntroduce yourself to the new member and explain the whole essence of the to him/her\n also remind him/her to be ethical with chat's\nAI:`
-        prompt += introduction
 
         if (prompt !== "no-need") {
-            const aiResponse = await getChatGPTResponse(prompt)
-            if (typeof aiResponse === "string") {
-                // const chat = await Chat.create({
-                //     fuse: aiResponse,
-                //     room: room.id,
-                //     sender: {
-                //         id: room.AI_MODEL.id,
-                //         name: room.AI_MODEL.name,
-                //         username: room.AI_MODEL.username,
-                //         avatar: room.AI_MODEL.avatar,
-                //     },
-                // })
-                // room.chatfuses.push({
-                //     id: chat.id,
-                //     fuse: chat.fuse,
-                //     room: chat.room,
-                //     sender: chat.sender,
-                // })
-                // await room.save()
-                const chat = {
-                    id: Date.now().toString(),
-                    fuse: aiResponse,
-                    room: room.id,
-                    sender: {
-                        id: room.AI_MODEL.id,
-                        name: room.AI_MODEL.name,
-                        username: room.AI_MODEL.username,
-                        avatar: room.AI_MODEL.avatar,
-                    },
-                }
-
-                socketIO.to(socket_id).emit("fusechat-ai", {
-                    id: user.id,
-                    fuse: chat.fuse,
-                    room: chat.room,
-                    sender: chat.sender,
-                })
-            }
+            let introduction = `A new member just join the group chat username="${user.username}"\nIntroduce yourself to the new member and explain the whole essence of the to him/her\n also remind him/her to be ethical with chat's\nAI:`
+            prompt += introduction
+            // const aiResponse = await getChatGPTResponse(prompt)
+            // if (typeof aiResponse === "string") {
+            //     socketIO.to(socket_id).emit("fusechat-ai", {
+            //         id: Math.random().toString(),
+            //         fuse: aiResponse,
+            //         room: room,
+            //         sender: {
+            //             ...room.AI_MODEL,
+            //         },
+            //     })
+            // }
         }
     }
 }

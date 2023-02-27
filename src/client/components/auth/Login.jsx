@@ -2,35 +2,23 @@ import Link from "next/link"
 import React from "react"
 import { signIn, useSession } from "next-auth/react"
 
-export default function Login() {
+export default function Login({ doLogin, csrfToken }) {
     const session = useSession()
-
-    console.log(session)
-    async function handleLogin(ev) {
-        ev.preventDefault()
-
-        const email = ev.target.email.value.trim()
-        const password = ev.target["current-password"].value.trim()
-
-        if (!email || !password) return alert("Error")
-
-        const user = await signIn("credentials", {
-            email,
-            password,
-        })
-
-        alert(user)
-    }
 
     return (
         <div className="w-full max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl">
             <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
-                WeChat
+                Chat Vite
             </h2>
             <p className="text-center text-sm text-gray-300 font-semibold tracking-wide pb-2">
-                Find your chat partner
+                Explore your chat experience
             </p>
-            <form className="" method="post" onSubmit={handleLogin}>
+            <form method="post" action="/api/auth/callback/credentials">
+                <input
+                    name="csrfToken"
+                    type="hidden"
+                    defaultValue={csrfToken}
+                />
                 <div className="flex flex-col gap-1 mb-3">
                     <label htmlFor="flex items-center">
                         <span className="text-lg px-1 font-semibold leading-none">

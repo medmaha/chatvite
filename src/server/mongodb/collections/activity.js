@@ -5,46 +5,23 @@ if (mongoose.models.Activity) {
 } else {
     const Schema = new mongoose.Schema({
         room: {
-            type: {
-                id: String,
-                name: String,
-                slug: String,
-                topic: {
-                    name: String,
-                    id: String,
-                    slug: String,
-                },
-                host: {
-                    name: String,
-                    username: String,
-                    id: String,
-                    avatar: String,
-                },
-            },
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Rooms",
         },
 
         topic: {
-            name: String,
-            id: String,
-            slug: String,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Topics",
         },
 
         sender: {
-            type: {
-                name: String,
-                username: String,
-                id: String,
-                avatar: String,
-            },
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
         },
 
         target: {
-            type: {
-                name: String,
-                username: String,
-                id: String,
-                avatar: String,
-            },
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Users",
         },
 
         action: { type: String },
@@ -54,6 +31,23 @@ if (mongoose.models.Activity) {
         createdAt: { type: Date, default: () => Date.now(), immutable: true },
     })
 
+    const populateUserRefs = (doc, next) => {
+        doc.populate([
+            { path: "room", select: ["_id", "name"] },
+            { path: "topic", select: ["_id", "name"] },
+            { path: "sender", select: ["_id", "name", "username", "avatar"] },
+            { path: "target", select: ["_id"] },
+        ])
+        next()
+    }
+
+    Schema.pre("find", function (next) {
+        populateUserRefs(this, next)
+    })
+
+    Schema.pre("findOne", function (next) {
+        populateUserRefs(this, next)
+    })
     const Activity = mongoose.model("Activity", Schema)
     module.exports = Activity
 }

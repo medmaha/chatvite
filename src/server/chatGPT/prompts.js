@@ -1,11 +1,14 @@
 //
 export function promptHeader(room) {
-    const appName = "FuseChat"
+    const appName = "ChatVite"
 
     const membersListString = () => {
         const membersList = room.members
             .slice(0, 4)
-            .map((member) => member.username)
+            .map((member) => {
+                if (member.name === "AI") return "AI"
+                return member.username
+            })
             .join(", ")
 
         if (room.members.length > 5) {
@@ -36,8 +39,10 @@ Note for AI model
 - When responding, we encourage you to consider the host's perspective. 
 - Include the authors when referring to there message.
 - Do not generate chat for another user and only respond if the conversation is relevant or if they are directly mentioned.
+- You may initiate chat sometimes
+- Take note of the members list
 
-reminder not generate text for any user
+reminder do not generate text for any user
 
 Thank you for helping us maintain a productive and engaging conversation.
 
@@ -47,7 +52,7 @@ Thank you for helping us maintain a productive and engaging conversation.
 
 export function buildPromptBody(fuse, room, user = null, intro) {
     let prompt = promptHeader(room)
-    let offsetCount = -4
+    let offsetCount = -5
     let moreThanOffsetCount = room.chatfuses.length > 4
 
     const lastThreeFuses = room.chatfuses.slice(offsetCount)
@@ -66,16 +71,15 @@ export function buildPromptBody(fuse, room, user = null, intro) {
     let foundUserReference = false
 
     for (const chat of lastThreeFuses) {
-        const username = chat.sender.username.toLowerCase()
+        const name = chat.sender.name.toLowerCase()
 
         if (!fuse) break
 
         const text = fuse.toLowerCase()
 
-        if (username === "ai" || user?.username.toLowerCase() === username)
-            continue
+        if (name === "ai" || user?.name.toLowerCase() === name) continue
 
-        if (text.match(new RegExp(username))) {
+        if (text.match(new RegExp(name))) {
             foundUserReference = true
             break
         }
@@ -92,7 +96,12 @@ export function buildPromptBody(fuse, room, user = null, intro) {
                 return chat.fuse.substring(0, 100) + "..."
             return chat.fuse
         })()
-        prompt += `${chat.sender.username}: ${fuse}\n`
+
+        if (chat.sender.name === "AI") {
+            prompt += `${chat.sender.name}: ${fuse}\n`
+        } else {
+            prompt += `${chat.sender.username}: ${fuse}\n`
+        }
     })
 
     prompt += `AI:`

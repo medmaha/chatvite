@@ -21,8 +21,11 @@ export default function MemberCollections({ host, members }) {
         >
             {members?.map((member) => {
                 return (
-                    <span key={member.id}>
-                        <Member member={member} host={member.id === host.id} />
+                    <span key={member._id}>
+                        <Member
+                            member={member}
+                            host={member._id === host._id}
+                        />
                     </span>
                 )
             })}

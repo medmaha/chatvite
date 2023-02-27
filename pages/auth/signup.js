@@ -1,12 +1,33 @@
 import React from "react"
+import { Signup } from "../../src/client/components/auth"
+import { authOptions } from "../api/auth/[...nextauth]"
+import { getServerSession } from "next-auth/next"
+import { getCsrfToken } from "next-auth/react"
 
-export default function signup() {
+export default function signup({ csrfToken }) {
     return (
-        <div className="mt-5 flex justify-center w-full p flex-col gap-4 items-center">
-            <p className="text-xl">This page is currently under development</p>
-            <p className="mt-2 text-gray-400 text-sm font-semibold">
-                copyright mahamed toure
-            </p>
-        </div>
+        <>
+            <Signup csrfToken={csrfToken} />
+        </>
     )
+}
+
+export const getServerSideProps = async (context) => {
+    const { req, res } = context
+    const session = await getServerSession(req, res, authOptions(req, res))
+    const csrfToken = await getCsrfToken(context)
+
+    if (session) {
+        return {
+            redirect: {
+                destination: "/",
+                permanent: false,
+                replace: true,
+            },
+        }
+    }
+
+    return {
+        props: { csrfToken },
+    }
 }

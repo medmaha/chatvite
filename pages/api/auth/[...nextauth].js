@@ -2,22 +2,49 @@ import axios from "axios"
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
-export const authOptions = {
+async function updateSession(req, token) {
+    const host = req.headers.host
+    const testUpdate = new URL(process.env.BASE_URL + req.url)
+    if (token.user._id && testUpdate.searchParams.get("update")) {
+        const userId = token.user._id
+        const referer = req.headers.referer || ""
+        if (referer.split(host)[1].match(/(\/profile\/|\/auth\/verify).?/g)) {
+            try {
+                const { data } = await axios.get(
+                    `${process.env.BASE_URL}/api/profile/user/${userId}`,
+                    { withCredentials: true },
+                )
+                token.user = data
+                return Promise.resolve(0)
+            } catch (error) {
+                return Promise.resolve()
+            }
+        }
+    }
+    return Promise.resolve()
+}
+
+export const authOptions = (req, res) => ({
     // Configure one or more authentication providers
     providers: [
         CredentialsProvider({
-            name: "Email",
+            name: "Chat-Vite",
 
             credentials: {
                 email: { type: "email" },
-                password: { type: "password" },
+                "current-password": { type: "password" },
             },
             async authorize(credentials, req) {
                 const email = credentials.email
-                const password = credentials.password
+                const password = credentials["current-password"]
 
-                const res = await axios.post(
-                    `${process.env.BASE_URL}/api/auth/login`,
+                const errMsg = "Invalid Credentials"
+
+                if (!!!email?.length || !!!password?.length)
+                    throw new Error(errMsg)
+
+                const { data } = await axios.post(
+                    `${process.env.BASE_URL}/api/authenticate`,
                     {
                         email,
                         password,
@@ -25,69 +52,42 @@ export const authOptions = {
                     { headers: { "content-type": "application/json" } },
                 )
 
-                const data = res.data
-
-                if (data?.message) {
-                    throw new Error(data.message)
+                if (data?._id) {
+                    return data
                 }
-
-                return data.user
+                throw new Error(data?.message || "An error ocurred")
             },
         }),
     ],
+
     pages: {
+        error: "/auth/error",
         signIn: "/auth/login",
+        newUser: "/feed",
     },
 
-    // cookies: {
-    //     csrfToken: {
-    //         name: "__csrftoken",
-    //     },
-    //     sessionToken: {
-    //         name: "__sid",
-    //     },
-    //     callbackUrl: {
-    //         name: "__cb_u",
-    //     },
-    // },
-
-    // secret: "test",
-    jwt: {
-        secret: "test",
-        encryption: true,
-    },
-
-    session: {
-        strategy: "jwt",
-
-        maxAge: 24 * 60 * 60, // 24 hours
-
-        updateAge: 2 * 24 * 60 * 60, // 48 hours
-
-        generateSessionToken: () => {
-            return randomUUID?.() ?? randomBytes(32).toString("hex")
-        },
-    },
     callbacks: {
-        // async redirect({ url, baseUrl }) {
-        //     return baseUrl
-        // },
         async jwt({ token, user }) {
             if (user) {
-                token.wechat = true
                 token.user = user
             }
-
+            const update = await updateSession(req, token)
             return token
         },
         async session({ session, token }) {
             if (token) {
-                session.wechat = token.wechat
                 session.user = token.user
             }
+            // await updateSession(req, session.user._id, session)
             return session
         },
     },
+})
+
+export default async function auth(req, res) {
+    // Do whatever you want here, before the request is passed down to `NextAuth`
+
+    return await NextAuth(req, res, authOptions(req, res))
 }
 
-export default NextAuth(authOptions)
+// export default NextAuth(authOptions)

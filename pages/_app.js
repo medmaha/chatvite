@@ -8,12 +8,12 @@ export default function Wechat({ Component, pageProps }) {
         <SessionProvider
             session={pageProps.session}
             refetchInterval={5 * 60}
-            refetchOnWindowFocus={true}
+            // refetchOnWindowFocus={true}
             refetchWhenOffline={false}
         >
             <NextJSProgressBar
                 color="lightblue"
-                startPosition={0.4}
+                startPosition={0.2}
                 transformCSS={(css) => {
                     // manipulate css string here
 

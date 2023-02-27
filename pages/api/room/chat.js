@@ -13,143 +13,82 @@ import {
 } from "../../../src/server/chatGPT"
 
 export default async function handler(req, res) {
-    const { fuse, roomId } = req.body
+    const { fuse, roomId, slug } = req.body
 
     const user = await Authenticate(req, res)
 
-    const room = await Room.findById(roomId)
+    const room = await Room.findById(roomId).populate("AI_MODEL")
 
     if (!user) {
-        return Promise.resolve()
+        return
     }
     if (!room) {
-        res.status(400).json({ message: "Bad request" })
+        res.setHeader("content-type", "application/json")
+        res.status(400).send({ message: "Bad request" })
         res.end()
-        return Promise.resolve()
     }
 
-    const chat = await Chat.create({
+    const chat = new Chat({
         fuse,
-        room: room.id,
-        sender: {
-            id: user.id,
-            name: user.name,
-            username: user.username,
-            avatar: user.avatar,
-        },
+        room: room._id,
+        sender: user._id,
     })
 
-    room.chatfuses.push({
-        id: chat.id,
-        fuse: chat.fuse,
-        room: chat.room,
-        sender: chat.sender,
-    })
+    await chat.save()
+
+    room.chatfuses.push(chat._id)
 
     await room.save()
 
     const activity = await Activity.create({
         action: "Replied in",
         message: chat.fuse,
-        sender: {
-            id: chat.sender.id,
-            name: chat.sender.name,
-            avatar: chat.sender.avatar,
-            username: chat.sender.username,
-        },
-        room: {
-            id: room.id,
-            slug: room.slug,
-            name: room.name,
-            host: {
-                id: room.host.id,
-                name: room.host.name,
-                avatar: room.host.avatar,
-                username: room.host.username,
-            },
-            topic: {
-                id: room.topic.id,
-                name: room.topic.name,
-                slug: room.topic.slug,
-            },
-        },
+        sender: user._id,
+        room: room._id,
     })
 
+    const data = await Chat.findById(chat.id)
     await activity.save()
 
-    const socketIO = res?.socket?.server?.io || null
+    res.setHeader("Content-Type", "application/json")
+    res.status(200).send(JSON.stringify(data.toJSON()))
 
+    const socketIO = res?.socket?.server?.io || null
     if (socketIO) {
-        socketIO.to(room.slug).emit("fusechat", {
-            id: chat.id,
-            fuse: chat.fuse,
-            room: chat.room,
-            sender: chat.sender,
-        })
-        createAIResponse(room.slug, fuse, user, socketIO)
+        socketIO.to(room.slug).emit("fusechat", data.toJSON())
     }
 
-    res.setHeader("Content-Type", "application/json")
-    res.status(200).send(JSON.stringify({ fuse: !!socketIO }))
+    createAIResponse(room.slug, fuse, user, socketIO, room.AI_MODEL)
 }
 
-async function createAIResponse(slug, fuse, user, socketIO) {
+async function createAIResponse(slug, fuse, user, socketIO, aiUser) {
     const room = await Room.findOne({ slug })
 
     if (room) {
         const prompt = buildPromptBody(fuse, room, user)
+
         if (prompt !== "no-need") {
             const aiResponse = await getChatGPTResponse(prompt)
+
             if (typeof aiResponse === "string") {
                 const chat = await Chat.create({
                     fuse: aiResponse,
-                    room: room.id,
-                    sender: {
-                        id: room.AI_MODEL.id,
-                        name: room.AI_MODEL.name,
-                        username: room.AI_MODEL.username,
-                        avatar: room.AI_MODEL.avatar,
-                    },
+                    room: room._id,
+                    sender: aiUser._id,
                 })
-                room.chatfuses.push({
-                    id: chat.id,
-                    fuse: chat.fuse,
-                    room: chat.room,
-                    sender: chat.sender,
-                })
+                room.chatfuses.push(chat._id)
                 await room.save()
 
-                socketIO.to(slug).emit("fusechat-ai", {
-                    id: chat.id,
-                    fuse: chat.fuse,
-                    room: chat.room,
-                    sender: chat.sender,
-                })
+                if (socketIO) {
+                    const data = await Chat.findById(chat.id)
+                    socketIO.to(slug).emit("fusechat-ai", data.toJSON())
+                }
+
                 const activity = await Activity.create({
                     action: "Replied in",
                     message: chat.fuse,
-                    sender: {
-                        id: chat.sender.id,
-                        name: chat.sender.name,
-                        avatar: chat.sender.avatar,
-                        username: chat.sender.username,
-                    },
-                    room: {
-                        id: room.id,
-                        slug: room.slug,
-                        name: room.name,
-                        host: {
-                            id: room.host.id,
-                            name: room.host.name,
-                            avatar: room.host.avatar,
-                            username: room.host.username,
-                        },
-                        topic: {
-                            id: room.topic.id,
-                            name: room.topic.name,
-                            slug: room.topic.slug,
-                        },
-                    },
+                    sender: aiUser._id,
+                    room: room._id,
                 })
 
                 await activity.save()

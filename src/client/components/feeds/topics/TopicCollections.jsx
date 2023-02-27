@@ -6,13 +6,13 @@ export default function TopicCollections({ topics, subscribe, user }) {
         <div>
             {topics.map((topic) => {
                 return (
-                    <span key={topic._id || topic.id}>
-                        <span className="divider"></span>
+                    <span key={topic._id}>
                         <Topic
                             topic={topic}
                             subscribe={subscribe}
                             user={user}
                         />
+                        <span className="divider"></span>
                     </span>
                 )
             })}

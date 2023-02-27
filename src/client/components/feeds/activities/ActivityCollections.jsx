@@ -6,7 +6,7 @@ export default function ActivityCollections({ activities }) {
         <div>
             {activities.map((activity) => {
                 return (
-                    <span key={activity.id || activity._id}>
+                    <span key={activity._id}>
                         <Activity activity={activity} />
                     </span>
                 )

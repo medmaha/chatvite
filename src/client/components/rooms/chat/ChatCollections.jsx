@@ -9,8 +9,8 @@ export default function ChatCollections({ fuses }) {
                     {fuses?.map((fuse) => {
                         return (
                             <span
+                                key={fuse._id}
                                 data-fuse-chat
-                                key={fuse.id}
                                 className="fusechat"
                             >
                                 <Chat fuse={fuse} />
@@ -19,7 +19,7 @@ export default function ChatCollections({ fuses }) {
                     })}
                 </>
             )}
-            <div data-last-target className="py-2 w-full"></div>
+            <div data-last-target className="pt-1 w-full"></div>
         </div>
     )
 }

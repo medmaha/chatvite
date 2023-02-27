@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react"
 import SocketIOClient from "socket.io-client"
 import { useRouter } from "next/router"
 import axios from "axios"
+import Image from "next/image"
 
 export default function Room({ data }) {
     const [room, setRoom] = useState(data)
@@ -20,8 +21,6 @@ export default function Room({ data }) {
         socketInitializer()
         return () => socket?.disconnect()
     }, [])
-
-    async function fetchRoom() {}
 
     const socketInitializer = async () => {
         const _socket = SocketIOClient.connect(process.env.BASE_URL, {
@@ -60,28 +59,23 @@ export default function Room({ data }) {
                             members: [...prev.members, user],
                         }
                     })
-                    socket.emit("join-fuse", room.slug, user.id, socket.id)
+                    socket.emit("join-fuse", room.slug, user._id, socket.id)
                 } else {
                     const user = session.data.user
                     const members = room.members.filter(
-                        (member) => member.id !== user.id,
+                        (member) => member._id !== user._id,
                     )
-                    socket.emit("enjoin-fuse", room.slug, user.id)
+                    socket.emit("enjoin-fuse", room.slug, user._id)
                     setRoom((prev) => ({ ...prev, members }))
                 }
             })
             .catch((err) => {
-                throw Error(err.message)
+                throw new Error(err.message)
             })
     }
 
-    if (!socket) return <></>
-
     return (
-        <div
-            style={styles}
-            className="flex w-full pt-2 gap-[.2em] lg:gap-[.5em]"
-        >
+        <div style={styles} className="flex w-full gap-[.2em] lg:gap-[.5em]">
             {/* ?  Heading  */}
             <div className="flex-1 bg-gray-700 rounded-sm overflow-hidden">
                 <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
@@ -104,17 +98,18 @@ export default function Room({ data }) {
                         </button>
                     </div>
                     <h2 className="">
-                        <button className="text-[1em] sm:text-[1.25em] lg:text-[1.75em] font-bold tracking-wider transition hover:text-sky-400">
+                        <button className="text-[1em] sm:text-[1.25em] lg:text-[1.75em] font-bold tracking-wider">
                             {room.name}
                         </button>
                     </h2>
                     <div className="flex ml-[.2em] flex-1 justify-end truncate">
-                        <button
+                        <Link
+                            href={`/feed?q=${room.topic.slug}&tid=${room.topic._id}`}
                             title={room.topic.name}
-                            className="tracking-wide border border-transparent truncate p-[.5em] lg:p-[.75em] text-sm md:text-base rounded-full transition-[color,border] bg-gray-800 text-gray-300 hover:text-blue-400 hover:border-blue-400 hover:border-[1px]"
+                            className="tracking-wide inline-block border border-transparent truncate p-[.5em] lg:p-[.75em] text-sm md:text-base rounded-full transition-[color,border] bg-gray-800 text-gray-300 hover:text-blue-400 hover:border-blue-400 hover:border-[1px]"
                         >
                             {room.topic.name}
-                        </button>
+                        </Link>
                     </div>
                 </div>
                 <div className="p-[.75em]">
@@ -128,12 +123,24 @@ export default function Room({ data }) {
                     </div>
                     <div className="flex gap-[.5em]" id="">
                         <div className="">
-                            <button className="user w-[50px] h-[50px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]">
-                                <span></span>
-                            </button>
+                            <Link
+                                href={`/profile/${room.host.username}`}
+                                className="inline-block w-[52px] h-[52px] rounded-full bg-gray-800 border-solid border-gray-600 border-[1px]"
+                            >
+                                <Image
+                                    src={room.host.avatar}
+                                    width={50}
+                                    height={50}
+                                    alt="room host"
+                                    className="rounded-full"
+                                />
+                            </Link>
                         </div>
                         <div className="flex-1 flex items-center justify-between">
-                            <div className="inline-flex flex-col justify-start leading-none">
+                            <Link
+                                href={`/profile/${room.host.username}`}
+                                className="inline-flex flex-col justify-start leading-none"
+                            >
                                 <div className="leading-none">
                                     <p className="text-gray-300 p-0 font-semibold leading-none">
                                         {room.host.name || "No Name"}
@@ -144,20 +151,19 @@ export default function Room({ data }) {
                                         @{room.host.username}
                                     </button>
                                 </div>
-                            </div>
+                            </Link>
                             <div className="mr-4 transition">
                                 {(() => {
                                     if (
-                                        (room.host.id || room.host._id) ===
-                                        session.data?.user.id
+                                        room.host._id === session.data?.user._id
                                     )
                                         return ""
 
                                     const isMember = room.members.find(
                                         (user) => {
                                             return (
-                                                user.id ===
-                                                session.data?.user?.id
+                                                user._id ===
+                                                session.data?.user?._id
                                             )
                                         },
                                     )
@@ -192,7 +198,7 @@ export default function Room({ data }) {
                         </div>
                     </div>
                 </div>
-                <div className="p-2 px-4">
+                <div className="p-2 pb-0 px-4">
                     <FuseChat socket={socket} room={room} roomId={room._id} />
                 </div>
             </div>
