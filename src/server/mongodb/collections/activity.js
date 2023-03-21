@@ -1,5 +1,15 @@
 const mongoose = require("mongoose")
 
+const populateUserRefs = (doc, next) => {
+    doc.populate([
+        { path: "room", select: ["_id", "name", "slug"] },
+        { path: "topic", select: ["_id", "name", "slug"] },
+        { path: "sender", select: ["_id", "name", "username", "avatar"] },
+        { path: "target", select: ["_id"] },
+    ])
+    next()
+}
+
 if (mongoose.models.Activity) {
     module.exports = mongoose.model("Activity")
 } else {
@@ -30,16 +40,6 @@ if (mongoose.models.Activity) {
 
         createdAt: { type: Date, default: () => Date.now(), immutable: true },
     })
-
-    const populateUserRefs = (doc, next) => {
-        doc.populate([
-            { path: "room", select: ["_id", "name"] },
-            { path: "topic", select: ["_id", "name"] },
-            { path: "sender", select: ["_id", "name", "username", "avatar"] },
-            { path: "target", select: ["_id"] },
-        ])
-        next()
-    }
 
     Schema.pre("find", function (next) {
         populateUserRefs(this, next)

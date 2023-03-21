@@ -115,7 +115,11 @@ export default function ProfileAccount({ data }) {
                         />
                     )}
                     {data.rooms?.length > 0 && (
-                        <TopicAndRooms account={account} rooms={data.rooms} />
+                        <TopicAndRooms
+                            authUser={user}
+                            account={account}
+                            rooms={data.rooms}
+                        />
                     )}
 
                     {data.mutuals?.length > 0 && (

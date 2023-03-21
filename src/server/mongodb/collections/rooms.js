@@ -59,7 +59,7 @@ if (mongoose.models.Rooms) {
                 },
             },
         ])
-        doc.select("-AI_MODEL")
+        // doc.select("-AI_MODEL")
         next()
     }
 
@@ -80,7 +80,7 @@ if (mongoose.models.Rooms) {
 
             this.AI_MODEL = AIUser._id
 
-            this.members.push(AIUser._id)
+            this.members.push(AIUser)
             this.members.push(this.host)
         }
         if (this.isNew || this.isModified("name")) {

@@ -4,7 +4,7 @@ let cachedConnection = null
 let cachedPromise = null
 
 async function connectToDatabase() {
-    let stringUrl = "mongodb://localhost:27017/chatfuse"
+    let stringUrl = "mongodb://localhost:27017/chatvite"
 
     if (process.env.NODE_ENV === "production") {
         const cluster = process.env.CLUSTER_NAME

@@ -5,17 +5,17 @@ import {
     Room,
     Chat,
 } from "../../../src/server/mongodb/collections"
-import connectToDatabase from "../../../src/server/db"
+import Authenticate from "../../../src/server/authenticate"
 
 export default async function handler(req, res) {
-    await connectToDatabase()
+    const authUser = await Authenticate(req, res, { sendResponse: false })
 
     const { username } = req.query
-    const user = await User.findOne({ username }, { password: 0 })
+    const profileUser = await User.findOne({ username }, { password: 0 })
 
-    if (user) {
+    if (profileUser) {
         const data = {
-            account: { ...user.toJSON(), id: user.id },
+            account: { ...profileUser.toJSON(), id: profileUser.id },
         }
 
         const activities = await Activity.find({
@@ -26,10 +26,10 @@ export default async function handler(req, res) {
             .limit(15)
 
         const rooms = await Room.find({
-            host: user._id,
+            host: profileUser._id,
         })
+            .sort({ "chatfuses.length": 1 })
             .limit(15)
-            .sort({ chatfuses: 1 })
 
         data["activities"] = activities.flatMap((activity) => {
             const data = {
@@ -39,20 +39,28 @@ export default async function handler(req, res) {
             return data
         })
 
-        data["rooms"] = rooms.flatMap((activity) => {
-            const data = {
-                ...activity.toJSON(),
-                id: activity.id,
-            }
-            return data
-        })
+        data["rooms"] = rooms
+            .flatMap((activity) => {
+                const data = {
+                    ...activity.toJSON(),
+                    id: activity.id,
+                    name: activity.name,
+                    slug: activity.slug,
+                    topic: activity.topic,
+                    chats: activity.chatfuses.length,
+                    members: activity.members.length,
+                    host_id: activity.host.id,
+                }
+                return data
+            })
+            .sort((a, b) => b.chatfuses.length - a.chatfuses.length)
 
         const stats = async () => {
             const rooms = await Room.find({
-                host: user._id,
+                host: profileUser._id,
             })
             const chats = await Chat.find({
-                sender: user._id,
+                sender: profileUser._id,
             })
 
             return [

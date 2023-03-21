@@ -5,12 +5,18 @@ import { getSession } from "next-auth/react"
 
 import { User } from "./mongodb/collections"
 
-export default async function Authenticate(req, res) {
+export default async function Authenticate(
+    req,
+    res,
+    options = { sendResponse: true },
+) {
     const session = await getServerSession(req, res, authOptions(req, res))
 
     if (!session) {
-        res.setHeader("content-type", "application/json")
-        res.status(401).send(JSON.stringify({ message: "Unauthorize ses" }))
+        if (options.sendResponse) {
+            res.setHeader("content-type", "application/json")
+            res.status(401).send(JSON.stringify({ message: "Unauthorize ses" }))
+        }
         return null
     }
 
@@ -26,8 +32,10 @@ export default async function Authenticate(req, res) {
     })
 
     if (!user) {
-        res.setHeader("content-type", "application/json")
-        res.status(401).send(JSON.stringify({ message: "Unauthorize usr" }))
+        if (options.sendResponse) {
+            res.setHeader("content-type", "application/json")
+            res.status(401).send(JSON.stringify({ message: "Unauthorize usr" }))
+        }
         return null
     }
 

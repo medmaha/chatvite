@@ -1,4 +1,7 @@
+import Image from "next/image"
+import Link from "next/link"
 import React from "react"
+import { getUserAvatarUrl } from "../../../../utils"
 
 export default function Activity({ activity }) {
     return (
@@ -6,28 +9,39 @@ export default function Activity({ activity }) {
             <div className="flex gap-2 w-full">
                 <div className="">
                     <button className="user w-[45px] h-[45px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]">
-                        <span></span>
+                        <Image
+                            src={getUserAvatarUrl(activity.sender.avatar)}
+                            width={45}
+                            height={45}
+                            className="rounded-full"
+                        />
                     </button>
                 </div>
                 <div className="flex flex-col gap-1 w-full mb-1 overflow-hidden">
                     <div className="">
-                        <button className="text-blue-400 font-semibold text-sm tracking-wide">
+                        <Link
+                            href={`/profile/${activity.sender.username}`}
+                            className="text-blue-400 font-semibold text-sm tracking-wide"
+                        >
                             @{activity.sender.username}
-                        </button>
+                        </Link>
                     </div>
-                    <div className="">
+                    <div className="pr-1 pb-1">
                         <p className="text-gray-400 text-sm">2hrs ago</p>
                         <div className="flex justify-between items-center">
                             <p>{activity.action}</p>
-                            <button className="text-blue-400 font-semibold tracking-wide truncate">
+                            <Link
+                                href={`room/${activity.room.slug}`}
+                                className="p-1 bg-gray-800 rounded-lg outline outline-[1px] outline-blue-400 text-blue-400 font-semibold tracking-wide truncate"
+                            >
                                 {activity.room.name}
-                            </button>
+                            </Link>
                         </div>
                     </div>
                 </div>
             </div>
             <div className="ml-[50px]">
-                <p className="p-2 bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[20ch] lg:max-w-[32ch]">
+                <p className="p-2  bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[20ch] lg:max-w-[32ch]">
                     {activity.message}
                 </p>
             </div>

@@ -227,7 +227,7 @@ export default function Navbar() {
                                                     <div className="pt-2">
                                                         <p className="text-xs text-gray-400">
                                                             Copyright © 2023
-                                                            FuseChat Labs Inc.
+                                                            ChatVite Labs Inc.
                                                         </p>
                                                     </div>
                                                 </div>

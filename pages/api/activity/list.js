@@ -5,8 +5,8 @@ import connectToDatabase from "../../../src/server/db"
 export default async function handler(req, res) {
     await connectToDatabase()
 
-    const activities = await Activity.find().limit(10).sort({ updatedAt: -1 })
+    const activities = await Activity.find().sort({ createdAt: -1 }).limit(10)
 
     res.setHeader("Content-Type", "application/json")
-    res.status(200).send(JSON.stringify(activities.reverse()))
+    res.status(200).send(JSON.stringify(activities))
 }

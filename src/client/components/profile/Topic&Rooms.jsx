@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 
 import Link from "next/link"
 
-export default function TopicAndRooms({ rooms }) {
+export default function TopicAndRooms({ rooms, authUser }) {
     const [data, setData] = useState([])
 
     useEffect(() => {
@@ -38,22 +38,24 @@ export default function TopicAndRooms({ rooms }) {
                                 <span className="divider"></span>
                                 <div className="flex justify-between items-center gap-4">
                                     <div className="font-light flex gap-1 text-sm items-center">
-                                        <span className="font-bold text-xs">
-                                            705
+                                        <span className="font-bold text-base">
+                                            {room.chats}
                                         </span>
                                         <span>Chats</span>
                                     </div>
                                     <div className="font-light flex gap-1 text-sm items-center truncate">
                                         <span className="font-bold text-xs">
-                                            152
+                                            {room.members}
                                         </span>
                                         <span>Members</span>
-                                        <span
-                                            title="Including You"
-                                            className="text-sm text-blue-400 truncate font-semibold text-base"
-                                        >
-                                            + Me
-                                        </span>
+                                        {!authUser?._id === room.host_id && (
+                                            <span
+                                                title="Including You"
+                                                className=" text-blue-400 truncate font-semibold text-base"
+                                            >
+                                                + Me
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
                             </div>

@@ -54,9 +54,12 @@ export default async function handler(req, res) {
     res.status(200).send(JSON.stringify(data.toJSON()))
 
     const socketIO = res?.socket?.server?.io || null
+
     if (socketIO) {
         socketIO.to(room.slug).emit("fusechat", data.toJSON())
     }
+
+    // const aiUser = await User.findOne({ _id: room.AI_MODEL })
 
     createAIResponse(room.slug, fuse, user, socketIO, room.AI_MODEL)
 }
@@ -85,7 +88,7 @@ async function createAIResponse(slug, fuse, user, socketIO, aiUser) {
                 }
 
                 const activity = await Activity.create({
-                    action: "Replied in",
+                    action: "Replied to",
                     message: chat.fuse,
                     sender: aiUser._id,
                     room: room._id,

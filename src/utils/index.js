@@ -4,6 +4,7 @@ export function getUserAvatarUrl(imageUrl, authUser) {
     if (imageUrl.match(/-ai.png/g)) return imageUrl
 
     const localImage = localStorage.getItem("avatar")
+
     const fallback = "/images/avatar.png"
 
     if (localImage?.match(/(data:image|https:)/g)) return localImage
