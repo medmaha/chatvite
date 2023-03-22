@@ -86,7 +86,7 @@ export default function ChatVite({ socket, room, roomId }) {
                 _id: session.data?.user._id,
             },
         }
-        let idx = updateMessages(data)
+        updateMessages(data)
         AUTH_USER = true
         return data
     }
@@ -120,6 +120,7 @@ export default function ChatVite({ socket, room, roomId }) {
                 {
                     withCredentials: true,
                     headers: { "Content-Type": "application/json" },
+                    timeout: 30000,
                 },
             )
             .then((res) => {
@@ -129,6 +130,22 @@ export default function ChatVite({ socket, room, roomId }) {
                         AutoScroll = false
                         updateIndividualChat(chatObject, res._data)
                     }
+                }
+                if (room.isPrivate) {
+                    setMessages((prev) => {
+                        if (display) prev.pop()
+                        let _data = [...prev, ...res.data]
+                        return _data
+                    })
+                    // let idx = 0
+                    // for (const msg of res.data) {
+                    //     if (idx === 0 && display)
+                    //         updateIndividualChat(msg, res.data)
+                    //     else {
+                    //         updateMessages(msg)
+                    //     }
+                    //     idx++
+                    // }
                 }
             })
             .catch((err) => {

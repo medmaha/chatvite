@@ -31,7 +31,7 @@ export default function Form({ loading, handleFormSubmit }) {
                 <div className="absolute top-0 left-0 w-full h-full z-20 cursor-wait">
                     <div className="bg-black w-full flex justify-center items-center h-full bg-opacity-50">
                         <div className="text-3xl font-bold text-gray-300">
-                            <span className="text-xl">Loading</span>
+                            <span className="text-xl">Creating</span>
                             <span data-show-loading className="text-3xl"></span>
                         </div>
                     </div>
@@ -85,12 +85,12 @@ export default function Form({ loading, handleFormSubmit }) {
 
                     <textarea
                         name="description"
-                        className="bg-gray-800 h-[150px] resize-none rounded-md p-2 border-gray-700 transition-[border-color] border-solid focus:outline-none border-[2px] focus:border-sky-500"
+                        className="bg-gray-800 h-[100px] resize-none rounded-md p-2 border-gray-700 transition-[border-color] border-solid focus:outline-none border-[2px] focus:border-sky-500"
                     ></textarea>
                 </div>
                 <div className="flex justify-end pt-2">
                     <button className="py-2 px-4 transition hover:text-gray-200 hover:border-opacity-25 hover:bg-sky-500 text-sky-400 border-sky-400 border rounded-md text-lg md:text-xl font-semibold tracking-wide">
-                        Create
+                        Create Chat
                     </button>
                 </div>
             </form>

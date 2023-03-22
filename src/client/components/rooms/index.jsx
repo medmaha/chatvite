@@ -18,9 +18,11 @@ export default function Room({ data }) {
     const router = useRouter()
 
     useEffect(() => {
-        socketInitializer()
-        return () => socket?.disconnect()
-    }, [])
+        if (!room.isPrivate) {
+            socketInitializer()
+            return () => socket?.disconnect()
+        }
+    }, [room])
 
     const socketInitializer = async () => {
         const _socket = SocketIOClient.connect(process.env.BASE_URL, {
@@ -75,9 +77,12 @@ export default function Room({ data }) {
     }
 
     return (
-        <div style={styles} className="flex w-full gap-[.2em] lg:gap-[.5em]">
+        <div
+            style={styles}
+            className="flex justify-center w-full gap-[.2em] lg:gap-[.5em]"
+        >
             {/* ?  Heading  */}
-            <div className="flex-1 bg-gray-700 rounded-sm overflow-hidden">
+            <div className="flex-1 max-w-[850px] bg-gray-700 rounded-sm overflow-hidden">
                 <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
                     <div className="mr-[.5em] lg:mr-[1em] px-[.5em]">
                         <button
@@ -112,99 +117,104 @@ export default function Room({ data }) {
                         </Link>
                     </div>
                 </div>
-                <div className="p-[.75em]">
-                    <div className="flex justify-between items-center">
-                        <h4 className="text-gray-400 text-sm md:text-base sm:font-semibold pb-[.5em]">
-                            HOSTED BY
-                        </h4>
-                        <div className="inline text-sm text-gray-500">
-                            {room.updatedAt}
+                {!room.isPrivate && (
+                    <div className="p-[.75em]">
+                        <div className="flex justify-between items-center">
+                            <h4 className="text-gray-400 text-sm md:text-base sm:font-semibold pb-[.5em]">
+                                HOSTED BY
+                            </h4>
+                            <div className="inline text-sm text-gray-500">
+                                {room.updatedAt}
+                            </div>
                         </div>
-                    </div>
-                    <div className="flex gap-[.5em]" id="">
-                        <div className="">
-                            <Link
-                                href={`/profile/${room.host.username}`}
-                                className="inline-block w-[52px] h-[52px] rounded-full bg-gray-800 border-solid border-gray-600 border-[1px]"
-                            >
-                                <Image
-                                    src={room.host.avatar}
-                                    width={50}
-                                    height={50}
-                                    alt="room host"
-                                    className="rounded-full"
-                                />
-                            </Link>
-                        </div>
-                        <div className="flex-1 flex items-center justify-between">
-                            <Link
-                                href={`/profile/${room.host.username}`}
-                                className="inline-flex flex-col justify-start leading-none"
-                            >
-                                <div className="leading-none">
-                                    <p className="text-gray-300 p-0 font-semibold leading-none">
-                                        {room.host.name || "No Name"}
-                                    </p>
-                                </div>
-                                <div className="leading-none">
-                                    <button className="text-blue-400 font-semibold text-sm leading-none tracking-wide">
-                                        @{room.host.username}
-                                    </button>
-                                </div>
-                            </Link>
-                            <div className="mr-4 transition">
-                                {(() => {
-                                    if (
-                                        room.host._id === session.data?.user._id
-                                    )
-                                        return ""
+                        <div className="flex gap-[.5em]" id="">
+                            <div className="">
+                                <Link
+                                    href={`/profile/${room.host.username}`}
+                                    className="inline-block w-[52px] h-[52px] rounded-full bg-gray-800 border-solid border-gray-600 border-[1px]"
+                                >
+                                    <Image
+                                        src={room.host.avatar}
+                                        width={50}
+                                        height={50}
+                                        alt="room host"
+                                        className="rounded-full"
+                                    />
+                                </Link>
+                            </div>
+                            <div className="flex-1 flex items-center justify-between">
+                                <Link
+                                    href={`/profile/${room.host.username}`}
+                                    className="inline-flex flex-col justify-start leading-none"
+                                >
+                                    <div className="leading-none">
+                                        <p className="text-gray-300 p-0 font-semibold leading-none">
+                                            {room.host.name || "No Name"}
+                                        </p>
+                                    </div>
+                                    <div className="leading-none">
+                                        <button className="text-blue-400 font-semibold text-sm leading-none tracking-wide">
+                                            @{room.host.username}
+                                        </button>
+                                    </div>
+                                </Link>
+                                <div className="mr-4 transition">
+                                    {(() => {
+                                        if (
+                                            room.host._id ===
+                                            session.data?.user._id
+                                        )
+                                            return ""
 
-                                    const isMember = room.members.find(
-                                        (user) => {
+                                        const isMember = room.members.find(
+                                            (user) => {
+                                                return (
+                                                    user._id ===
+                                                    session.data?.user?._id
+                                                )
+                                            },
+                                        )
+
+                                        if (isMember) {
                                             return (
-                                                user._id ===
-                                                session.data?.user?._id
+                                                <button
+                                                    onClick={joinFuseGroup}
+                                                    className="py-1 px-2 inline-flex gap-1 items-center hover:bg-red-500 transition bg-red-400 font-semibold rounded-2xl"
+                                                >
+                                                    <span className="capitalize">
+                                                        Unsubscribe
+                                                    </span>
+                                                </button>
                                             )
-                                        },
-                                    )
-
-                                    if (isMember) {
+                                        }
                                         return (
                                             <button
                                                 onClick={joinFuseGroup}
-                                                className="py-1 px-2 inline-flex gap-1 items-center hover:bg-red-500 transition bg-red-400 font-semibold rounded-2xl"
+                                                className="py-1  px-2 inline-flex gap-1 items-center hover:bg-blue-500 transition bg-blue-400 font-semibold rounded-2xl"
                                             >
+                                                <span className="leading-none">
+                                                    +
+                                                </span>
                                                 <span className="capitalize">
-                                                    Unsubscribe
+                                                    join
                                                 </span>
                                             </button>
                                         )
-                                    }
-                                    return (
-                                        <button
-                                            onClick={joinFuseGroup}
-                                            className="py-1  px-2 inline-flex gap-1 items-center hover:bg-blue-500 transition bg-blue-400 font-semibold rounded-2xl"
-                                        >
-                                            <span className="leading-none">
-                                                +
-                                            </span>
-                                            <span className="capitalize">
-                                                join
-                                            </span>
-                                        </button>
-                                    )
-                                })()}
+                                    })()}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                )}
                 <div className="p-2 pb-0 px-4">
                     <FuseChat socket={socket} room={room} roomId={room._id} />
                 </div>
             </div>
-            <div className="flex-1 max-w-[280px] lg:max-w-[350px] bg-gray-700 hidden md:block">
-                <Members socket={socket} room={room} roomId={room._id} />
-            </div>
+            {!room.isPrivate && (
+                <div className="flex-1 max-w-[280px] lg:max-w-[350px] bg-gray-700 hidden md:block">
+                    <Members socket={socket} room={room} roomId={room._id} />
+                </div>
+            )}
         </div>
     )
 }

@@ -10,7 +10,12 @@ export default async function handler(req, res) {
         return Promise.resolve()
     }
 
-    const { topic: topicName, room: roomName, description } = req.body
+    const {
+        topic: topicName,
+        room: roomName,
+        description,
+        isPrivate,
+    } = req.body
 
     let topic = await Topic.findOne({ name: topicName })
 
@@ -27,6 +32,7 @@ export default async function handler(req, res) {
             description: description,
             topic: topic._id,
             host: user._id,
+            isPrivate: isPrivate,
         })
         const data = await Room.findOne({ _id: room._id })
 

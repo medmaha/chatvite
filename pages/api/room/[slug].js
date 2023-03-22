@@ -11,12 +11,20 @@ export default async function handler(req, res) {
 
     const room = await Room.findOne({ slug })
 
+    res.setHeader("Content-Type", "application/json")
+
     if (!room) {
         res.status(404).json({ message: "Bad Request" })
         res.end()
         return Promise.resolve()
     }
 
-    res.setHeader("Content-Type", "application/json")
-    res.status(200).send(JSON.stringify(room))
+    if (room.isPrivate) {
+        const data = room.toJSON()
+        delete data["members"]
+        res.status(200).send(JSON.stringify(data))
+        return
+    }
+
+    res.status(200).send(JSON.stringify(room.toJSON()))
 }

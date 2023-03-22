@@ -3,7 +3,7 @@ import NextJSProgressBar from "nextjs-progressbar"
 import GlobalProvider from "../src/client/contexts/GlobalProvider"
 import { SessionProvider } from "next-auth/react"
 
-export default function Wechat({ Component, pageProps }) {
+export default function ChatVite({ Component, pageProps }) {
     return (
         <SessionProvider
             session={pageProps.session}

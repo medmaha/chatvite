@@ -8,7 +8,7 @@ import { useRouter } from "next/router"
 import { getUserAvatarUrl } from "../../../utils"
 
 export default function Navbar() {
-    const { user } = useContext(GlobalContext)
+    const { user, toggleViewPrivateChats } = useContext(GlobalContext)
     const router = useRouter()
     const [dropdown, toggleDropdown] = useState(false)
     const dropdownRef = useRef()
@@ -110,9 +110,26 @@ export default function Navbar() {
                                     className="flex gap-2 md:gap-4 items-center"
                                     id=""
                                 >
+                                    <button
+                                        onClick={() =>
+                                            toggleDropdown(!dropdown)
+                                        }
+                                        className="inline-block sm:hidden w-[45px] h-[45px] rounded-full bg-gray-800 border-solid border-gray-600 border-[1px]"
+                                    >
+                                        <Image
+                                            className="rounded-full"
+                                            alt="avatar"
+                                            src={getUserAvatarUrl(
+                                                user.avatar,
+                                                true,
+                                            )}
+                                            width={45}
+                                            height={45}
+                                        />
+                                    </button>
                                     <Link
                                         href={"/profile/" + user.username}
-                                        className="user w-[45px] h-[45px] rounded-full bg-gray-800 border-solid border-gray-600 border-[1px]"
+                                        className="hidden sm:inline-block w-[45px] h-[45px] rounded-full bg-gray-800 border-solid border-gray-600 border-[1px]"
                                     >
                                         <Image
                                             className="rounded-full"
@@ -131,9 +148,12 @@ export default function Navbar() {
                                             onClick={() =>
                                                 toggleDropdown(!dropdown)
                                             }
-                                            className="text-blue-400 hover:text-blue-500 font-semibold text-sm tracking-wide inline-flex gap-2 items-center"
+                                            className="text-blue-400 hidden sm:inline-flex hover:text-blue-500 font-semibold text-sm tracking-wide gap-2 items-center"
                                         >
-                                            <span>@{user.username}</span>
+                                            {/* <span className="sm:hidden">@{user.username}</span> */}
+                                            <span className="hidden sm:inline-block">
+                                                @{user.username}
+                                            </span>
                                             <span>
                                                 <svg
                                                     fill="currentColor"
@@ -149,10 +169,40 @@ export default function Navbar() {
                                         {dropdown && (
                                             <div
                                                 ref={dropdownRef}
-                                                className="absolute top-full right-0 w-max"
+                                                className="absolute top-[calc(100%+10px)] sm:top-full right-0 w-max"
                                             >
                                                 <div className="mt-5 bg-gray-600 p-5 shadow-xl rounded-sm shadow-gray-800">
                                                     <div className="flex mb-4 flex-col min-w-[150px] font-semibold tracking-wide w-full gap-4">
+                                                        <div className="inline-block w-full">
+                                                            <button
+                                                                onClick={() => {
+                                                                    toggleViewPrivateChats(
+                                                                        (
+                                                                            prev,
+                                                                        ) =>
+                                                                            !prev,
+                                                                    )
+                                                                }}
+                                                                className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
+                                                            >
+                                                                <span>
+                                                                    My Chats
+                                                                </span>
+                                                                <span className="">
+                                                                    <svg
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        width="1em"
+                                                                        height="1em"
+                                                                        stroke="currentColor"
+                                                                        // fill="none"
+                                                                        fill="currentColor"
+                                                                        viewBox="0 0 24 24"
+                                                                    >
+                                                                        <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                                                                    </svg>
+                                                                </span>
+                                                            </button>
+                                                        </div>
                                                         <div className="inline-block w-full">
                                                             <Link
                                                                 href={

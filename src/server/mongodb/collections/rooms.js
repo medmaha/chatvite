@@ -46,6 +46,7 @@ if (mongoose.models.Rooms) {
 
     const populateUserRefs = (doc, next) => {
         doc.populate([
+            "isPrivate",
             { path: "topic", select: ["_id", "name", "slug"] },
             { path: "host", select: ["_id", "name", "username", "avatar"] },
             { path: "AI_MODEL", select: ["_id", "name", "username", "avatar"] },
@@ -59,7 +60,9 @@ if (mongoose.models.Rooms) {
                 },
             },
         ])
-        // doc.select("-AI_MODEL")
+        // if (doc.isPrivate) {
+        //     doc.select("-members")
+        // }
         next()
     }
 
@@ -77,7 +80,6 @@ if (mongoose.models.Rooms) {
                 avatar: "/images/avatar-ai.png",
             })
             await AIUser.save()
-
             this.AI_MODEL = AIUser._id
 
             this.members.push(AIUser)
@@ -106,7 +108,10 @@ if (mongoose.models.Rooms) {
         if (doc.chatfuses.length < 1) {
             const aiUser = await User.findOne({ _id: this.AI_MODEL })
 
-            const initialPromptHeader = promptHeader(this) + "ai:"
+            const host = await User.findOne({ _id: this.host })
+
+            const initialPromptHeader =
+                promptHeader(this, host, this.isPrivate) + "ai:"
             const chatGPTIntroduction = await getChatGPTResponse(
                 initialPromptHeader,
             )
