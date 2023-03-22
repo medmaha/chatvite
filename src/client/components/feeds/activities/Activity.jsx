@@ -11,6 +11,7 @@ export default function Activity({ activity }) {
                     <button className="user w-[45px] h-[45px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]">
                         <Image
                             src={getUserAvatarUrl(activity.sender.avatar)}
+                            alt={activity.sender.username}
                             width={45}
                             height={45}
                             className="rounded-full"

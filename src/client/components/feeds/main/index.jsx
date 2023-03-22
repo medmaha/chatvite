@@ -95,7 +95,7 @@ export default function Main({ feeds: data }) {
                         onClick={() => setCreateRoom(true)}
                     >
                         <b className="text-2xl leading-none">+</b>{" "}
-                        <span className="font-semibold">Chat</span>
+                        <span className="font-semibold">Chatroom</span>
                     </button>
                 </div>
             </div>
