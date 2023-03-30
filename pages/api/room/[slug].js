@@ -11,15 +11,25 @@ export default async function handler(req, res) {
 
     const room = await Room.findOne({ slug })
 
-    res.setHeader("Content-Type", "application/json")
-
     if (!room) {
+        res.setHeader("Content-Type", "application/json")
         res.status(404).json({ message: "Bad Request" })
         res.end()
         return Promise.resolve()
     }
 
     if (room.isPrivate) {
+        const authUser = await Authenticate(req, res)
+
+        if (!authUser) return
+
+        res.setHeader("Content-Type", "application/json")
+
+        if (room.host !== authUser._id) {
+            res.status(403).send({ message: "This request is forbidden" })
+            return
+        }
+
         const data = room.toJSON()
         delete data["members"]
         res.status(200).send(JSON.stringify(data))

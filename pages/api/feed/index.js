@@ -29,7 +29,7 @@ export default async function handler(
         const topic = await Topic.findOne({ slug: query })
 
         if (topic.id === topicId) {
-            rooms = await Room.find({ topic: topic._id })
+            rooms = await Room.find({ topic: topic._id, isPrivate: false })
         }
         if (!rooms?.length) {
             await setInvalidResponse(res)
@@ -69,6 +69,7 @@ export default async function handler(
 
         rooms = await Room.find({
             $or: [...dbQuery],
+            isPrivate: false,
         })
 
         res.setHeader("Content-Type", "application/json")
@@ -86,7 +87,7 @@ export default async function handler(
         return
     }
 
-    rooms = await Room.find().sort({ members: -1 })
+    rooms = await Room.find({ isPrivate: false }).sort({ members: -1 })
 
     res.setHeader("Content-Type", "application/json")
     res.status(200).end(JSON.stringify(rooms))

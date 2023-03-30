@@ -7,24 +7,26 @@ import axios from "axios"
 export default function RoomView({ room }) {
     // send a message to the server
 
-    return <Room data={room} />
+    if (room) return <Room data={room} />
+    else return <></>
 }
 
 export async function getServerSideProps(context) {
     const { params } = context
     const baseUrl = process.env.BASE_URL
-    const res = await axios.get(`${baseUrl}/api/room/${params.slug}`)
-
-    if (res.data) {
+    try {
+        const { data } = await axios.get(`${baseUrl}/api/room/${params.slug}`)
         return {
             props: {
-                room: res.data,
+                room: data,
             },
         }
-    }
-    return {
-        props: {
-            room: {},
-        },
+    } catch (error) {
+        return {
+            redirect: {
+                destination: "/",
+                permanent: false,
+            },
+        }
     }
 }

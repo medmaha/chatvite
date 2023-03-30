@@ -22,7 +22,7 @@ export default function Modal({
 }) {
     const modalRef = useRef()
     const loadingElemRef = useRef()
-    const [pendingData, setPendingData] = useState(false)
+    const [pendingData, setPendingData] = useState(pending)
 
     useEffect(() => {
         if (close) {
@@ -32,13 +32,9 @@ export default function Modal({
     }, [close])
 
     useEffect(() => {
-        if (pending) {
-            setPendingData(true)
-            // loadingElemRef.current = modalRef.current.querySelector(
-            //     "[data-show-loading]",
-            // )
-        }
+        setPendingData(pending)
     }, [pending])
+
     useEffect(() => {
         if (pendingData) {
             loadingShower()

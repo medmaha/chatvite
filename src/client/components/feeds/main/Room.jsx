@@ -5,6 +5,7 @@ import Link from "next/link"
 import { GlobalContext } from "../../../contexts"
 import axios from "axios"
 import { getUserAvatarUrl } from "../../../../utils"
+import DateFormatter from "../../UI/layouts/DateFormatter"
 
 export default function Room({ room: data }) {
     const router = useRouter()
@@ -56,7 +57,9 @@ export default function Room({ room: data }) {
                         @{room.host.username}
                     </span>
                 </Link>
-                <div className="inline text-sm text-gray-500">3hrs ago</div>
+                <div className="inline text-sm text-gray-500">
+                    <DateFormatter data={room.createdAt} />
+                </div>
             </div>
             <div className="h-max">
                 <Link

@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import React from "react"
 import { getUserAvatarUrl } from "../../../../utils"
+import DateFormatter from "../../UI/layouts/DateFormatter"
 
 export default function Activity({ activity }) {
     return (
@@ -28,7 +29,9 @@ export default function Activity({ activity }) {
                         </Link>
                     </div>
                     <div className="pr-1 pb-1">
-                        <p className="text-gray-400 text-sm">2hrs ago</p>
+                        <p className="text-gray-400 text-sm">
+                            <DateFormatter data={activity.createdAt} />
+                        </p>
                         <div className="flex justify-between items-center">
                             <p>{activity.action}</p>
                             <Link

@@ -3,6 +3,8 @@ import Navbar from "../components/UI/Navbar"
 import { CreateRoom, Modal } from "../components/UI/layouts"
 import { GlobalContext } from "./index"
 import { useSession } from "next-auth/react"
+import HostedChats from "../components/UI/layouts/chats"
+import { useRouter } from "next/router"
 
 export default function GlobalProvider({ children }) {
     const [createRoom, setCreateRoom] = useState(false)
@@ -18,6 +20,15 @@ export default function GlobalProvider({ children }) {
             setUser(null)
         }
     }, [session])
+
+    useEffect(() => {
+        if (viewPrivateChats) {
+            setCreateRoom(false)
+        }
+        if (createRoom) {
+            toggleViewPrivateChats(false)
+        }
+    }, [viewPrivateChats, createRoom])
 
     return (
         <GlobalContext.Provider
@@ -40,27 +51,38 @@ export default function GlobalProvider({ children }) {
 }
 
 function App({ children }) {
-    const { createRoom, viewPrivateChats, toggleViewPrivateChats } =
-        useContext(GlobalContext)
+    const {
+        createRoom,
+        viewPrivateChats,
+        setCreateRoom,
+        toggleViewPrivateChats,
+    } = useContext(GlobalContext)
+
+    const router = useRouter()
+
+    function handlerRouteChange() {
+        if (createRoom) setCreateRoom(false)
+
+        if (viewPrivateChats) toggleViewPrivateChats(false)
+    }
+
+    useEffect(() => {
+        router.events.on("routeChangeStart", handlerRouteChange)
+        return () => router.events.off("routeChangeStart", handlerRouteChange)
+    }, [])
     return (
         <div className="bg-gray-800 text-gray-200 h-full w-full min-h-[100vh]">
             <Navbar />
             <div className="w-full h-[65px] mb-2"></div>
             {createRoom && <CreateRoom />}
             {viewPrivateChats && (
-                <Modal
-                    title="Your Private Chats"
+                <HostedChats
                     onClose={(cb) => {
                         toggleViewPrivateChats(false)
                         if (cb) {
                             cb()
                         }
                     }}
-                    content={
-                        <div className="w-full h-full block flex-col bg-red-200">
-                            <p>Loading</p>
-                        </div>
-                    }
                 />
             )}
             <div className="w-full px-2 lg:px-8 mx-auto">{children}</div>

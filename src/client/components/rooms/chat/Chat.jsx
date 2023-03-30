@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react"
 import { GlobalContext } from "../../../contexts"
 import Image from "next/image"
 import Link from "next/link"
+import DateFormatter from "../../UI/layouts/DateFormatter"
 
 export default function Chat({ fuse }) {
     const { user } = useContext(GlobalContext)
@@ -119,7 +120,9 @@ export default function Chat({ fuse }) {
                                 myFuse && "justify-end"
                             }`}
                         >
-                            <span> {fuse.createdAt}</span>
+                            <span className="'text-sm">
+                                <DateFormatter data={fuse.createdAt} />
+                            </span>
                         </div>
                     </div>
                 </div>
