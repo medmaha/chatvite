@@ -61,15 +61,15 @@ function App({ children }) {
     const router = useRouter()
 
     function handlerRouteChange() {
-        if (createRoom) setCreateRoom(false)
-
-        if (viewPrivateChats) toggleViewPrivateChats(false)
+        setCreateRoom(false)
+        toggleViewPrivateChats(false)
     }
 
     useEffect(() => {
         router.events.on("routeChangeStart", handlerRouteChange)
         return () => router.events.off("routeChangeStart", handlerRouteChange)
-    }, [])
+    }, [router])
+
     return (
         <div className="bg-gray-800 text-gray-200 h-full w-full min-h-[100vh]">
             <Navbar />

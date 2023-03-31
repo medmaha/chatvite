@@ -64,7 +64,6 @@ ${
 
 Thank you for helping us maintain a productive and engaging conversation.
 `
-    console.log(prompt)
     return prompt
 }
 

@@ -82,7 +82,7 @@ export default function Room({ data }) {
             className="flex justify-center w-full gap-[.2em] lg:gap-[.5em]"
         >
             {/* ?  Heading  */}
-            <div className="flex-1 max-w-[850px] bg-gray-700 rounded-sm overflow-hidden">
+            <div className="flex-1 max-w-[850px] rounded-t-lg sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
                 <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
                     <div className="mr-[.5em] lg:mr-[1em] px-[.5em]">
                         <button
@@ -211,9 +211,7 @@ export default function Room({ data }) {
                 </div>
             </div>
             {!room.isPrivate && (
-                <div className="flex-1 max-w-[280px] lg:max-w-[350px] bg-gray-700 hidden md:block">
-                    <Members socket={socket} room={room} roomId={room._id} />
-                </div>
+                <Members socket={socket} room={room} roomId={room._id} />
             )}
         </div>
     )

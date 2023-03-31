@@ -122,33 +122,41 @@ function RoomTypeSelection({ setRoomType }) {
                             setSelectedType(types.group)
                         }}
                         className={`
-                    p-2 mb-2 bg-sky-500 outline-sky-500 outline-[2px] outline-offset-[4px] text-lg rounded-md w-full font-semibold transition-[outline] opacity-90 hover:opacity-100 ${
-                        selectedType.name === "group-chat" ? "outline " : ""
+                    p-2 mb-2 bg-gray-500 outline-sky-500 outline-[2px] outline-offset-[4px] text-lg rounded-md w-full font-semibold transition-[outline] opacity-90 hover:opacity-100 ${
+                        selectedType?.name === "group-chat"
+                            ? "outline text-sky-400"
+                            : ""
                     }
                     `}
                     >
-                        Group Chat
+                        Public
                     </button>
                     <button
                         onClick={() => {
                             setSelectedType(types.private)
                         }}
                         className={`
-                    p-2 mb-2 bg-blue-500 outline-[2px] outline-blue-500 outline-offset-[4px] text-lg rounded-md w-full font-semibold transition opacity-90 hover:opacity-100 ${
-                        selectedType.name === "private-chat" ? "outline " : ""
+                    p-2 mb-2 bg-gray-500 outline-[2px] outline-sky-500 outline-offset-[4px] text-lg rounded-md w-full font-semibold transition opacity-90 hover:opacity-100 ${
+                        selectedType?.name === "private-chat"
+                            ? "outline text-sky-400"
+                            : ""
                     }`}
                     >
-                        Private Chat
+                        Private
                     </button>
                     <p className="py-2 text-center text-gray-300 text-sm">
-                        {selectedType.desc}
+                        {selectedType?.desc}
                     </p>
                     <div className="flex-1 mt-4 justify-end">
                         <button
                             onClick={() => {
                                 setRoomType(selectedType.value)
                             }}
-                            className="p-2 px-4 bg-gray-500 text-lg rounded-md w-full font-semibold"
+                            className={`p-2 px-4 text-lg rounded-md w-full font-semibold ${
+                                selectedType?.value
+                                    ? "bg-sky-500"
+                                    : "bg-gray-500"
+                            }`}
                         >
                             Create Room
                         </button>

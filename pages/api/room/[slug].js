@@ -2,6 +2,7 @@
 import connectToDatabase from "../../../src/server/db"
 import Authenticate from "../../../src/server/authenticate"
 import { Room } from "../../../src/server/mongodb/collections"
+import Users from "../../../src/server/mongodb/collections/users"
 
 // import io from "../../socket"
 
@@ -19,13 +20,23 @@ export default async function handler(req, res) {
     }
 
     if (room.isPrivate) {
-        const authUser = await Authenticate(req, res)
-
-        if (!authUser) return
-
         res.setHeader("Content-Type", "application/json")
 
-        if (room.host !== authUser._id) {
+        const headers = req.headers.authorization
+        const authUserID = headers.split("Bearer ")[1]
+
+        if (!authUserID) {
+            res.status(403).send({ message: "This request is forbidden" })
+            return
+        }
+
+        const authUser = await Users.findById(authUserID)
+        if (!authUser) {
+            res.status(403).send({ message: "This request is forbidden" })
+            return
+        }
+
+        if (room.host.id !== authUser.id) {
             res.status(403).send({ message: "This request is forbidden" })
             return
         }

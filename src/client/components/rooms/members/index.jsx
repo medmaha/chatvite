@@ -26,8 +26,8 @@ export default function Members({ socket, room }) {
     }, [socket])
 
     return (
-        <div className="">
-            <div className="flex items-center justify-between bg-gray-600  p-[.5em] text-gray-200 font-bold">
+        <div className="flex-1 rounded-lg sm:rounded-xl overflow-hidden max-w-[280px] lg:max-w-[350px] bg-gray-700 hidden md:block">
+            <div className="flex items-center justify-between bg-gray-600 p-[.5em] sm:p-[1em] text-gray-200 font-bold">
                 <h1 className="text-[1.125em] tracking-wide">Members</h1>
                 <span>{members.length}</span>
             </div>

@@ -186,7 +186,7 @@ export default function Navbar() {
                                                                 className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
                                                             >
                                                                 <span>
-                                                                    My Chats
+                                                                    ChatRooms
                                                                 </span>
                                                                 <span className="">
                                                                     <svg

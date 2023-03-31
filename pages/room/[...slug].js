@@ -1,7 +1,8 @@
 import { Router, useRouter } from "next/router"
 import React, { useEffect } from "react"
 import Room from "../../src/client/components/rooms"
-import { useSession } from "next-auth/react"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "../api/auth/[...nextauth]"
 import axios from "axios"
 
 export default function RoomView({ room }) {
@@ -12,19 +13,31 @@ export default function RoomView({ room }) {
 }
 
 export async function getServerSideProps(context) {
-    const { params } = context
-    const baseUrl = process.env.BASE_URL
+    const { req, res } = context
+    const {
+        params: { slug },
+    } = context
+
     try {
-        const { data } = await axios.get(`${baseUrl}/api/room/${params.slug}`)
+        const session = await getServerSession(req, res, authOptions(req, res))
+        const baseUrl = process.env.BASE_URL
+
+        const { data } = await axios.get(`${baseUrl}/api/room/${slug}`, {
+            headers: {
+                Authorization: "Bearer " + session.user?._id || "",
+            },
+        })
+
         return {
             props: {
                 room: data,
             },
         }
     } catch (error) {
+        console.log(error.message)
         return {
             redirect: {
-                destination: "/",
+                destination: "/feed",
                 permanent: false,
             },
         }

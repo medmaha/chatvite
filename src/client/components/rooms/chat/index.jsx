@@ -9,7 +9,8 @@ import { useRouter } from "next/router"
 
 let AUTH_USER
 
-function handleSocketEvents(socket, updateFuses) {
+function handleSocketEvents(socket, updateFuses, isPrivate) {
+    if (isPrivate) return
     if (!socket) return
     socket.on("fusechat", (chat) => {
         if (AUTH_USER) {
@@ -50,7 +51,7 @@ export default function ChatVite({ socket, room, roomId }) {
     }, [inputOffset])
 
     useEffect(() => {
-        handleSocketEvents(socket, updateMessages)
+        handleSocketEvents(socket, updateMessages, room.isPrivate)
     }, [socket])
 
     useLayoutEffect(() => {
@@ -85,13 +86,14 @@ export default function ChatVite({ socket, room, roomId }) {
                 ...session.data?.user,
                 _id: session.data?.user._id,
             },
+            createdAt: new Date().toUTCString(),
         }
         updateMessages(data)
         AUTH_USER = true
         return data
     }
 
-    function createChat(
+    async function createChat(
         message,
         callback,
         display = true,
@@ -103,14 +105,15 @@ export default function ChatVite({ socket, room, roomId }) {
             return
         }
         let chat
-        AUTH_USER = true
 
-        if (display) chat = displayChat(message)
+        if (display) {
+            chat = displayChat(message)
+        }
 
         callback()
 
-        axios
-            .post(
+        try {
+            const { data, statusText } = await axios.post(
                 "/api/room/chat",
                 {
                     fuse: message,
@@ -123,40 +126,29 @@ export default function ChatVite({ socket, room, roomId }) {
                     timeout: 30000,
                 },
             )
-            .then((res) => {
-                if (res.data._id) {
-                    if (display) updateIndividualChat(chat, res.data)
-                    else {
-                        AutoScroll = false
-                        updateIndividualChat(chatObject, res._data)
-                    }
+            if (data._id) {
+                if (display) updateIndividualChat(chat, data)
+                else {
+                    AutoScroll = false
+                    updateIndividualChat(chatObject, data)
                 }
-                if (room.isPrivate) {
-                    setMessages((prev) => {
-                        if (display) prev.pop()
-                        let _data = [...prev, ...res.data]
-                        return _data
-                    })
-                    // let idx = 0
-                    // for (const msg of res.data) {
-                    //     if (idx === 0 && display)
-                    //         updateIndividualChat(msg, res.data)
-                    //     else {
-                    //         updateMessages(msg)
-                    //     }
-                    //     idx++
-                    // }
-                }
-            })
-            .catch((err) => {
-                console.error(err.response?.data.message || err.message)
-                handleFailedMessageResubmission(
-                    message,
-                    callback,
-                    resendElement,
-                    chat,
-                )
-            })
+            }
+            if (room.isPrivate) {
+                setMessages((prev) => {
+                    if (display) prev.pop()
+                    let _data = [...prev, ...data]
+                    return _data
+                })
+            }
+        } catch (err) {
+            console.error(err.response?.data.message || err.message)
+            handleFailedMessageResubmission(
+                message,
+                callback,
+                resendElement,
+                chat,
+            )
+        }
     }
 
     function updateIndividualChat(chat, data) {
