@@ -6,6 +6,7 @@ import { GlobalContext } from "../../contexts"
 
 import { useRouter } from "next/router"
 import { getUserAvatarUrl } from "../../../utils"
+import SearchBar from "./SearchBar"
 
 export default function Navbar() {
     const { user, toggleViewPrivateChats } = useContext(GlobalContext)
@@ -20,17 +21,28 @@ export default function Navbar() {
         }
     }
 
+    function handleEvent() {
+        toggleDropdown(false)
+    }
+
+    function handleDropdownClick(ev) {
+        if (ev.target.closest("[data-nav-profile]")) return
+        if (ev.target.closest("[data-nav-dropdown]")) return
+        if (ev.target.hasAttribute("data-nav-dropdown")) return
+        handleEvent()
+    }
+
     useEffect(() => {
         if (dropdown) {
             const element = dropdownRef.current
 
-            function handleEvent() {
-                toggleDropdown(false)
-            }
-
             element.addEventListener("mouseleave", handleEvent)
+            document.addEventListener("click", handleDropdownClick)
 
-            return () => element.removeEventListener("mouseleave", handleEvent)
+            return () => {
+                document.removeEventListener("click", handleDropdownClick)
+                element.removeEventListener("mouseleave", handleEvent)
+            }
         }
     }, [dropdown])
 
@@ -40,17 +52,11 @@ export default function Navbar() {
         })
     }, [])
 
-    function handleSearch(ev) {
-        ev.preventDefault()
-        const search = ev.target.search.value
-        router.push("/feed?search=" + search, "", { shallow: true })
-    }
-
     return (
         <nav className="bg-gray-700 fixed top-0 left-0 w-full h-[65px] z-10 shadow-lg px-2">
             <div className="container h-full mx-auto flex items-center">
                 <div className="h-full w-full flex gap-2 items-center justify-between">
-                    <div className="brand inline-flex">
+                    <div data-nav-brand className="brand inline-flex">
                         <h1 className="">
                             <Link
                                 href="/feed"
@@ -76,19 +82,9 @@ export default function Navbar() {
                         </h1>
                     </div>
 
-                    <form
-                        onSubmit={handleSearch}
-                        className="form max-w-[400px] flex-1 inline-block"
-                    >
-                        <input
-                            type="search"
-                            placeholder="Search"
-                            name="search"
-                            className="bg-gray-800 rounded-md w-full p-2 border-gray-600 transition-[border-color] border-solid focus:outline-none border-[2px] focus:border-sky-500"
-                        />
-                    </form>
+                    <SearchBar />
 
-                    <div className="flex items-center gap-4">
+                    <div data-nav-profile className="flex items-center gap-4">
                         {!user ? (
                             <div className="flex items-center gap-2 px-4">
                                 <Link
@@ -168,6 +164,7 @@ export default function Navbar() {
                                         </button>
                                         {dropdown && (
                                             <div
+                                                data-nav-dropdown
                                                 ref={dropdownRef}
                                                 className="absolute top-[calc(100%+10px)] sm:top-full right-0 w-max"
                                             >

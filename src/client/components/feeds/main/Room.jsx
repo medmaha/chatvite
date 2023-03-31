@@ -37,7 +37,7 @@ export default function Room({ room: data }) {
     }
 
     return (
-        <div className="bg-gray-700 p-3 rounded-md mb-2 min-w-[250px]">
+        <div className="bg-gray-700 p-3 rounded-md mb-2 min-w-[180px] sm:min-w-[250px]">
             <div className="headers flex justify-between items-center">
                 <Link
                     href={"/profile/" + room.host.username}
