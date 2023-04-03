@@ -36,10 +36,10 @@ export default function Room({ data }) {
                     </h3>
                     <p className="mb-4">
                         We apologize for the inconvenience, but this page does
-                        not update automatically because the hosting platform's
-                        free tier does not include a web socket service. Please
-                        follow the steps below to ensure you have the most
-                        up-to-date information:
+                        not update automatically because the hosting
+                        platform&apos;s free tier does not include a web socket
+                        service. Please follow the steps below to ensure you
+                        have the most up-to-date information:
                     </p>
                     <ul>
                         <li style={{ listStyle: "circle" }}>
