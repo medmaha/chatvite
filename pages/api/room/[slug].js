@@ -31,12 +31,8 @@ export default async function handler(req, res) {
         }
 
         const authUser = await Users.findById(authUserID)
-        if (!authUser) {
-            res.status(403).send({ message: "This request is forbidden" })
-            return
-        }
 
-        if (room.host.id !== authUser.id) {
+        if (authUser && room.host.id !== authUser.id) {
             res.status(403).send({ message: "This request is forbidden" })
             return
         }

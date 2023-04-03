@@ -2,17 +2,19 @@ import styles from "./styles.module.css"
 import FuseChat from "./chat"
 import Members from "./members"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useLayoutEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 
 import SocketIOClient from "socket.io-client"
 import { useRouter } from "next/router"
 import axios from "axios"
 import Image from "next/image"
+import Popup from "../UI/Popup"
 
 export default function Room({ data }) {
     const [room, setRoom] = useState(data)
     const [socket, setSocket] = useState(null)
+    const [notifyLimitations, setNotifyLimitations] = useState(null)
 
     const session = useSession()
     const router = useRouter()
@@ -23,6 +25,37 @@ export default function Room({ data }) {
             return () => socket?.disconnect()
         }
     }, [room])
+
+    useLayoutEffect(() => {
+        const notified = localStorage.getItem("group-chat-notified")
+
+        if (!notified) {
+            setNotifyLimitations(
+                <div className="block w-full h-full text-center">
+                    <h3 className="font-semibold text-lg mb-4">
+                        Page Refresh Required for Updates
+                    </h3>
+                    <p className="mb-4">
+                        We apologize for the inconvenience, but this page does
+                        not update automatically because the hosting platform's
+                        free tier does not include a web socket service. Please
+                        follow the steps below to ensure you have the most
+                        up-to-date information:
+                    </p>
+                    <ul>
+                        <li style={{ listStyle: "circle" }}>
+                            Manually refresh this page to check for updates.
+                        </li>
+                    </ul>
+                    <p className="py-4">
+                        Thank you for your understanding and patience.
+                    </p>
+                    Best regards,
+                    <br /> Chatvite Platform
+                </div>,
+            )
+        }
+    }, [])
 
     const socketInitializer = async () => {
         const _socket = SocketIOClient.connect(process.env.BASE_URL, {
@@ -82,6 +115,18 @@ export default function Room({ data }) {
             className="flex justify-center w-full gap-[.2em] lg:gap-[.5em]"
         >
             {/* ?  Heading  */}
+            {notifyLimitations && (
+                <Popup
+                    content={notifyLimitations}
+                    onConfirm={() => {
+                        localStorage.setItem("group-chat-notified", "true")
+                        setNotifyLimitations(null)
+                    }}
+                    onClose={() => {
+                        setNotifyLimitations(null)
+                    }}
+                />
+            )}
             <div className="flex-1 max-w-[850px] rounded-t-lg sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
                 <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
                     <div className="mr-[.5em] lg:mr-[1em] px-[.5em]">

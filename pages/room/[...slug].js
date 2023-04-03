@@ -24,7 +24,7 @@ export async function getServerSideProps(context) {
 
         const { data } = await axios.get(`${baseUrl}/api/room/${slug}`, {
             headers: {
-                Authorization: "Bearer " + session.user?._id || "",
+                Authorization: "Bearer " + session?.user?._id || "",
             },
         })
 
