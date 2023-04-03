@@ -28,8 +28,7 @@ export default function Room({ data }) {
 
     useLayoutEffect(() => {
         const notified = localStorage.getItem("group-chat-notified")
-
-        if (!notified) {
+        if (!notified && session.data?.user) {
             setNotifyLimitations(
                 <div className="block w-full h-full text-center">
                     <h3 className="font-semibold text-lg mb-4">
@@ -55,7 +54,7 @@ export default function Room({ data }) {
                 </div>,
             )
         }
-    }, [])
+    }, [session])
 
     const socketInitializer = async () => {
         const _socket = SocketIOClient.connect(process.env.BASE_URL, {
