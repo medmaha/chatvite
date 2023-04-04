@@ -156,7 +156,7 @@ export default function Room({ data }) {
                         </button>
                     </div>
                     <h2 className="">
-                        <button className="text-[1em] sm:text-[1.25em] lg:text-[1.75em] font-bold tracking-wider">
+                        <button className="text-[1em] sm:text-[1.25em] lg:text-[1.75em] font-bold tracking-wider max-w-[200px] sm:max-w-full truncate">
                             {room.name}
                         </button>
                     </h2>

@@ -33,18 +33,20 @@ export default function Chat({ fuse }) {
         >
             <div className={`flex gap-2 w-full ${myFuse && "justify-end"} `}>
                 <div className={`${myFuse && "order-last"}`}>
-                    <Link
-                        href={`/profile/${fuse.sender.username}`}
-                        className="inline-block w-[35px] h-[35px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]"
-                    >
-                        <Image
-                            width={35}
-                            height={35}
-                            alt="sender avatar"
-                            src={fuse.sender.avatar}
-                            className="rounded-full"
-                        />
-                    </Link>
+                    {!myFuse && (
+                        <Link
+                            href={`/profile/${fuse.sender.username}`}
+                            className="inline-block w-[35px] h-[35px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]"
+                        >
+                            <Image
+                                width={35}
+                                height={35}
+                                alt="sender avatar"
+                                src={fuse.sender.avatar}
+                                className="rounded-full"
+                            />
+                        </Link>
+                    )}
                 </div>
                 <div className="inline-flex flex-col justify-start w-full">
                     <div
@@ -61,13 +63,19 @@ export default function Chat({ fuse }) {
                                 href={`/profile/${fuse.sender.username}`}
                                 className="font-bold"
                             >
-                                {fuse.sender.name === "AI" ? (
-                                    "AI"
-                                ) : (
+                                {fuse.sender._id !== user._id ? (
                                     <>
-                                        {fuse.sender.name ||
-                                            fuse.sender.username}
+                                        {fuse.sender.name === "AI" ? (
+                                            "AI"
+                                        ) : (
+                                            <>
+                                                {fuse.sender.name ||
+                                                    fuse.sender.username}
+                                            </>
+                                        )}
                                     </>
+                                ) : (
+                                    <>@{user.username}</>
                                 )}
                             </Link>
                         </p>
@@ -75,12 +83,12 @@ export default function Chat({ fuse }) {
                     <div
                         className={`${
                             myFuse
-                                ? "pl-[20%] md:pl-[30%] lg:pl-[40%]"
-                                : "pr-[20%] md:pr-[30%] lg:pr-[40%]"
+                                ? "pl-[10%] sm:pl-[20%] md:pl-[30%] lg:pl-[40%]"
+                                : "pr-[10%] sm:pr-[20%] md:pr-[30%] lg:pr-[40%]"
                         }`}
                     >
                         <p
-                            className={`text-slate-300 text-sm font-semibold tracking-wide flex text-justify ${
+                            className={`text-slate-300 text-sm font-semibold flex text-justify tracking-wider ${
                                 myFuse && "justify-end"
                             }`}
                         >
@@ -121,7 +129,9 @@ export default function Chat({ fuse }) {
                             }`}
                         >
                             <span className="'text-sm">
-                                <DateFormatter data={fuse.createdAt} />
+                                {fuse.createdAt && (
+                                    <DateFormatter data={fuse.createdAt} />
+                                )}
                             </span>
                         </div>
                     </div>

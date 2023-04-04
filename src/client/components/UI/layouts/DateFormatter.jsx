@@ -2,10 +2,15 @@ import React, { useLayoutEffect, useState } from "react"
 
 export default function DateFormatter({ data }) {
     const [date, updateDate] = useState()
+    const [dataTime, setDateTime] = useState(data)
 
     useLayoutEffect(() => {
-        Formatter.date = new Date(data)
+        Formatter.date = new Date(dataTime)
         updateDate(Formatter.format())
+    }, [dataTime])
+
+    useLayoutEffect(() => {
+        setDateTime(data)
     }, [data])
 
     return <>{date}</>
@@ -81,10 +86,18 @@ class CSDateTime {
                     // TODAY
                     if (checkToday(this.date, currentDate)) {
                         if (checkHourPast(this.date, currentDate)) {
-                            formattedDate = `${
+                            const fmt =
                                 currentDate.getMinutes() -
                                 Number(this.getMinutes())
-                            }min ago`
+
+                            if (fmt < 1) {
+                                formattedDate = "just now"
+                            } else {
+                                formattedDate = `${
+                                    currentDate.getMinutes() -
+                                    Number(this.getMinutes())
+                                }min ago`
+                            }
                         } else {
                             formattedDate = `${
                                 currentDate.getHours() - Number(this.getHours())

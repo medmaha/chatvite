@@ -86,7 +86,7 @@ export default function ChatVite({ socket, room, roomId }) {
                 ...session.data?.user,
                 _id: session.data?.user._id,
             },
-            createdAt: new Date().toUTCString(),
+            // createdAt: new Date().toUTCString(),
         }
         updateMessages(data)
         AUTH_USER = true
