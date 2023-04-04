@@ -207,7 +207,7 @@ export default function ChatVite({ socket, room, roomId }) {
                     boxShadow: "inset 0 0 15px 1px rgba(0,0,0,.2)",
                 }}
                 ref={chatContainerRef}
-                className=" overflow-hidden overflow-y-auto p-2"
+                className=" overflow-hidden overflow-y-auto p-1 sm:p-2"
             >
                 <ChatCollections fuses={messages} />
             </div>

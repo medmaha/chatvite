@@ -28,7 +28,11 @@ export default function Room({ data }) {
 
     useLayoutEffect(() => {
         const notified = localStorage.getItem("group-chat-notified")
-        if (!!(notified !== room.slug) && !!session.data?.user) {
+        if (
+            !!(notified !== room.slug) &&
+            !!session.data?.user &&
+            !room.isPrivate
+        ) {
             setNotifyLimitations(
                 <div className="block w-full h-full">
                     <h3 className="font-bold text-lg text-center">
