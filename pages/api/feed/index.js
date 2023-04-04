@@ -35,7 +35,7 @@ export default async function handler(
             await setInvalidResponse(res)
         } else {
             res.setHeader("Content-Type", "application/json")
-            res.status(200).end(JSON.stringify(rooms))
+            res.status(200).send(JSON.stringify(rooms))
         }
         return
     }
@@ -73,7 +73,7 @@ export default async function handler(
         })
 
         res.setHeader("Content-Type", "application/json")
-        res.status(200).end(JSON.stringify(rooms))
+        res.status(200).send(JSON.stringify(rooms))
         return
     }
 
@@ -90,7 +90,7 @@ export default async function handler(
     rooms = await Room.find({ isPrivate: false }).sort({ members: -1 })
 
     res.setHeader("Content-Type", "application/json")
-    res.status(200).end(JSON.stringify(rooms))
+    res.status(200).send(JSON.stringify(rooms))
     // res.end()
 }
 

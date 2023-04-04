@@ -28,33 +28,38 @@ export default function Room({ data }) {
 
     useLayoutEffect(() => {
         const notified = localStorage.getItem("group-chat-notified")
-        if (!notified && session.data?.user) {
+        if (!!(notified !== room.slug) && !!session.data?.user) {
             setNotifyLimitations(
-                <div className="block w-full h-full text-center">
-                    <h3 className="font-semibold text-lg mb-4">
-                        Page Refresh Required for Updates
+                <div className="block w-full h-full">
+                    <h3 className="font-bold text-lg text-center">
+                        Page Refresh Required for Updates <br /> in a{" "}
+                        <strong className="text-sky-500">Public</strong>{" "}
+                        {"chatrooms"}
                     </h3>
-                    <p className="mb-4">
+                    <p className="py-2 text-center">
                         We apologize for the inconvenience, but this page does
                         not update automatically because the hosting
                         platform&apos;s free tier does not include a web socket
-                        service. Please follow the steps below to ensure you
-                        have the most up-to-date information:
+                        service.
                     </p>
-                    <ul>
-                        <li style={{ listStyle: "circle" }}>
-                            Manually refresh this page to check for updates.
+                    <ul className="w-full font-semibold flex flex-col gap-2 text-sm p-0 m-0">
+                        <li className="leading-none  p-0 m-0">
+                            You&apos;ll need to manually refresh this page to
+                            check for updates.
+                        </li>
+                        <li className="leading-none  p-0 m-0">
+                            To experience life updates, create a new{" "}
+                            <strong className="text-sky-500">Private </strong>{" "}
+                            chatroom
                         </li>
                     </ul>
-                    <p className="py-4">
+                    <p className="py-4 text-center">
                         Thank you for your understanding and patience.
                     </p>
-                    Best regards,
-                    <br /> Chatvite Platform
                 </div>,
             )
         }
-    }, [session])
+    }, [room])
 
     const socketInitializer = async () => {
         const _socket = SocketIOClient.connect(process.env.BASE_URL, {
@@ -118,7 +123,7 @@ export default function Room({ data }) {
                 <Popup
                     content={notifyLimitations}
                     onConfirm={() => {
-                        localStorage.setItem("group-chat-notified", "true")
+                        localStorage.setItem("group-chat-notified", room.slug)
                         setNotifyLimitations(null)
                     }}
                     onClose={() => {

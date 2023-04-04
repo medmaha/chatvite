@@ -1,8 +1,10 @@
 import { useRouter } from "next/router"
-import React, { useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useRef, useState } from "react"
+import { GlobalContext } from "../../../contexts"
 
 export default function SearchBar() {
-    const [showSearch, setShowSearchBar] = useState(null)
+    const [showSearchForm, setShowSearchBar] = useState(null)
+    const { user } = useContext(GlobalContext)
 
     const router = useRouter()
 
@@ -65,7 +67,7 @@ export default function SearchBar() {
                 </button>
             </form>
 
-            {showSearch && (
+            {showSearchForm && (
                 <form
                     onSubmit={handleSearch}
                     className="form w-full inline-block relative"
@@ -96,7 +98,7 @@ export default function SearchBar() {
             )}
 
             <div className="self-end sm:hidden px-2 h-full flex items-center">
-                {!showSearch ? (
+                {!showSearchForm && !!user ? (
                     <button title="search" onClick={toggleSearch}>
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -109,23 +111,25 @@ export default function SearchBar() {
                         </svg>
                     </button>
                 ) : (
-                    <div className="inline-flex items-center sm:hidden h-full">
-                        <button
-                            className="bg-red-400 p-1 rounded-full bg-opacity-30 hover:bg-opacity-40 transition"
-                            title="close"
-                            onClick={toggleSearch}
-                        >
-                            <svg
-                                fill="currentColor"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="18"
-                                height="18"
-                                viewBox="0 0 18 18"
+                    !!user && (
+                        <div className="inline-flex items-center sm:hidden h-full">
+                            <button
+                                className="bg-red-400 p-1 rounded-full bg-opacity-30 hover:bg-opacity-40 transition"
+                                title="close"
+                                onClick={toggleSearch}
                             >
-                                <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
-                            </svg>
-                        </button>
-                    </div>
+                                <svg
+                                    fill="currentColor"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 18 18"
+                                >
+                                    <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
+                                </svg>
+                            </button>
+                        </div>
+                    )
                 )}
             </div>
         </div>

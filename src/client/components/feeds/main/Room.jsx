@@ -70,7 +70,7 @@ export default function Room({ room: data }) {
                     <span className="text-xl font-semibold tracking-wide inline-block">
                         {room.name}
                     </span>
-                    <p className="truncate text-gray-300 text-sm opacity-70 font-semibold tracking-wide">
+                    <p className=" text-gray-300 text-sm opacity-70 font-semibold tracking-wide line-clamp-3">
                         {room.description}
                     </p>
                 </Link>
