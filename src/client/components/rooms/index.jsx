@@ -259,7 +259,7 @@ export default function Room({ data }) {
                         </div>
                     </div>
                 )}
-                <div className="p-2 pb-0 px-4">
+                <div className="pt-2 pb-0 sm:px-4 px-2">
                     <FuseChat socket={socket} room={room} roomId={room._id} />
                 </div>
             </div>

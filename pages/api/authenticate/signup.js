@@ -15,6 +15,25 @@ export default async function handler(req, res) {
         return
     }
 
+    if (email.match(/admin/)) {
+        res.status(400).send(
+            JSON.stringify({
+                message: 'email cannot contain "admin"',
+                path: "email",
+            }),
+        )
+        return
+    }
+    if (username.match(/admin/)) {
+        res.status(400).send(
+            JSON.stringify({
+                message: 'username cannot contain "admin"',
+                path: "username",
+            }),
+        )
+        return
+    }
+
     const checkEmail = await User.findOne({ email: email })
     const checkUsername = await User.findOne({ username: username })
 
