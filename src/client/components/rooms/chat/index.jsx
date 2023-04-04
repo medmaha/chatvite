@@ -127,11 +127,14 @@ export default function ChatVite({ socket, room, roomId }) {
                 },
             )
             if (data._id) {
-                if (display) updateIndividualChat(chat, data)
-                else {
+                if (display) {
+                    AutoScroll = true
+                    updateIndividualChat(chat, data)
+                } else {
                     AutoScroll = false
                     updateIndividualChat(chatObject, data)
                 }
+                callback()
             }
             if (room.isPrivate) {
                 setMessages((prev) => {
@@ -139,6 +142,7 @@ export default function ChatVite({ socket, room, roomId }) {
                     let _data = [...prev, ...data]
                     return _data
                 })
+                callback()
             }
         } catch (err) {
             console.error(err.response?.data.message || err.message)
