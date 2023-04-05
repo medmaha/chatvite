@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react"
 import HostedChats from "../components/UI/layouts/chats"
 import { useRouter } from "next/router"
 
+import Pending from "../components/UI/Pending"
+
 export default function GlobalProvider({ children }) {
     const [createRoom, setCreateRoom] = useState(false)
     const [viewPrivateChats, toggleViewPrivateChats] = useState(false)
@@ -42,7 +44,9 @@ export default function GlobalProvider({ children }) {
             }}
         >
             {session.status === "loading" ? (
-                "Loading..."
+                <div className="bg-gray-800 text-gray-200">
+                    <Pending h={"100vh"} />
+                </div>
             ) : (
                 <>{user !== undefined && <App>{children}</App>}</>
             )}
