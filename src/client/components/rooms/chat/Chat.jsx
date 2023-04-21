@@ -12,8 +12,6 @@ export default function Chat({ fuse }) {
 
     useLayoutEffect(() => {
         const me = (() => {
-            // console.log(user)
-
             if (user?._id === fuse.sender._id) return true
             return false
         })()
@@ -63,7 +61,7 @@ export default function Chat({ fuse }) {
                                 href={`/profile/${fuse.sender.username}`}
                                 className="font-bold"
                             >
-                                {fuse.sender._id !== user._id ? (
+                                {fuse.sender._id !== user?._id ? (
                                     <>
                                         {fuse.sender.name === "AI" ? (
                                             "AI"
@@ -75,7 +73,7 @@ export default function Chat({ fuse }) {
                                         )}
                                     </>
                                 ) : (
-                                    <>@{user.username}</>
+                                    <>@{user?.username}</>
                                 )}
                             </Link>
                         </p>

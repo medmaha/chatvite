@@ -103,7 +103,7 @@ function RoomTypeSelection({ setRoomType }) {
             desc: "One to one messaging with an AI BOT. Accessible to you only, no other user can join this conversation",
         },
     })
-    const [selectedType, setSelectedType] = useState(types.group)
+    const [selectedType, setSelectedType] = useState(types.private)
 
     return (
         <div className="w-full h-full">
@@ -119,10 +119,23 @@ function RoomTypeSelection({ setRoomType }) {
                     </div>
                     <button
                         onClick={() => {
+                            setSelectedType(types.private)
+                        }}
+                        className={`
+                    p-2 mb-2 bg-gray-500 outline-[2px] outline-sky-500 outline-offset-[4px] text-xl tracking-wider rounded-md w-full font-semibold transition opacity-90 hover:opacity-100 ${
+                        selectedType?.name === "private-chat"
+                            ? "outline text-sky-400"
+                            : ""
+                    }`}
+                    >
+                        Private
+                    </button>
+                    <button
+                        onClick={() => {
                             setSelectedType(types.group)
                         }}
                         className={`
-                    p-2 mb-2 bg-gray-500 outline-sky-500 outline-[2px] outline-offset-[4px] text-lg rounded-md w-full font-semibold transition-[outline] opacity-90 hover:opacity-100 ${
+                    p-2 mb-2 bg-gray-500 outline-sky-500 outline-[2px] outline-offset-[4px] text-xl tracking-wider rounded-md w-full font-semibold transition-[outline] opacity-90 hover:opacity-100 ${
                         selectedType?.name === "group-chat"
                             ? "outline text-sky-400"
                             : ""
@@ -131,19 +144,7 @@ function RoomTypeSelection({ setRoomType }) {
                     >
                         Public
                     </button>
-                    <button
-                        onClick={() => {
-                            setSelectedType(types.private)
-                        }}
-                        className={`
-                    p-2 mb-2 bg-gray-500 outline-[2px] outline-sky-500 outline-offset-[4px] text-lg rounded-md w-full font-semibold transition opacity-90 hover:opacity-100 ${
-                        selectedType?.name === "private-chat"
-                            ? "outline text-sky-400"
-                            : ""
-                    }`}
-                    >
-                        Private
-                    </button>
+
                     <p className="py-2 text-center text-gray-300 text-sm">
                         {selectedType?.desc}
                     </p>

@@ -49,11 +49,11 @@ export default function Form({ loading, handleFormSubmit }) {
                         type="text"
                         name="topic"
                         required
+                        placeholder="topic of discussion"
                         className="bg-gray-800 rounded-md p-2 border-gray-700 transition-[border-color] border-solid focus:outline-none border-[2px] focus:border-sky-500"
                     />
                     <p className="text-xs tracking-wide truncate px-1 text-gray-400">
-                        Lorem ipsum, dolor sit amet consectetur adipisicing
-                        elit. Repellendus, esse.
+                        Topic will be created, if it does not exist
                     </p>
                 </div>
                 <div className="flex flex-col gap-1 mb-3">
@@ -67,6 +67,7 @@ export default function Form({ loading, handleFormSubmit }) {
                         name="room"
                         required
                         type="text"
+                        placeholder="a unique name"
                         className="bg-gray-800 rounded-md p-2 border-gray-700 transition-[border-color] border-solid focus:outline-none border-[2px] focus:border-sky-500"
                     />
                 </div>
@@ -85,6 +86,7 @@ export default function Form({ loading, handleFormSubmit }) {
 
                     <textarea
                         name="description"
+                        placeholder="about this room"
                         className="bg-gray-800 h-[100px] resize-none rounded-md p-2 border-gray-700 transition-[border-color] border-solid focus:outline-none border-[2px] focus:border-sky-500"
                     ></textarea>
                 </div>

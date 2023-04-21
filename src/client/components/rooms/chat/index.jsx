@@ -45,9 +45,6 @@ export default function ChatVite({ socket, room, roomId }) {
         const height = screenHeight - containerPosition
         const offset = inputOffset
         container.style.setProperty("--chat-height", `${height - offset - 5}px`)
-
-        console.log("inputOffset: ", inputOffset)
-        console.log("offset:", offset)
     }, [inputOffset])
 
     useEffect(() => {

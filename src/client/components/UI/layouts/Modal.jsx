@@ -89,7 +89,7 @@ export default function Modal({
             <div className="flex justify-center items-center w-full h-full px-2">
                 <div
                     ref={modalRef}
-                    className="w-full relative max-w-[600px] modal-- overflow-hidden pb-4 min-h-[calc(100vh-250px)] max-h-[calc(100vh-100px)] bg-gray-600 shadow-lg rounded-2xl"
+                    className="w-full relative min-w-[200px] sm:min-w-max max-w-[600px] modal-- border-[1px] border-slate-400 overflow-hidden pb-4 min-h-[calc(100vh-250px)] max-h-[calc(100vh-100px)] bg-gray-600 shadow-lg rounded-2xl"
                 >
                     {pendingData && (
                         <div className="absolute top-0 left-0 w-full h-full z-20 cursor-wait">

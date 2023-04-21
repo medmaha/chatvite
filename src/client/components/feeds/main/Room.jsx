@@ -78,9 +78,9 @@ export default function Room({ room: data }) {
             <div className="mb-3">
                 <span className="divider"></span>
             </div>
-            <div className="flex justify-between items-center">
+            <div className="flex justify-between gap-4 items-center">
                 <div className="">
-                    <button className="inline-flex items-center gap-2 font-light cursor-default">
+                    <button className="inline-flex w-max items-center gap-2 font-light cursor-default">
                         {(() => {
                             if (user?._id === room.host._id)
                                 return (
@@ -124,25 +124,23 @@ export default function Room({ room: data }) {
                         })()}
                     </button>
                 </div>
-                <div className="">
-                    <Link
-                        href={`/feed?q=${room.topic.slug}&tid=${room.topic._id}`}
-                        onClick={(ev) => {
-                            const url = `/feed?q=${room.topic.slug}&tid=${room.topic._id}`
+                <Link
+                    href={`/feed?q=${room.topic.slug}&tid=${room.topic._id}`}
+                    onClick={(ev) => {
+                        const url = `/feed?q=${room.topic.slug}&tid=${room.topic._id}`
 
-                            if (
-                                window.location.href.split(
-                                    window.location.host,
-                                )[1] === url
-                            )
-                                ev.preventDefault()
-                        }}
-                        shallow={true}
-                        className="px-3 py-2 rounded-full  transition-[color,outline] bg-gray-800 text-gray-300 hover:text-blue-400 hover:outline-blue-400 hover:outline-[1px] hover:outline"
-                    >
-                        {room.topic.name}
-                    </Link>
-                </div>
+                        if (
+                            window.location.href.split(
+                                window.location.host,
+                            )[1] === url
+                        )
+                            ev.preventDefault()
+                    }}
+                    shallow={true}
+                    className="px-3 py-2 rounded-full truncate transition-[color,outline] bg-gray-800 text-gray-300 hover:text-blue-400 hover:outline-blue-400 hover:outline-[1px] hover:outline"
+                >
+                    {room.topic.name}
+                </Link>
             </div>
         </div>
     )

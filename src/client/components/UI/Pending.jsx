@@ -6,7 +6,7 @@ export default function Pending({ h }) {
         const element = ref.current
     }, [])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         const element = ref.current
         if (h) {
             element.style.height = h

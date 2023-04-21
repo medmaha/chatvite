@@ -95,7 +95,7 @@ export default function Room({ data }) {
             .then((res) => {
                 const data = res.data
                 if (!!data.joined) {
-                    const user = session.data.user
+                    const user = session.data?.user
                     setRoom((prev) => {
                         return {
                             ...prev,
@@ -219,7 +219,7 @@ export default function Room({ data }) {
                                         )
                                             return ""
 
-                                        const isMember = room.members.find(
+                                        const isMember = room.members?.find(
                                             (user) => {
                                                 return (
                                                     user._id ===

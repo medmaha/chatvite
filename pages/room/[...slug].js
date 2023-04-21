@@ -1,4 +1,3 @@
-import { Router, useRouter } from "next/router"
 import React, { useEffect } from "react"
 import Room from "../../src/client/components/rooms"
 import { getServerSession } from "next-auth/next"
