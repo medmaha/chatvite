@@ -70,7 +70,7 @@ export default function Signup({ csrfToken }) {
                     </div>
                 )}
                 <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
-                    Chat Vite
+                    ChatVite
                 </h2>
                 <p className="text-center text-sm text-gray-300 font-semibold tracking-wide pb-2">
                     Explore your chat experience

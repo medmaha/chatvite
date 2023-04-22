@@ -44,7 +44,7 @@ export default function GlobalProvider({ children }) {
             }}
         >
             {session.status === "loading" ? (
-                <div className="bg-gray-800 text-gray-200">
+                <div className="bg-gray-800 text-gray-200 min-h-[100vh]">
                     <Pending h={"100vh"} />
                 </div>
             ) : (

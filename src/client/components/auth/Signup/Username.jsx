@@ -182,7 +182,7 @@ export default function Username({ errorMsg }) {
                         errorMsg ? "red" : "orange"
                     }-400 text-xs truncate px-2`}
                 >
-                    {errorMsg || "No spaces or special characters in username."}
+                    {errorMsg || "No spaces or special characters in username"}
                 </span>
             </label>
             <input

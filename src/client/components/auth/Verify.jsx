@@ -81,9 +81,7 @@ export default function Verify({ activated }) {
                         <p className="text-center max-w-[50ch] text-sm text-gray-300 font-semibold tracking-wide pb-2 leading-5 py-2">
                             Thank you for registering. To continue, we&apos;ve
                             sent a verification code to the email address you
-                            provided. Please check your inbox, including your
-                            spam folder, for the verification code we sent and
-                            copy it here.
+                            provided.
                         </p>
                         <form ref={formRef} method="post" onSubmit={submitForm}>
                             <div className="flex flex-col items-center my-4 py-4 gap-1">
