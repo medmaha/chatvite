@@ -6,18 +6,20 @@ import { useRouter } from "next/router"
 import Username from "./Username"
 import Email from "./Email"
 import Password from "./Password"
+import Pending from "../../UI/Pending"
 
 export default function Signup({ csrfToken }) {
     const formRef = useRef()
     const router = useRouter()
 
     const [error, setError] = useState({})
+    const [pending, setPending] = useState(false)
 
     function submitForm(ev) {
         ev.preventDefault()
 
         const data = new FormData(ev.target)
-
+        setPending(true)
         axios
             .post("/api/authenticate/signup", data, {
                 headers: { "content-type": "application/json" },
@@ -32,8 +34,6 @@ export default function Signup({ csrfToken }) {
                     "current-password": data.get("password"),
                     redirect: false,
                 })
-
-                console.log(res.data)
 
                 if (login.ok) {
                     router.replace("/auth/verify")
@@ -63,7 +63,12 @@ export default function Signup({ csrfToken }) {
 
     return (
         <div className="flex justify-center mt-4">
-            <div className="w-full max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl">
+            <div className="w-full relative overflow-hidden max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl">
+                {pending && (
+                    <div className="absolute top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
+                        <Pending h="100%" />
+                    </div>
+                )}
                 <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
                     Chat Vite
                 </h2>

@@ -5,6 +5,7 @@ import { GlobalContext } from "../../contexts"
 import { useRouter } from "next/router"
 import { useSession } from "next-auth/react"
 import Name from "./Name"
+import Pending from "../UI/Pending"
 
 export default function Verify({ activated }) {
     const formRef = useRef()
@@ -67,13 +68,16 @@ export default function Verify({ activated }) {
                 <Name />
             ) : (
                 <div className="flex justify-center mt-[50px]">
-                    <div className="w-full max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl relative">
+                    <div className="w-full max-w-[450px] bg-gray-700 p-4 px-8 overflow-hidden rounded-2xl relative">
+                        {pending && (
+                            <div className="absolute top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
+                                <Pending h="100%" />
+                            </div>
+                        )}
                         <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
                             Verify Your Email Address
                         </h2>
-                        {pending && (
-                            <div className="absolute top-0 left-0 w-full h-full z-20 cursor-wait"></div>
-                        )}
+
                         <p className="text-center max-w-[50ch] text-sm text-gray-300 font-semibold tracking-wide pb-2 leading-5 py-2">
                             Thank you for registering. To continue, we&apos;ve
                             sent a verification code to the email address you

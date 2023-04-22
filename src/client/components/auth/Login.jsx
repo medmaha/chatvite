@@ -1,19 +1,34 @@
 import Link from "next/link"
-import React from "react"
+import React, { useEffect, useState } from "react"
+import Pending from "../UI/Pending"
 import { signIn, useSession } from "next-auth/react"
 
 export default function Login({ doLogin, csrfToken }) {
     const session = useSession()
+    const [loading, setLoading] = useState(false)
+
+    function handleSubmit() {
+        setLoading(true)
+    }
 
     return (
-        <div className="w-full max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl">
+        <div className="w-full relative overflow-hidden max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl">
+            {loading && (
+                <div className="absolute top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
+                    <Pending h="100%" />
+                </div>
+            )}
             <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
                 Chat Vite
             </h2>
             <p className="text-center text-sm text-gray-300 font-semibold tracking-wide pb-2">
                 Explore your chat experience
             </p>
-            <form method="post" action="/api/auth/callback/credentials">
+            <form
+                method="post"
+                action="/api/auth/callback/credentials"
+                onSubmit={handleSubmit}
+            >
                 <input
                     name="csrfToken"
                     type="hidden"

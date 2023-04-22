@@ -15,7 +15,7 @@ export default function Pending({ h }) {
     return (
         <div
             ref={ref}
-            className={`relative w-full flex justify-center items-center `}
+            className={`relative w-full flex justify-center items-center`}
         >
             <div
                 className={`flex justify-center items-center p-2 h-full flex-col `}

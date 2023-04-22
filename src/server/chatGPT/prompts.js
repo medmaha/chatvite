@@ -22,13 +22,15 @@ export function promptHeader(room, host, isPrivate = false) {
         if (isPrivate)
             return `
 Welcome to our Chatroom on ${appName}, a new startup app.
-This room is a one to one private chat between ${host.username} and AI.
+App is developed and maintain by Mahamed Toure a dedicated self-taught full-stack developer
 
+This room is a one to one private chat between ${host.username} and AI.
 Our chat room's information includes the topic of discussion, which is "${room.name}", under the category of "${room.topic.name}".
 Note: ${host.username} is the Host/Author of this Chat Room`
 
         return `
 Welcome to our group chat on ${appName}, a new startup app.
+App is developed and maintain by Mahamed Toure a dedicated self-taught full-stack developer
 
 Our group information includes the group host, which is "${
             room.username

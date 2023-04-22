@@ -5,6 +5,7 @@ import axios from "axios"
 import { useRouter } from "next/router"
 import { GlobalContext } from "../../contexts"
 import { getSession } from "next-auth/react"
+import Pending from "../UI/Pending"
 
 export default function Name() {
     const formRef = useRef()
@@ -47,9 +48,11 @@ export default function Name() {
 
     return (
         <div className="flex flex-col items-center justify-center mt-[50px]">
-            <div className="w-full relative max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl flex flex-col items-center">
+            <div className="w-full relative overflow-hidden max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl flex flex-col items-center">
                 {pending && (
-                    <div className="absolute top-0 left-0 w-full h-full z-20 cursor-wait"></div>
+                    <div className="absolute top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
+                        <Pending h="100%" />
+                    </div>
                 )}
                 <h2 className="font-bold text-xl tracking-wide text-center pb-1">
                     You&apos;re almost done!
