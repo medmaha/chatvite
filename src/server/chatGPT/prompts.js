@@ -51,11 +51,12 @@ ${intro}
 - please please please! Stay on topic encourage each other to stay on topic
 
 Note for AI model
+- Avoid cutting your response, responses must be completed
 - To assist with the conversation, we will be using the ChatGPT model.
 - You might initiate the conversation.
 - Feel free to share your thoughts on the topic.
 - When responding, we encourage you to consider the host's perspective. 
-- Include the authors when referring to there message.
+- Include the authors when referring to there message, add the @ symbol if like.
 - Make sure you don't go off topic, and encourage each other to stay on topic
 ${
     !isPrivate
