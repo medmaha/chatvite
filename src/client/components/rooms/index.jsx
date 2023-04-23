@@ -22,13 +22,20 @@ export default function Room({ data, WEBSOCKET_URL }) {
         if (!data.isPrivate) {
             socketInitializer()
         }
-        return () => socket?.disconnect()
+
+        return () => {
+            socket?.off("connect", () => {
+                console.log("ws connection ev removed")
+            })
+            socket?.disconnect()
+        }
     }, [])
 
     const socketInitializer = async () => {
         const _socket = SocketIOClient(WEBSOCKET_URL)
 
         _socket.on("connect", () => {
+            console.log("ws connected")
             _socket.emit("subscribe-group", room.slug)
 
             _socket.on("subscribed", () => setSocket(_socket))
@@ -38,9 +45,6 @@ export default function Room({ data, WEBSOCKET_URL }) {
                     _socket.connect()
                 } else setSocket(null)
             })
-        })
-        _socket.off("connect", () => {
-            console.log("ws connection ev removed")
         })
     }
 

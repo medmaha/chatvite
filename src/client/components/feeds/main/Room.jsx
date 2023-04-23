@@ -22,6 +22,7 @@ export default function Room({ room: data }) {
             router.push("/auth/login")
             return
         }
+        setRoom({ ...room, members: [user, ...room.members] })
         axios
             .post(
                 "/api/room/join",

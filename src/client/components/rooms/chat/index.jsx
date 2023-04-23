@@ -46,10 +46,10 @@ export default function ChatVite({ socket, room, roomId }) {
     }, [inputOffset])
 
     useEffect(() => {
-        if (!room.isPrivate) handleSocketEvents(socket, updateMessages, incomingMsgSound)
+        if (!room.isPrivate)
+            handleSocketEvents(socket, updateMessages, incomingMsgSound)
         return () => {
             socket?.off("chatvite", () => {})
-            socket?.disconnect()
         }
     }, [socket])
 
