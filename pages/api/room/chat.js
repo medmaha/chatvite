@@ -11,17 +11,19 @@ import {
     buildPromptBody,
     getChatGPTResponse,
 } from "../../../src/server/chatGPT"
+import axios from "axios"
 
 export default async function handler(req, res) {
-    const { fuse, roomId, slug } = req.body
+    const { chat: chatMessage, roomId } = req.body
 
     const user = await Authenticate(req, res)
-
-    const room = await Room.findById(roomId).populate("AI_MODEL")
 
     if (!user) {
         return
     }
+
+    const room = await Room.findById(roomId).populate("AI_MODEL")
+
     res.setHeader("Content-Type", "application/json")
 
     if (!room) {
@@ -30,33 +32,19 @@ export default async function handler(req, res) {
     }
 
     const chat = new Chat({
-        fuse,
+        fuse: chatMessage,
         room: room._id,
         sender: user._id,
     })
-
     await chat.save()
 
     room.chatfuses.push(chat._id)
-
     await room.save()
-
-    if (!room.isPrivate) {
-        const activity = await Activity.create({
-            action: "Replied in",
-            message: chat.fuse,
-            sender: user._id,
-            room: room._id,
-        })
-        await activity.save()
-    }
 
     const data = await Chat.findById(chat.id)
 
-    const socketIO = res?.socket?.server?.io || null
-
     if (room.isPrivate) {
-        const aiChat = await createPrivateResponse(room.slug, fuse, user)
+        const aiChat = await createPrivateResponse(room.slug, chatMessage, user)
         if (aiChat) {
             res.status(200).send(
                 JSON.stringify([data.toJSON(), aiChat.toJSON()]),
@@ -65,16 +53,41 @@ export default async function handler(req, res) {
         }
     }
     res.status(200).send(JSON.stringify(data.toJSON()))
+    if (!room.isPrivate) {
+        const activity = await Activity.create({
+            action: "Replied in",
+            message: chat.fuse,
+            sender: user._id,
+            room: room._id,
+        })
+        await activity.save()
 
-    if (socketIO) {
-        socketIO.to(room.slug).emit("fusechat", data.toJSON())
+        const aiResponse = await createAIResponse(
+            room.slug,
+            chatMessage,
+            room.AI_MODEL,
+        )
+
+        if (!!aiResponse) {
+            try {
+                const { data } = await axios.post(
+                    `${process.env.WEBSOCKET_URL}/chatvite-ai`,
+                    {
+                        room_id: room.slug,
+                        data: aiResponse,
+                    },
+                )
+                console.log(data)
+            } catch (error) {
+                console.log(error.message)
+            }
+        }
     }
-    createAIResponse(room.slug, fuse, user, socketIO, room.AI_MODEL)
 }
 
-async function createPrivateResponse(slug, fuse, user) {
+async function createPrivateResponse(slug, chatMessage) {
     const room = await Room.findOne({ slug }).populate("host")
-    const prompt = buildPromptBody(fuse, room, user)
+    const prompt = buildPromptBody(chatMessage, room)
     if (prompt !== "no-need") {
         const aiResponse = await getChatGPTResponse(prompt)
         if (typeof aiResponse === "string") {
@@ -92,12 +105,11 @@ async function createPrivateResponse(slug, fuse, user) {
     return null
 }
 
-async function createAIResponse(slug, fuse, user, socketIO, aiUser) {
-    const room = await Room.findOne({ slug }).populate("host")
+async function createAIResponse(slug, chatMessage, aiUser) {
+    const room = await Room.findOne({ slug }).populate(["host", "chatfuses"])
 
-    if (room) {
-        const prompt = buildPromptBody(fuse, room, user)
-
+    if (!!room) {
+        const prompt = buildPromptBody(chatMessage, room)
         if (prompt !== "no-need") {
             const aiResponse = await getChatGPTResponse(prompt)
 
@@ -107,13 +119,9 @@ async function createAIResponse(slug, fuse, user, socketIO, aiUser) {
                     room: room._id,
                     sender: aiUser._id,
                 })
+
                 room.chatfuses.push(chat._id)
                 await room.save()
-
-                if (socketIO) {
-                    const data = await Chat.findById(chat.id)
-                    socketIO.to(slug).emit("fusechat-ai", data.toJSON())
-                }
 
                 const activity = await Activity.create({
                     action: "Replied to",
@@ -121,8 +129,10 @@ async function createAIResponse(slug, fuse, user, socketIO, aiUser) {
                     sender: aiUser._id,
                     room: room._id,
                 })
-
                 await activity.save()
+
+                const data = await Chat.findById(chat.id)
+                return data
             }
         }
     }

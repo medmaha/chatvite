@@ -11,27 +11,34 @@ export default async function Authenticate(
     options = { sendResponse: true },
 ) {
     const session = await getServerSession(req, res, authOptions(req, res))
-
-    if (!session) {
-        if (options.sendResponse) {
-            res.setHeader("content-type", "application/json")
-            res.status(401).send(JSON.stringify({ message: "Unauthorize ses" }))
-        }
-        return null
-    }
+    var user,
+        authUser = null
+    const sessionUser = session?.user
 
     await connectToDatabase()
+    if (sessionUser) {
+        user = await User.findById(sessionUser._id, {
+            id: 1,
+            _id: 1,
+            name: 1,
+            avatar: 1,
+            username: 1,
+        })
+    } else {
+        const headers = req.headers.authorization
+        const token = headers.split("Bearer ")[1] || null
+        if (token) {
+            authUser = await User.findById(token, {
+                id: 1,
+                _id: 1,
+                name: 1,
+                avatar: 1,
+                username: 1,
+            })
+        }
+    }
 
-    const auth_user = session.user
-    const user = await User.findById(auth_user._id, {
-        followers: 0,
-        following: 0,
-        email: 0,
-        password: 0,
-        createdAt: 0,
-    })
-
-    if (!user) {
+    if (!authUser && !user && !session) {
         if (options.sendResponse) {
             res.setHeader("content-type", "application/json")
             res.status(401).send(JSON.stringify({ message: "Unauthorize usr" }))
@@ -39,5 +46,5 @@ export default async function Authenticate(
         return null
     }
 
-    return user
+    return user || authUser
 }

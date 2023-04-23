@@ -4,10 +4,10 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "../api/auth/[...nextauth]"
 import axios from "axios"
 
-export default function RoomView({ room }) {
+export default function RoomView({ room, WEBSOCKET_URL }) {
     // send a message to the server
 
-    if (room) return <Room data={room} />
+    if (room) return <Room data={room} WEBSOCKET_URL={WEBSOCKET_URL} />
     else return <></>
 }
 
@@ -30,6 +30,7 @@ export async function getServerSideProps(context) {
         return {
             props: {
                 room: data,
+                WEBSOCKET_URL: process.env.WEBSOCKET_URL,
             },
         }
     } catch (error) {

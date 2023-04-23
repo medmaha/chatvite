@@ -69,7 +69,7 @@ Thank you for helping us maintain a productive and engaging conversation.
     return prompt
 }
 
-export function buildPromptBody(fuse, room, user = null, intro) {
+export function buildPromptBody(chatMessage, room, intro = false) {
     let prompt = promptHeader(room, room.host, room.isPrivate)
     let offsetCount = -5
     let moreThanOffsetCount = room.chatfuses.length > 4
@@ -92,11 +92,11 @@ export function buildPromptBody(fuse, room, user = null, intro) {
     for (const chat of lastThreeChats) {
         const name = chat.sender.name.toLowerCase()
 
-        if (!fuse) break
+        if (!chatMessage) break
 
-        const text = fuse.toLowerCase()
+        const text = chatMessage.toLowerCase()
 
-        if (name === "ai" || user?.name.toLowerCase() === name) continue
+        if (name === "ai" || chat.sender?.name.toLowerCase() === name) continue
 
         if (text.match(new RegExp(name))) {
             foundUserReference = true
@@ -111,7 +111,8 @@ export function buildPromptBody(fuse, room, user = null, intro) {
     }
     lastThreeChats.forEach((chat) => {
         const fuse = (() => {
-            if (chat.fuse.length > 100)
+            if (!chat.fuse) return ""
+            if (chat.fuse?.length > 100)
                 return chat.fuse.substring(0, 100) + "..."
             return chat.fuse
         })()

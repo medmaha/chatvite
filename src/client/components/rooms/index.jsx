@@ -11,71 +11,36 @@ import axios from "axios"
 import Image from "next/image"
 import Popup from "../UI/Popup"
 
-export default function Room({ data }) {
+export default function Room({ data, WEBSOCKET_URL }) {
     const [room, setRoom] = useState(data)
     const [socket, setSocket] = useState(null)
-    const [notifyLimitations, setNotifyLimitations] = useState(null)
 
     const session = useSession()
     const router = useRouter()
 
     useEffect(() => {
-        if (!room.isPrivate) {
+        if (!data.isPrivate) {
             socketInitializer()
-            return () => socket?.disconnect()
         }
-    }, [room])
-
-    useLayoutEffect(() => {
-        const notified = localStorage.getItem("group-chat-notified")
-        if (
-            !!(notified !== room.slug) &&
-            !!session.data?.user &&
-            !room.isPrivate
-        ) {
-            setNotifyLimitations(
-                <div className="block w-full h-full">
-                    <h3 className="font-bold text-lg text-center">
-                        Page Refresh Required for Updates <br /> in a{" "}
-                        <strong className="text-sky-500">Public</strong>{" "}
-                        {"chatrooms"}
-                    </h3>
-                    <p className="py-2 text-center">
-                        We apologize for the inconvenience, but this page does
-                        not update automatically because the hosting
-                        platform&apos;s free tier does not include a web socket
-                        service.
-                    </p>
-                    <ul className="w-full font-semibold flex flex-col gap-2 text-sm p-0 m-0">
-                        <li className="leading-none  p-0 m-0">
-                            You&apos;ll need to manually refresh this page to
-                            check for updates.
-                        </li>
-                        <li className="leading-none  p-0 m-0">
-                            To experience life updates, create a new{" "}
-                            <strong className="text-sky-500">Private </strong>{" "}
-                            chatroom
-                        </li>
-                    </ul>
-                    <p className="py-4 text-center">
-                        Thank you for your understanding and patience.
-                    </p>
-                </div>,
-            )
-        }
-    }, [room])
+        return () => socket?.disconnect()
+    }, [])
 
     const socketInitializer = async () => {
-        const _socket = SocketIOClient.connect(process.env.BASE_URL, {
-            path: "/api/room/socket",
-        })
+        const _socket = SocketIOClient(WEBSOCKET_URL)
 
         _socket.on("connect", () => {
-            _socket.emit("fuse-group", room.slug)
+            _socket.emit("subscribe-group", room.slug)
 
-            // _socket.on("enjoin-fuse", room.slug)
+            _socket.on("subscribed", () => setSocket(_socket))
 
-            setSocket(_socket)
+            _socket.on("disconnect", (reason) => {
+                if (reason === "io server disconnect") {
+                    _socket.connect()
+                } else setSocket(null)
+            })
+        })
+        _socket.off("connect", () => {
+            console.log("ws connection ev removed")
         })
     }
 
@@ -102,13 +67,13 @@ export default function Room({ data }) {
                             members: [...prev.members, user],
                         }
                     })
-                    socket.emit("join-fuse", room.slug, user._id, socket.id)
+                    socket.emit("add-group-member", room.slug, user, socket.id)
                 } else {
                     const user = session.data.user
                     const members = room.members.filter(
                         (member) => member._id !== user._id,
                     )
-                    socket.emit("enjoin-fuse", room.slug, user._id)
+                    socket.emit("remove-group-member", room.slug, user.id)
                     setRoom((prev) => ({ ...prev, members }))
                 }
             })
@@ -123,18 +88,7 @@ export default function Room({ data }) {
             className="flex justify-center w-full gap-[.2em] lg:gap-[.5em]"
         >
             {/* ?  Heading  */}
-            {notifyLimitations && (
-                <Popup
-                    content={notifyLimitations}
-                    onConfirm={() => {
-                        localStorage.setItem("group-chat-notified", room.slug)
-                        setNotifyLimitations(null)
-                    }}
-                    onClose={() => {
-                        setNotifyLimitations(null)
-                    }}
-                />
-            )}
+
             <div className="flex-1 max-w-[850px] rounded-t-lg sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
                 <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
                     <div className="mr-[.5em] lg:mr-[1em] px-[.5em]">

@@ -7,28 +7,26 @@ import { create } from "../../../../server/mongodb/collections/users"
 import Input from "./Input"
 import { useRouter } from "next/router"
 
-let AUTH_USER
+let AUTH_USER_IS_REFERER
 
-function handleSocketEvents(socket, updateFuses, isPrivate) {
-    if (isPrivate) return
+function handleSocketEvents(socket, updateFuses, incomingMsgSound) {
     if (!socket) return
-    socket.on("fusechat", (chat) => {
-        if (AUTH_USER) {
-            AUTH_USER = false
-            return
-        }
+    socket.on("chatvite", (chat) => {
+        incomingMsgSound.play()
         updateFuses(chat)
     })
-    socket.on("fusechat-ai", (chat) => {
-        updateFuses(chat)
-    })
+    // socket.on("chatvite-ai", (chat) => updateFuses(chat))
 }
 
-const queuedResendEvents = []
+const queuedUnsentMessages = []
 let AutoScroll = true
 let cachedMessages
+let privateRoomAiResponseTimeout
 
 export default function ChatVite({ socket, room, roomId }) {
+    const outgoingMsgSound = new Audio("/audio/msg-outgoing.mp3")
+    outgoingMsgSound.volume = 0.4
+    const incomingMsgSound = new Audio("/audio/msg-incoming.mp3")
     const chatContainerRef = useRef()
 
     const [messages, setMessages] = useState(room.chatfuses || [])
@@ -48,7 +46,11 @@ export default function ChatVite({ socket, room, roomId }) {
     }, [inputOffset])
 
     useEffect(() => {
-        handleSocketEvents(socket, updateMessages, room.isPrivate)
+        if (!room.isPrivate) handleSocketEvents(socket, updateMessages, incomingMsgSound)
+        return () => {
+            socket?.off("chatvite", () => {})
+            socket?.disconnect()
+        }
     }, [socket])
 
     useLayoutEffect(() => {
@@ -86,7 +88,7 @@ export default function ChatVite({ socket, room, roomId }) {
             // createdAt: new Date().toUTCString(),
         }
         updateMessages(data)
-        AUTH_USER = true
+
         return data
     }
 
@@ -97,6 +99,9 @@ export default function ChatVite({ socket, room, roomId }) {
         resendElement,
         chatObject,
     ) {
+        // Todo --> check membership before creating message
+        // socket.emit("add-group-member", room.slug, user, socket.id)
+
         if (!session.data?.user._id) {
             router.push("/auth/login")
             return
@@ -110,10 +115,12 @@ export default function ChatVite({ socket, room, roomId }) {
         callback()
 
         try {
+            outgoingMsgSound.play()
+
             const { data, statusText } = await axios.post(
                 "/api/room/chat",
                 {
-                    fuse: message,
+                    chat: message,
                     roomId,
                     slug: room.slug,
                 },
@@ -134,12 +141,27 @@ export default function ChatVite({ socket, room, roomId }) {
                 callback()
             }
             if (room.isPrivate) {
+                const last_chat = data[0]
                 setMessages((prev) => {
                     if (display) prev.pop()
-                    let _data = [...prev, ...data]
+                    let _data = [...prev, last_chat]
                     return _data
                 })
+
+                if (privateRoomAiResponseTimeout)
+                    clearTimeout(privateRoomAiResponseTimeout)
+
+                privateRoomAiResponseTimeout = setTimeout(() => {
+                    incomingMsgSound.play()
+                    setMessages((prev) => {
+                        if (display) prev.pop()
+                        let _data = [...prev, last_chat, data[1]]
+                        return _data
+                    })
+                }, 1500)
                 callback()
+            } else {
+                socket.emit("new-chat", room.slug, data)
             }
         } catch (err) {
             console.error(err.response?.data.message || err.message)
@@ -189,10 +211,10 @@ export default function ChatVite({ socket, room, roomId }) {
         const [lastChat, resendButton] = getLastMessage()
 
         lastChat.classList.add("unsent")
-        if (queuedResendEvents.includes(resendButton.id)) return
+        if (queuedUnsentMessages.includes(resendButton.id)) return
 
         resendButton.id = resendButton.id || Date.now().toString()
-        queuedResendEvents.push(resendButton.id)
+        queuedUnsentMessages.push(resendButton.id)
 
         resendButton.addEventListener("click", () => {
             lastChat.classList.remove("unsent")

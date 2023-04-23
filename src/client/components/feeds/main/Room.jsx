@@ -82,6 +82,16 @@ export default function Room({ room: data }) {
                 <div className="">
                     <button className="inline-flex w-max items-center gap-2 font-light cursor-default">
                         {(() => {
+                            if (room.isPrivate) {
+                                return (
+                                    <span
+                                        title="This chatroom is private to you"
+                                        className="font-semibold text-sky-400"
+                                    >
+                                        #Private to you
+                                    </span>
+                                )
+                            }
                             if (user?._id === room.host._id)
                                 return (
                                     <span className="font-semibold text-gray-400">

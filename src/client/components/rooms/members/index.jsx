@@ -10,18 +10,21 @@ export default function Members({ socket, room }) {
 
     useEffect(() => {
         if (socket) {
-            socket.on("member-add", (member) => {
+            socket.on("member-added", (member) => {
                 setMembers((prev) => {
                     return [...prev, member]
                 })
             })
-            socket.on("member-remove", (user) => {
-                console.log("member")
+            socket.on("member-removed", (user_id) => {
                 const _members = members.filter((member) => {
-                    return member._id !== user._id
+                    return member._id !== user_id
                 })
                 setMembers(_members)
             })
+        }
+        return () => {
+            socket?.off("member-added", () => {})
+            socket?.off("member-removed", () => {})
         }
     }, [socket])
 

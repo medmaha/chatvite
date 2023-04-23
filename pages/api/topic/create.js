@@ -31,7 +31,7 @@ export default async function handler(req, res) {
             name: roomName,
             description: description,
             topic: topic._id,
-            host: user._id,
+            host: user,
             isPrivate: isPrivate,
         })
         const data = await Room.findOne({ _id: room._id })
@@ -46,7 +46,7 @@ export default async function handler(req, res) {
             )
         } else {
             res.setHeader("Content-Type", "application/json")
-            res.status(400).send(JSON.stringify())
+            res.status(500).send(JSON.stringify({ message: error.message }))
         }
     }
 }
