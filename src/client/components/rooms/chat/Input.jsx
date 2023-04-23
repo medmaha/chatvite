@@ -78,7 +78,7 @@ export default function Input({ onSubmit, setOffset }) {
             <button
                 onClick={submitMessage}
                 title="Send"
-                className="absolute p-[3px] rounded-md text-gray-500 bottom-2 right-1 hover:bg-gray-900"
+                className="absolute p-[3px] rounded-md text-gray-500 bottom-[1em] right-1 hover:bg-gray-900"
             >
                 <svg
                     stroke="currentColor"

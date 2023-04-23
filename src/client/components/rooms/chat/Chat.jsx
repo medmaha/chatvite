@@ -79,19 +79,19 @@ export default function Chat({ fuse }) {
                         </p>
                     </div>
                     <div
-                        className={`${
+                        className={`break-words ${
                             myFuse
                                 ? "pl-[10%] sm:pl-[20%] md:pl-[30%] lg:pl-[40%]"
                                 : "pr-[10%] sm:pr-[20%] md:pr-[30%] lg:pr-[40%]"
                         }`}
                     >
-                        <p
-                            className={`text-slate-300 text-sm font-semibold flex text-justify tracking-wider ${
+                        <div
+                            className={`text-slate-300 text-sm font-semibold flex tracking-wider ${
                                 myFuse && "justify-end"
                             }`}
                         >
-                            {fuse.fuse}
-                        </p>
+                            <p className="break-words ">{fuse.fuse}</p>
+                        </div>
                         <p
                             data-fuse-failed
                             className={`text-red-400 flex unsent gap-4 items-center text-sm font-semibold tracking-wide ${
