@@ -3,7 +3,7 @@ import Chat from "./Chat"
 
 export default function ChatCollections({ fuses }) {
     return (
-        <div data-fuse-collections>
+        <div data-chat-collections>
             {fuses && (
                 <>
                     {fuses?.map((fuse) => {

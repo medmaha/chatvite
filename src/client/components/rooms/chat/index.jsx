@@ -10,6 +10,7 @@ import Popup from "../../UI/Popup"
 import Pending from "../../UI/Pending"
 
 let AUTH_USER_IS_REFERER
+let HEIGHT
 
 function handleSocketEvents(socket, updateFuses, incomingMsgSound) {
     if (!socket) return
@@ -46,9 +47,12 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
 
             const height = screenHeight - containerPosition
             const offset = inputOffset
-            container.style.setProperty("--chat-height", `${height - offset}px`)
+            container.style.setProperty(
+                "--chat-height",
+                `${height - offset - 5}px`,
+            )
 
-            scrollToBottom()
+            scrollToBottom(height)
         }
     }, [inputOffset])
 
@@ -66,18 +70,13 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     }, [socket])
 
     function scrollToBottom() {
-        const lastChatMessage = chatContainerRef.current?.querySelector(
-            "[data-fuse-collections] [data-last-target]",
-        )
-
-        if (lastChatMessage && AutoScroll && messages.length > 2) {
-            lastChatMessage.scrollIntoView({ behavior: "smooth" })
-        }
-
-        const topElement = document.getElementById("_topElement")
-
-        if (topElement) {
-            topElement.scrollIntoView({ behavior: "smooth" })
+        const element = document.querySelector("[data-chat-collections]")
+        if (element) {
+            const maxScrollTop = element.clientHeight
+            element.parentElement.scrollTo({
+                behavior: "smooth",
+                top: maxScrollTop,
+            })
         }
     }
 
