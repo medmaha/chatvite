@@ -36,6 +36,9 @@ export default async function handler(req, res) {
         })
         const data = await Room.findOne({ _id: room._id })
 
+        topic.rooms.push(data._id)
+        topic.save()
+
         res.setHeader("Content-Type", "application/json")
         res.status(201).send(JSON.stringify(data.toJSON()))
     } catch (error) {

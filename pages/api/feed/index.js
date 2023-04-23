@@ -10,6 +10,7 @@ export default async function handler(
     res = new NextResponse(),
 ) {
     const authUser = await Authenticate(req, res, { sendResponse: false })
+    // const authUser = null
 
     const url = req.url
 
@@ -30,7 +31,7 @@ export default async function handler(
         return await setInvalidResponse(res)
     }
 
-    if (topicId?.length > 24) {
+    if (topicId && topicId.length !== 24) {
         return await setInvalidResponse(res)
     }
 
@@ -41,6 +42,7 @@ export default async function handler(
     // get rooms that belongs to a specific topic
     if (query && topicId && !search) {
         const topic = await Topic.findOne({ slug: query })
+
         if (topic.id === topicId) {
             const dbQuery = [
                 {
@@ -56,6 +58,7 @@ export default async function handler(
                 })
             }
             rooms = await getChatviteRooms(dbQuery).limit(page_obj_count)
+            console.log(rooms)
             res.status(200).send(JSON.stringify(rooms))
         } else {
             await setInvalidResponse(res)

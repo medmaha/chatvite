@@ -14,6 +14,7 @@ export default async function Authenticate(
     var user,
         authUser = null
     const sessionUser = session?.user
+    const headers = req.headers.authorization
 
     await connectToDatabase()
     if (sessionUser) {
@@ -24,10 +25,9 @@ export default async function Authenticate(
             avatar: 1,
             username: 1,
         })
-    } else {
-        const headers = req.headers.authorization
+    } else if (headers) {
         const token = headers.split("Bearer ")[1] || null
-        if (token) {
+        if (token.length === 24) {
             authUser = await User.findById(token, {
                 id: 1,
                 _id: 1,
