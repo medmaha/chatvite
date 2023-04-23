@@ -32,8 +32,8 @@ export default function Activity({ activity }) {
                         <p className="text-gray-400 text-sm">
                             <DateFormatter data={activity.createdAt} />
                         </p>
-                        <div className="flex justify-between items-center">
-                            <p>{activity.action}</p>
+                        <div className="flex justify-between gap-2 items-center">
+                            <p className="min-w-max">{activity.action}</p>
                             <Link
                                 href={`room/${activity.room.slug}`}
                                 className="p-1 bg-gray-800 rounded-lg outline outline-[1px] outline-blue-400 text-blue-400 font-semibold tracking-wide truncate"
