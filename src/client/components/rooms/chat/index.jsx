@@ -51,11 +51,12 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
                 "--chat-height",
                 `${height - offset - 5}px`,
             )
-
-            scrollToBottom(height)
         }
     }, [inputOffset])
 
+    useLayoutEffect(() => {
+        scrollToBottom()
+    }, [])
     useEffect(() => {
         scrollToBottom()
         cachedMessages = messages
