@@ -19,7 +19,9 @@ export default function ChatCollections({ fuses }) {
                     })}
                 </>
             )}
-            <div data-last-target className="pt-1 w-full"></div>
+            {fuses?.length > 2 && (
+                <div data-last-target className="pt-1 w-full"></div>
+            )}
         </div>
     )
 }

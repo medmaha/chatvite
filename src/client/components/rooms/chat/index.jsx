@@ -45,18 +45,8 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
 
         const height = screenHeight - containerPosition
         const offset = inputOffset
-        container.style.setProperty("--chat-height", `${height - offset - 5}px`)
-    }, [inputOffset])
+        container.style.setProperty("--chat-height", `${height - offset}px`)
 
-    useEffect(() => {
-        if (!room.isPrivate)
-            handleSocketEvents(socket, updateMessages, incomingMsgSound)
-        return () => {
-            socket?.off("chatvite", () => {})
-        }
-    }, [socket])
-
-    useLayoutEffect(() => {
         const lastFuse = chatContainerRef.current?.querySelector(
             "[data-fuse-collections] [data-last-target]",
         )
@@ -65,9 +55,15 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
             lastFuse.scrollIntoView({ behavior: "smooth" })
         }
         cachedMessages = messages
+    }, [inputOffset, messages])
 
-        console.log("runned")
-    }, [messages, inputOffset, room])
+    useEffect(() => {
+        if (!room.isPrivate)
+            handleSocketEvents(socket, updateMessages, incomingMsgSound)
+        return () => {
+            socket?.off("chatvite", () => {})
+        }
+    }, [socket])
 
     function updateMessages(data) {
         AutoScroll = true
