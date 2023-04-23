@@ -39,12 +39,12 @@ export default async function handler(req, res) {
     await chat.save()
 
     room.chatfuses.push(chat._id)
-    await room.save()
+    room.save()
 
     const data = await Chat.findById(chat.id)
 
     if (room.isPrivate) {
-        const aiChat = await createPrivateResponse(room.slug, chatMessage, user)
+        const aiChat = await createPrivateResponse(room, chatMessage, user)
         if (aiChat) {
             res.status(200).send(
                 JSON.stringify([data.toJSON(), aiChat.toJSON()]),
@@ -53,31 +53,27 @@ export default async function handler(req, res) {
         }
     }
     res.status(200).send(JSON.stringify(data.toJSON()))
+
     if (!room.isPrivate) {
-        const activity = await Activity.create({
+        Activity.create({
             action: "Replied in",
             message: chat.fuse,
             sender: user._id,
             room: room._id,
         })
-        await activity.save()
 
         const aiResponse = await createAIResponse(
-            room.slug,
+            room,
             chatMessage,
             room.AI_MODEL,
         )
 
         if (!!aiResponse) {
             try {
-                const { data } = await axios.post(
-                    `${process.env.WEBSOCKET_URL}/chatvite-ai`,
-                    {
-                        room_id: room.slug,
-                        data: aiResponse,
-                    },
-                )
-                console.log(data)
+                axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
+                    room_id: room.slug,
+                    data: aiResponse,
+                })
             } catch (error) {
                 console.log(error.message)
             }
@@ -85,8 +81,7 @@ export default async function handler(req, res) {
     }
 }
 
-async function createPrivateResponse(slug, chatMessage) {
-    const room = await Room.findOne({ slug }).populate("host")
+async function createPrivateResponse(room, chatMessage) {
     const prompt = buildPromptBody(chatMessage, room)
     if (prompt !== "no-need") {
         const aiResponse = await getChatGPTResponse(prompt)
@@ -105,9 +100,7 @@ async function createPrivateResponse(slug, chatMessage) {
     return null
 }
 
-async function createAIResponse(slug, chatMessage, aiUser) {
-    const room = await Room.findOne({ slug }).populate(["host", "chatfuses"])
-
+async function createAIResponse(room, chatMessage, aiUser) {
     if (!!room) {
         const prompt = buildPromptBody(chatMessage, room)
         if (prompt !== "no-need") {
@@ -120,19 +113,18 @@ async function createAIResponse(slug, chatMessage, aiUser) {
                     sender: aiUser._id,
                 })
 
+                chat.save()
                 room.chatfuses.push(chat._id)
-                await room.save()
+                room.save()
 
-                const activity = await Activity.create({
+                Activity.create({
                     action: "Replied to",
                     message: chat.fuse,
                     sender: aiUser._id,
                     room: room._id,
                 })
-                await activity.save()
 
-                const data = await Chat.findById(chat.id)
-                return data
+                return Chat.findById(chat.id)
             }
         }
     }

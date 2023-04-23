@@ -26,8 +26,7 @@ export default async function getChatGPTResponse(prompt) {
         if (!!data.choices?.length) {
             data = data.choices[0].text.trim()
         } else {
-            console.log(data)
-            data = { msg: "wrong setup" }
+            data = { message: "wrong setup" }
         }
     } catch (error) {
         data = { message: error.message }

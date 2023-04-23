@@ -90,7 +90,7 @@ export function buildPromptBody(chatMessage, room, intro = false) {
     let foundUserReference = false
 
     for (const chat of lastThreeChats) {
-        const name = chat.sender.name.toLowerCase()
+        const name = chat.sender?.name.toLowerCase()
 
         if (!chatMessage) break
 
@@ -117,7 +117,8 @@ export function buildPromptBody(chatMessage, room, intro = false) {
             return chat.fuse
         })()
 
-        if (chat.sender.name === "AI") {
+        if (!chat.sender) {
+        } else if (chat.sender.name === "AI") {
             prompt += `${chat.sender.name}: ${fuse}\n`
         } else {
             prompt += `${chat.sender.username}: ${fuse}\n`
