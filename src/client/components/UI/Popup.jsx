@@ -18,8 +18,8 @@ export default function Popup(props) {
                     ref={popupRef}
                     className="fixed inset-0 flex items-center justify-center p-6 z-[50]"
                 >
-                    <div className="bg-slate-300 w-full max-w-[500px] rounded-lg p-6 flex flex-col gap-4 outline-2 outline-red-400 outline">
-                        <p className="max-w-[450px] text-slate-800 text-center tracking-wide">
+                    <div className="bg-slate-300 w-full max-w-[400px] rounded-lg p-6 flex flex-col gap-4 outline-2 outline-red-400 outline">
+                        <p className="max-w-[45ch] text-slate-800 text-center tracking-wide">
                             {content}
                         </p>
                         <div className="mt-2 flex gap-4 justify-end">
@@ -38,7 +38,7 @@ export default function Popup(props) {
                                     onConfirm(config, cb)
                                 }}
                             >
-                                Ok
+                                {props.confirmBtnText}
                             </button>
                         </div>
                     </div>
@@ -52,6 +52,7 @@ Popup.defaultProps = {
     autoOpen: true,
     onClose: () => {},
     onConfirm: (config) => {},
+    confirmBtnText: "Ok",
     content:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore, incidunt?",
 }

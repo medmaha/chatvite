@@ -1,22 +1,53 @@
 import React from "react"
 import Link from "next/link"
+import axios from "axios"
+import { useRouter } from "next/router"
 
-export default function Topic({ topic: data, subscribe, user }) {
+export default function Topic({ topic: data, user }) {
     const [topic, setTopic] = React.useState(data)
+    const router = useRouter()
 
     React.useEffect(() => {
         setTopic(data)
     }, [data])
 
-    function subscribeCallback(joined) {
+    function subscribe() {
+        if (!user) return router.push("/auth/login")
+        const follower = topic.followers.find((follower) => {
+            return follower._id === user?._id
+        })
+        subscribeCallback(!!follower ? false : true)
+        axios
+            .post(
+                "api/topic/subscribe",
+                { id: topic._id },
+                {
+                    withCredentials: true,
+                    headers: { "Content-Type": "application/json" },
+                },
+            )
+
+            .then((res) => {
+                const data = res.data
+                if (data.joined) {
+                    subscribeCallback(true, true)
+                } else if (data.joined === false) {
+                    subscribeCallback()
+                }
+            })
+            .catch((err) => console.log(err))
+    }
+
+    function subscribeCallback(joined, pop) {
         if (joined) {
             setTopic((prev) => {
+                if (pop) prev.followers.pop()
                 return { ...prev, followers: [...prev.followers, user] }
             })
         } else {
             setTopic((prev) => {
                 const followers = prev.followers.filter(
-                    (follower) => follower.id !== user.id,
+                    (follower) => follower._id !== user._id,
                 )
                 return { ...prev, followers }
             })
@@ -32,15 +63,10 @@ export default function Topic({ topic: data, subscribe, user }) {
             >
                 <span title={topic.name}>{topic.name}</span>
             </Link>
-            <div
-                onClick={() =>
-                    subscribe(topic.id || topic._id, subscribeCallback)
-                }
-                className="W-max py-2"
-            >
+            <div onClick={subscribe} className="W-max py-2">
                 {(() => {
                     const follower = topic.followers.find((follower) => {
-                        return follower.id === user?.id
+                        return follower._id === user?._id
                     })
 
                     if (follower)

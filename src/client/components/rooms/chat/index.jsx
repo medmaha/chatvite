@@ -6,6 +6,8 @@ import axios from "axios"
 import { create } from "../../../../server/mongodb/collections/users"
 import Input from "./Input"
 import { useRouter } from "next/router"
+import Popup from "../../UI/Popup"
+import Pending from "../../UI/Pending"
 
 let AUTH_USER_IS_REFERER
 
@@ -23,7 +25,7 @@ let AutoScroll = true
 let cachedMessages
 let privateRoomAiResponseTimeout
 
-export default function ChatVite({ socket, room, roomId }) {
+export default function ChatVite({ socket, room, roomI, joinFuseGroup }) {
     const outgoingMsgSound = new Audio("/audio/msg-outgoing.mp3")
     outgoingMsgSound.volume = 0.4
     const incomingMsgSound = new Audio("/audio/msg-incoming.mp3")
@@ -31,6 +33,7 @@ export default function ChatVite({ socket, room, roomId }) {
 
     const [messages, setMessages] = useState(room.chatfuses || [])
     const [inputOffset, setInputOffset] = useState(0)
+    const [membershipPopup, toggleMembershipPopup] = useState(false)
 
     const session = useSession()
     const router = useRouter()
@@ -62,7 +65,7 @@ export default function ChatVite({ socket, room, roomId }) {
             lastFuse.scrollIntoView({ behavior: "smooth" })
         }
         cachedMessages = messages
-    }, [messages, inputOffset])
+    }, [messages, inputOffset, room])
 
     function updateMessages(data) {
         AutoScroll = true
@@ -99,13 +102,19 @@ export default function ChatVite({ socket, room, roomId }) {
         resendElement,
         chatObject,
     ) {
-        // Todo --> check membership before creating message
-        // socket.emit("add-group-member", room.slug, user, socket.id)
-
         if (!session.data?.user._id) {
-            router.push("/auth/login")
-            return
+            return router.push("/auth/login")
         }
+
+        const isMember = room.members?.find((user) => {
+            return user._id === session.data?.user?._id
+        })
+
+        if (!isMember) {
+            callback()
+            return toggleMembershipPopup(true)
+        }
+
         let chat
 
         if (display) {
@@ -224,6 +233,30 @@ export default function ChatVite({ socket, room, roomId }) {
 
     return (
         <div className="bg-gray-800 rounded-md overflow-hidden relative">
+            {membershipPopup && (
+                <Popup
+                    content={
+                        <>
+                            You must subscribe to this chatroom first, before
+                            you create a chat
+                        </>
+                    }
+                    confirmBtnText={"Subscribe"}
+                    onClose={() => {
+                        toggleMembershipPopup(false)
+                    }}
+                    onConfirm={(config, cb) => {
+                        joinFuseGroup(null, () => {
+                            toggleMembershipPopup(false)
+                        })
+
+                        cb({
+                            ...config,
+                            content: <Pending h="250px" />,
+                        })
+                    }}
+                />
+            )}
             <div
                 style={{
                     height: "var(--chat-height)",

@@ -48,11 +48,12 @@ export default function Room({ data, WEBSOCKET_URL }) {
         })
     }
 
-    function joinFuseGroup() {
+    function joinFuseGroup(ev, callback) {
         if (!session?.data?.user) {
             router.push("/auth/login")
             return
         }
+
         axios
             .post(
                 "/api/room/join",
@@ -83,6 +84,9 @@ export default function Room({ data, WEBSOCKET_URL }) {
             })
             .catch((err) => {
                 throw new Error(err.message)
+            })
+            .finally(() => {
+                if (callback) callback()
             })
     }
 
@@ -171,6 +175,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                                 </Link>
                                 <div className="mr-4 transition">
                                     {(() => {
+                                        if (!socket) return <></>
                                         if (
                                             room.host._id ===
                                             session.data?.user._id
@@ -207,7 +212,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                                                     +
                                                 </span>
                                                 <span className="capitalize">
-                                                    join
+                                                    Subscribe
                                                 </span>
                                             </button>
                                         )
@@ -218,7 +223,12 @@ export default function Room({ data, WEBSOCKET_URL }) {
                     </div>
                 )}
                 <div className="pt-2 pb-0 sm:px-4 px-2">
-                    <FuseChat socket={socket} room={room} roomId={room._id} />
+                    <FuseChat
+                        socket={socket}
+                        room={room}
+                        joinFuseGroup={joinFuseGroup}
+                        roomId={room._id}
+                    />
                 </div>
             </div>
             {!room.isPrivate && (
