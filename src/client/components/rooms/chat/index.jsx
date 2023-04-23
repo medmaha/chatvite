@@ -118,7 +118,7 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
             return user._id === session.data?.user?._id
         })
 
-        if (!isMember) {
+        if (!isMember && !room.isPrivate) {
             callback()
             return toggleMembershipPopup(true)
         }
