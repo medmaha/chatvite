@@ -38,9 +38,9 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     const session = useSession()
     const router = useRouter()
 
-    // useEffect(()=>{
-    //     scrollToBottom()
-    // },[])
+    useEffect(() => {
+        scrollToBottom()
+    }, [])
 
     useLayoutEffect(() => {
         if (inputOffset > 1) {
@@ -70,12 +70,18 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     }, [socket])
 
     function scrollToBottom() {
-        const lastFuse = chatContainerRef.current?.querySelector(
+        const lastChatMessage = chatContainerRef.current?.querySelector(
             "[data-fuse-collections] [data-last-target]",
         )
 
-        if (lastFuse && AutoScroll && messages.length > 2) {
-            lastFuse.scrollIntoView({ behavior: "smooth" })
+        if (lastChatMessage && AutoScroll && messages.length > 2) {
+            lastChatMessage.scrollIntoView({ behavior: "smooth" })
+        }
+
+        const topElement = document.getElementById("_topElement")
+
+        if (topElement) {
+            topElement.scrollIntoView({ behavior: "smooth" })
         }
     }
 

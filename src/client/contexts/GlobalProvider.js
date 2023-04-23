@@ -80,7 +80,7 @@ function App({ children }) {
     return (
         <div className="bg-gray-800 text-gray-200 h-full w-full min-h-[100vh]">
             <Navbar />
-            <div className="w-full h-[65px] mb-2"></div>
+            <div id="_topElement" className="w-full h-[65px] mb-2"></div>
             {createRoom && <CreateRoom />}
             {viewPrivateChats && (
                 <HostedChats
