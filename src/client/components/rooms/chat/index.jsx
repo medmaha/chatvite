@@ -25,7 +25,7 @@ let AutoScroll = true
 let cachedMessages
 let privateRoomAiResponseTimeout
 
-export default function ChatVite({ socket, room, roomI, joinFuseGroup }) {
+export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     const outgoingMsgSound = new Audio("/audio/msg-outgoing.mp3")
     outgoingMsgSound.volume = 0.4
     const incomingMsgSound = new Audio("/audio/msg-incoming.mp3")
@@ -65,6 +65,8 @@ export default function ChatVite({ socket, room, roomI, joinFuseGroup }) {
             lastFuse.scrollIntoView({ behavior: "smooth" })
         }
         cachedMessages = messages
+
+        console.log("runned")
     }, [messages, inputOffset, room])
 
     function updateMessages(data) {
