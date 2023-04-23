@@ -90,6 +90,7 @@ export function buildPromptBody(chatMessage, room, intro = false) {
     let foundUserReference = false
 
     for (const chat of lastThreeChats) {
+        if (!chat || !chat.sender?.name) continue
         const name = chat.sender?.name.toLowerCase()
 
         if (!chatMessage) break

@@ -70,7 +70,7 @@ export default async function handler(req, res) {
 
         if (!!aiResponse) {
             try {
-                axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
+                await axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
                     room_id: room.slug,
                     data: aiResponse,
                 })
@@ -79,6 +79,8 @@ export default async function handler(req, res) {
             }
         }
     }
+
+    return Promise.resolve()
 }
 
 async function createPrivateResponse(room, chatMessage) {
