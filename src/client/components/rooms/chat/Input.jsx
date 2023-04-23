@@ -40,7 +40,7 @@ export default function Input({ onSubmit, setOffset }) {
 
         const cb = () => {
             textareaRef.current.value = ""
-            // setHeight(HEIGHT)
+            setHeight(HEIGHT)
             // textareaRef.current.blur()
         }
 
@@ -65,7 +65,7 @@ export default function Input({ onSubmit, setOffset }) {
                     textareaRef.current.style.height = String(HEIGHT) + "px"
                     setHeight(HEIGHT)
                 }}
-                onFocus={handleTextareaChange}
+                // onFocus={handleTextareaChange}
                 style={{
                     height: `${height}px`,
                     maxHeight: `${120}px`,
@@ -73,7 +73,7 @@ export default function Input({ onSubmit, setOffset }) {
                 onChange={handleTextareaChange}
                 placeholder="Write you message here..."
                 rows="1"
-                className="overflow-hidden w-full text-gray-300 rounded-m_d ring-0 focus:ring-0 leading-6 focus:outline-none resize-none bg-gray-800 pl-2 pr-8 transition-[border] border border-transparent focus:border-sky-500"
+                className="overflow-hidden w-full text-gray-300 rounded-md ring-0 focus:ring-0 leading-6 focus:outline-none resize-none bg-gray-800 pl-2 pr-8 transition-[border] border border-transparent focus:border-sky-500"
             ></textarea>
             <button
                 onClick={submitMessage}
