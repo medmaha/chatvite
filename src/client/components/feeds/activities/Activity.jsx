@@ -19,8 +19,8 @@ export default function Activity({ activity }) {
                         />
                     </button>
                 </div>
-                <div className="flex flex-col gap-1 w-full mb-1 overflow-hidden">
-                    <div className="">
+                <div className="flex flex-col w-full mb-1 overflow-hidden">
+                    <div className="leading-none">
                         <Link
                             href={`/profile/${activity.sender.username}`}
                             className="text-blue-400 font-semibold text-sm tracking-wide"
