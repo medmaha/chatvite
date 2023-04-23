@@ -38,6 +38,10 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     const session = useSession()
     const router = useRouter()
 
+    // useEffect(()=>{
+    //     scrollToBottom()
+    // },[])
+
     useLayoutEffect(() => {
         if (inputOffset > 1) {
             const container = chatContainerRef.current
@@ -48,13 +52,13 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
             const offset = inputOffset
             container.style.setProperty("--chat-height", `${height - offset}px`)
 
-            scrollToBottom()
+            // scrollToBottom()
         }
     }, [inputOffset])
 
     useEffect(() => {
-        cachedMessages = messages
         scrollToBottom()
+        cachedMessages = messages
     }, [messages])
 
     useEffect(() => {

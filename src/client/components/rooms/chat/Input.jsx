@@ -40,7 +40,7 @@ export default function Input({ onSubmit, setOffset }) {
 
         const cb = () => {
             textareaRef.current.value = ""
-            setHeight(HEIGHT)
+            // setHeight(HEIGHT)
             // textareaRef.current.blur()
         }
 
