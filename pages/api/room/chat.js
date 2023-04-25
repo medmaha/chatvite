@@ -44,7 +44,11 @@ export default async function handler(req, res) {
     const data = await Chat.findById(chat.id)
 
     if (room.isPrivate) {
-        const aiChat = await createPrivateResponse(room, chatMessage, user)
+        const aiChat = await createPrivateResponse(
+            room,
+            chatMessage,
+            user.username,
+        )
         if (aiChat) {
             res.status(200).send(
                 JSON.stringify([data.toJSON(), aiChat.toJSON()]),
@@ -66,6 +70,7 @@ export default async function handler(req, res) {
             room,
             chatMessage,
             room.AI_MODEL,
+            user.username,
         )
 
         if (!!aiResponse) {
@@ -83,8 +88,8 @@ export default async function handler(req, res) {
     return Promise.resolve()
 }
 
-async function createPrivateResponse(room, chatMessage) {
-    const prompt = buildPromptBody(chatMessage, room)
+async function createPrivateResponse(room, chatMessage, authorName) {
+    const prompt = buildPromptBody(chatMessage, room, authorName)
     if (prompt !== "no-need") {
         const aiResponse = await getChatGPTResponse(prompt)
         if (typeof aiResponse === "string") {
@@ -102,9 +107,9 @@ async function createPrivateResponse(room, chatMessage) {
     return null
 }
 
-async function createAIResponse(room, chatMessage, aiUser) {
+async function createAIResponse(room, chatMessage, aiUser, authorName) {
     if (!!room) {
-        const prompt = buildPromptBody(chatMessage, room)
+        const prompt = buildPromptBody(chatMessage, room, authorName)
         if (prompt !== "no-need") {
             const aiResponse = await getChatGPTResponse(prompt)
 

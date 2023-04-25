@@ -114,6 +114,8 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
         resendElement,
         chatObject,
     ) {
+        if (!message?.length) return
+
         if (!session.data?.user._id) {
             return router.push("/auth/login")
         }
@@ -131,7 +133,6 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
         if (display) {
             chat = displayChat(message)
         }
-        if (!message?.length) return
 
         callback()
 

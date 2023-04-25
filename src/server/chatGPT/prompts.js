@@ -22,7 +22,8 @@ export function promptHeader(room, host, isPrivate = false) {
         if (isPrivate)
             return `
 Welcome to our Chatroom on ${appName}, a new startup app.
-App is developed and maintain by Mahamed Toure a dedicated self-taught full-stack developer
+App is developed and maintain by Mahamed Toure self-taught full-stack developer.
+Mahamed Toure's portfolio link is https://porfolio-mahamed.vercel.app
 
 This room is a one to one private chat between ${host.username} and AI.
 Our chat room's information includes the topic of discussion, which is "${room.name}", under the category of "${room.topic.name}".
@@ -57,35 +58,29 @@ Note for AI model
 - When responding, we encourage you to consider the host's perspective. 
 - Include the authors when referring to there message.
 - Make sure you don't go off topic, and encourage each other to stay on topic
-${
-    !isPrivate
-        ? `- Remind other members to stay on topic
-- Take note of the members list and consider the count when responding`
-        : ""
-}
+- Thank you for helping us maintain a productive and engaging conversation.
 
-Thank you for helping us maintain a productive and engaging conversation.
 `
     return prompt
 }
 
-export function buildPromptBody(chatMessage, room, intro = false) {
+export function buildPromptBody(chatMessage, room, authorName) {
     let prompt = promptHeader(room, room.host, room.isPrivate)
     let offsetCount = -5
     let moreThanOffsetCount = room.chatfuses.length > 4
 
     const lastThreeChats = room.chatfuses.slice(offsetCount)
 
-    if (!intro) {
-        if (
-            !!lastThreeChats.length &&
-            lastThreeChats[lastThreeChats.length - 1]
-        ) {
-            const lstMsg = lastThreeChats[lastThreeChats.length - 1]
+    // if (!intro) {
+    //     if (
+    //         !!lastThreeChats.length &&
+    //         lastThreeChats[lastThreeChats.length - 1]
+    //     ) {
+    //         const lstMsg = lastThreeChats[lastThreeChats.length - 1]
 
-            if (lstMsg.sender?.username.toLowerCase() === "ai") return "no-need"
-        }
-    }
+    //         if (lstMsg.sender?.username.toLowerCase() === "ai") return "no-need"
+    //     }
+    // }
 
     let foundUserReference = false
 
@@ -110,23 +105,34 @@ export function buildPromptBody(chatMessage, room, intro = false) {
     if (moreThanOffsetCount) {
         prompt += "...\n"
     }
+
+    function getShortString(string, length = 100) {
+        if (string.length > length) return string.substring(0, length) + "...."
+
+        return string
+    }
+
     lastThreeChats.forEach((chat) => {
         const fuse = (() => {
-            if (!chat.fuse) return ""
-            if (chat.fuse?.length > 100)
-                return chat.fuse.substring(0, 100) + "..."
-            return chat.fuse
+            if (!!!chat.fuse?.length) return
+            return getShortString(chat.fuse)
         })()
 
-        if (!chat.sender) {
-        } else if (chat.sender.name === "AI") {
-            prompt += `${chat.sender.name}: ${fuse}\n`
-        } else {
-            prompt += `${chat.sender.username}: ${fuse}\n`
+        if (!!fuse) {
+            if (!chat.sender) {
+            } else if (chat.sender.name === "AI") {
+                prompt += `${chat.sender.name}: ${fuse}\n`
+            } else {
+                prompt += `${chat.sender.username}: ${fuse}\n`
+            }
         }
     })
 
+    if (!!chatMessage.length) {
+        prompt += `${authorName}: ${getShortString(chatMessage, 200)}\n`
+    }
     prompt += `AI:`
 
+    console.log(prompt)
     return prompt
 }
