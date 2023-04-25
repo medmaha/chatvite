@@ -128,15 +128,15 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
         }
 
         let chat
-
         if (display) {
             chat = displayChat(message)
         }
+        if (!message?.length) return
 
         callback()
 
         try {
-            outgoingMsgSound.play()
+            if (room.isPrivate) outgoingMsgSound.play()
 
             const { data, statusText } = await axios.post(
                 "/api/room/chat",
@@ -182,6 +182,7 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
                 }, 1500)
                 callback()
             } else {
+                outgoingMsgSound.play()
                 socket.emit("new-chat", room.slug, data)
             }
         } catch (err) {
