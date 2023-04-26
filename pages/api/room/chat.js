@@ -66,23 +66,7 @@ export default async function handler(req, res) {
             room: room._id,
         })
 
-        const aiResponse = await createAIResponse(
-            room,
-            chatMessage,
-            room.AI_MODEL,
-            user.username,
-        )
-
-        if (!!aiResponse) {
-            try {
-                await axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
-                    room_id: room.slug,
-                    data: aiResponse,
-                })
-            } catch (error) {
-                console.log(error.message)
-            }
-        }
+        createAIResponse(room, chatMessage, room.AI_MODEL, user.username)
     }
 
     return Promise.resolve()
@@ -119,10 +103,13 @@ async function createAIResponse(room, chatMessage, aiUser, authorName) {
                     room: room._id,
                     sender: aiUser._id,
                 })
+                axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
+                    room_id: room.slug,
+                    data: (await Chat.findById(chat.id)).toJSON(),
+                })
 
-                chat.save()
                 room.chatfuses.push(chat._id)
-                room.save()
+                await room.save()
 
                 Activity.create({
                     action: "Replied to",
