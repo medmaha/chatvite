@@ -61,10 +61,11 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     }, [messages])
 
     useEffect(() => {
-        if (!room.isPrivate)
+        if (!room.isPrivate && socket)
             handleSocketEvents(socket, updateMessages, incomingMsgSound)
         return () => {
             socket?.off("chatvite", () => {})
+            socket?.off("chatvite-ai", () => {})
         }
     }, [socket])
 
@@ -184,7 +185,7 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
                 callback()
             } else {
                 outgoingMsgSound.play()
-                socket.emit("new-chat", room.slug, data)
+                if (socket) socket.emit("new-chat", room.slug, data)
             }
         } catch (err) {
             console.error(err.response?.data.message || err.message)

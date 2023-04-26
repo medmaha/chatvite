@@ -31,19 +31,18 @@ export default async function handler(req, res) {
         res.end()
     }
 
-    const chat = new Chat({
+    const chat = await Chat.create({
         fuse: chatMessage,
         room: room._id,
         sender: user._id,
     })
-    await chat.save()
 
     room.chatfuses.push(chat._id)
     room.save()
 
     const data = await Chat.findById(chat.id)
 
-    if (room.isPrivate) {
+    if (!!room.isPrivate) {
         const aiChat = await createPrivateResponse(
             room,
             chatMessage,
@@ -55,21 +54,16 @@ export default async function handler(req, res) {
             )
             return
         }
-    }
-    res.status(200).send(JSON.stringify(data.toJSON()))
-
-    if (!room.isPrivate) {
+    } else {
         Activity.create({
             action: "Replied in",
             message: chat.fuse,
             sender: user._id,
             room: room._id,
         })
-
-        createAIResponse(room, chatMessage, room.AI_MODEL, user.username)
+        await createAIResponse(room, chatMessage, room.AI_MODEL, user.username)
+        res.status(200).send(JSON.stringify(data.toJSON()))
     }
-
-    return Promise.resolve()
 }
 
 async function createPrivateResponse(room, chatMessage, authorName) {
@@ -97,20 +91,20 @@ async function createAIResponse(room, chatMessage, aiUser, authorName) {
         if (prompt !== "no-need") {
             const aiResponse = await getChatGPTResponse(prompt)
 
-            if (typeof aiResponse === "string") {
+            if (typeof aiResponse === "string" && aiResponse.length > 1) {
                 const chat = await Chat.create({
                     fuse: aiResponse,
                     room: room._id,
                     sender: aiUser._id,
                 })
+
                 axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
                     room_id: room.slug,
                     data: (await Chat.findById(chat.id)).toJSON(),
                 })
 
                 room.chatfuses.push(chat._id)
-                await room.save()
-
+                room.save()
                 Activity.create({
                     action: "Replied to",
                     message: chat.fuse,
@@ -118,7 +112,7 @@ async function createAIResponse(room, chatMessage, aiUser, authorName) {
                     room: room._id,
                 })
 
-                return Chat.findById(chat.id)
+                return Promise.resolve()
             }
         }
     }

@@ -1,5 +1,5 @@
 import styles from "./styles.module.css"
-import FuseChat from "./chat"
+import ChatVite from "./chat"
 import Members from "./members"
 import Link from "next/link"
 import { useEffect, useLayoutEffect, useState } from "react"
@@ -19,17 +19,19 @@ export default function Room({ data, WEBSOCKET_URL }) {
     const router = useRouter()
 
     useEffect(() => {
-        if (!data.isPrivate) {
+        if (!data.isPrivate && !socket) {
             socketInitializer()
         }
-
         return () => {
             socket?.off("connect", () => {
                 console.log("ws connection ev removed")
             })
+
+            socket?.off("subscribe")
+            socket?.off("unsubscribe")
             socket?.disconnect()
         }
-    }, [])
+    }, [socket])
 
     const socketInitializer = async () => {
         const _socket = SocketIOClient(WEBSOCKET_URL)
@@ -43,7 +45,9 @@ export default function Room({ data, WEBSOCKET_URL }) {
             _socket.on("disconnect", (reason) => {
                 if (reason === "io server disconnect") {
                     _socket.connect()
+                    setSocket(null)
                 } else setSocket(null)
+                console.log("ws disconnected [" + reason + "]")
             })
         })
     }
@@ -223,7 +227,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                     </div>
                 )}
                 <div className="pt-2 pb-0 sm:px-4 px-2">
-                    <FuseChat
+                    <ChatVite
                         socket={socket}
                         room={room}
                         joinFuseGroup={joinFuseGroup}
