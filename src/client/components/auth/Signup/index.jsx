@@ -7,6 +7,7 @@ import Username from "./Username"
 import Email from "./Email"
 import Password from "./Password"
 import Pending from "../../UI/Pending"
+import Meta from "../../../contexts/Meta"
 
 export default function Signup({ csrfToken }) {
     const formRef = useRef()
@@ -62,60 +63,65 @@ export default function Signup({ csrfToken }) {
     }
 
     return (
-        <div className="flex justify-center mt-4">
-            <div className="w-full relative overflow-hidden max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl">
-                {pending && (
-                    <div className="absolute top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
-                        <Pending h="100%" />
-                    </div>
-                )}
-                <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
-                    ChatVite
-                </h2>
-                <p className="text-center text-sm text-gray-300 font-semibold tracking-wide pb-2">
-                    Explore your chat experience
-                </p>
-                <form
-                    ref={formRef}
-                    method="post"
-                    onSubmit={submitForm}
-                    onInput={() => {
-                        if (error) {
-                            setError(false)
-                        }
-                    }}
-                >
-                    <input
-                        name="csrfToken"
-                        type="hidden"
-                        defaultValue={csrfToken}
-                    />
+        <>
+            <Meta>
+                <title>Account Signup | Chatvite</title>
+            </Meta>
+            <div className="flex justify-center mt-4">
+                <div className="w-full relative overflow-hidden max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl">
+                    {pending && (
+                        <div className="absolute top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
+                            <Pending h="100%" />
+                        </div>
+                    )}
+                    <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
+                        ChatVite
+                    </h2>
+                    <p className="text-center text-sm text-gray-300 font-semibold tracking-wide pb-2">
+                        Explore your chat experience
+                    </p>
+                    <form
+                        ref={formRef}
+                        method="post"
+                        onSubmit={submitForm}
+                        onInput={() => {
+                            if (error) {
+                                setError(false)
+                            }
+                        }}
+                    >
+                        <input
+                            name="csrfToken"
+                            type="hidden"
+                            defaultValue={csrfToken}
+                        />
 
-                    <Email errorMsg={error?.email} />
-                    <Username errorMsg={error?.username} />
-                    <Password errorMsg={error?.password} />
+                        <Email errorMsg={error?.email} />
+                        <Username errorMsg={error?.username} />
+                        <Password errorMsg={error?.password} />
 
-                    <div className="flex justify-end py-2">
-                        <button className="py-2 w-full transition hover:text-gray-200 hover:border-opacity-25 hover:bg-sky-500 text-sky-400 border-sky-400 border rounded-md text-lg md:text-xl font-semibold tracking-wide">
-                            Sign Up
-                        </button>
-                    </div>
-                </form>
+                        <div className="flex justify-end py-2">
+                            <button className="py-2 w-full transition hover:text-gray-200 hover:border-opacity-25 hover:bg-sky-500 text-sky-400 border-sky-400 border rounded-md text-lg md:text-xl font-semibold tracking-wide">
+                                Sign Up
+                            </button>
+                        </div>
+                    </form>
 
-                <div className="text-center mt-1">
-                    <div className="mt-1">
-                        <p className="text-gray-300 mt-4">
-                            Already have an account?{" "}
-                            <Link
-                                href={"/auth/login"}
-                                className="text-sky-400 font-semibold p-1 border-b border-solid border-current"
-                            >
-                                Sign up
-                            </Link>
-                        </p>
+                    <div className="text-center mt-1">
+                        <div className="mt-1">
+                            <p className="text-gray-300 mt-4">
+                                Already have an account?{" "}
+                                <Link
+                                    href={"/auth/login"}
+                                    className="text-sky-400 font-semibold p-1 border-b border-solid border-current"
+                                >
+                                    Sign up
+                                </Link>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     )
 }

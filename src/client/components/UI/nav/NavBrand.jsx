@@ -17,7 +17,7 @@ export default function NavBrand() {
                         alt="chatvite logo"
                     />
 
-                    <span>ChatVite</span>
+                    <span>Chatvite</span>
                 </Link>
             </h1>
         </div>

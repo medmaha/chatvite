@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import { useSession } from "next-auth/react"
 import Name from "./Name"
 import Pending from "../UI/Pending"
+import Meta from "../../contexts/Meta"
 
 export default function Verify({ activated }) {
     const formRef = useRef()
@@ -64,6 +65,9 @@ export default function Verify({ activated }) {
 
     return (
         <>
+            <Meta>
+                <title>ChatVite | Verify Your Account</title>
+            </Meta>
             {addName || activated ? (
                 <Name />
             ) : (

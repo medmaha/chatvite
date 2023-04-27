@@ -10,6 +10,7 @@ import axios from "axios"
 import { useRouter } from "next/router"
 import { GlobalContext } from "../../contexts"
 import { updateToFirebase } from "./updateToFirebase"
+import Meta from "../../contexts/Meta"
 
 export default function ProfileAccount({ data }) {
     const [edit, toggleEdit] = useState(false)
@@ -88,6 +89,12 @@ export default function ProfileAccount({ data }) {
 
     return (
         <>
+            <Meta>
+                <title>
+                    {(account.name || account.username) +
+                        " | Account - ChatVite"}
+                </title>
+            </Meta>
             <div
                 ref={profileRef}
                 className="sticky top-[-88px] w-full h-full block pb-1"

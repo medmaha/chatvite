@@ -8,18 +8,7 @@ import Input from "./Input"
 import { useRouter } from "next/router"
 import Popup from "../../UI/Popup"
 import Pending from "../../UI/Pending"
-
-let AUTH_USER_IS_REFERER
-let HEIGHT
-
-function handleSocketEvents(socket, updateFuses, incomingMsgSound) {
-    if (!socket) return
-    socket.on("chatvite", (chat) => {
-        incomingMsgSound.play()
-        updateFuses(chat)
-    })
-    // socket.on("chatvite-ai", (chat) => updateFuses(chat))
-}
+import Meta from "../../../contexts/Meta"
 
 const queuedUnsentMessages = []
 let AutoScroll = true
@@ -61,8 +50,16 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     }, [messages])
 
     useEffect(() => {
-        if (!room.isPrivate && socket)
-            handleSocketEvents(socket, updateMessages, incomingMsgSound)
+        if (!room.isPrivate && socket) {
+            socket?.on("chatvite", (chat) => {
+                incomingMsgSound.play()
+                updateMessages(chat)
+            })
+            socket?.on("chatvite-ai", (chat) => {
+                incomingMsgSound.play()
+                updateMessages(chat)
+            })
+        }
         return () => {
             socket?.off("chatvite", () => {})
             socket?.off("chatvite-ai", () => {})
@@ -82,7 +79,6 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
 
     function updateMessages(data) {
         AutoScroll = true
-
         let idx
         setMessages((prev) => {
             let _data = [...prev, data]
@@ -104,7 +100,6 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
             // createdAt: new Date().toUTCString(),
         }
         updateMessages(data)
-
         return data
     }
 
@@ -247,44 +242,49 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     }
 
     return (
-        <div className="bg-gray-800 rounded-md overflow-hidden relative">
-            {membershipPopup && (
-                <Popup
-                    content={
-                        <>
-                            You must subscribe to this chatroom first, before
-                            you create a chat
-                        </>
-                    }
-                    confirmBtnText={"Subscribe"}
-                    onClose={() => {
-                        toggleMembershipPopup(false)
-                    }}
-                    onConfirm={(config, cb) => {
-                        joinFuseGroup(null, () => {
+        <>
+            <Meta>
+                <title>Room - {room.name} | Chatvite</title>
+            </Meta>
+            <div className="bg-gray-800 rounded-md overflow-hidden relative">
+                {membershipPopup && (
+                    <Popup
+                        content={
+                            <>
+                                You must subscribe to this chatroom first,
+                                before you create a chat
+                            </>
+                        }
+                        confirmBtnText={"Subscribe"}
+                        onClose={() => {
                             toggleMembershipPopup(false)
-                        })
+                        }}
+                        onConfirm={(config, cb) => {
+                            joinFuseGroup(null, () => {
+                                toggleMembershipPopup(false)
+                            })
 
-                        cb({
-                            ...config,
-                            content: <Pending h="250px" />,
-                        })
+                            cb({
+                                ...config,
+                                content: <Pending h="250px" />,
+                            })
+                        }}
+                    />
+                )}
+                <div
+                    style={{
+                        height: "var(--chat-height)",
+                        boxShadow: "inset 0 0 15px 1px rgba(0,0,0,.2)",
                     }}
-                />
-            )}
-            <div
-                style={{
-                    height: "var(--chat-height)",
-                    boxShadow: "inset 0 0 15px 1px rgba(0,0,0,.2)",
-                }}
-                ref={chatContainerRef}
-                className=" overflow-hidden overflow-y-auto p-1 sm:p-2"
-            >
-                <ChatCollections fuses={messages} />
+                    ref={chatContainerRef}
+                    className=" overflow-hidden overflow-y-auto p-1 sm:p-2"
+                >
+                    <ChatCollections fuses={messages} />
+                </div>
+                <div className=" min-h-[48px] py-2 items-center flex w-full bg-gray-700">
+                    <Input onSubmit={createChat} setOffset={setInputOffset} />
+                </div>
             </div>
-            <div className=" min-h-[48px] py-2 items-center flex w-full bg-gray-700">
-                <Input onSubmit={createChat} setOffset={setInputOffset} />
-            </div>
-        </div>
+        </>
     )
 }

@@ -23,12 +23,9 @@ export default function Room({ data, WEBSOCKET_URL }) {
             socketInitializer()
         }
         return () => {
-            socket?.off("connect", () => {
-                console.log("ws connection ev removed")
-            })
-
-            socket?.off("subscribe")
-            socket?.off("unsubscribe")
+            socket?.off("connect")
+            socket?.off("subscribed")
+            socket?.off("disconnect")
             socket?.disconnect()
         }
     }, [socket])
