@@ -160,23 +160,26 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
             }
             if (room.isPrivate) {
                 const last_chat = data[0]
+                const aiChat = data[1]
+
                 setMessages((prev) => {
                     if (display) prev.pop()
                     let _data = [...prev, last_chat]
                     return _data
                 })
 
-                if (privateRoomAiResponseTimeout)
+                if (privateRoomAiResponseTimeout) {
                     clearTimeout(privateRoomAiResponseTimeout)
-
-                privateRoomAiResponseTimeout = setTimeout(() => {
-                    incomingMsgSound.play()
-                    setMessages((prev) => {
-                        if (display) prev.pop()
-                        let _data = [...prev, last_chat, data[1]]
-                        return _data
-                    })
-                }, 1500)
+                }
+                if (aiChat)
+                    privateRoomAiResponseTimeout = setTimeout(() => {
+                        incomingMsgSound.play()
+                        setMessages((prev) => {
+                            if (display) prev.pop()
+                            let _data = [...prev, last_chat, data[1]]
+                            return _data
+                        })
+                    }, 1500)
                 callback()
             } else {
                 outgoingMsgSound.play()
@@ -219,8 +222,9 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
                     ...chatContainerRef.current?.querySelectorAll(
                         "[data-fuse-collections] [data-fuse-chat]",
                     ),
-                ].reverse()[0]
+                ]?.reverse()[0]
             }
+
             const resendButton = lastChat.querySelector(
                 "[data-fuse-failed] button",
             )

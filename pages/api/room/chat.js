@@ -29,6 +29,7 @@ export default async function handler(req, res) {
     if (!room) {
         res.status(400).send({ message: "Bad request" })
         res.end()
+        return
     }
 
     const chat = await Chat.create({
@@ -38,9 +39,7 @@ export default async function handler(req, res) {
     })
 
     room.chatfuses.push(chat._id)
-    room.save()
-
-    const data = await Chat.findById(chat.id)
+    await room.save()
 
     if (!!room.isPrivate) {
         const aiChat = await createPrivateResponse(
@@ -48,27 +47,36 @@ export default async function handler(req, res) {
             chatMessage,
             user.username,
         )
-        if (aiChat) {
+        console.log(aiChat)
+        if (aiChat._id) {
             res.status(200).send(
-                JSON.stringify([data.toJSON(), aiChat.toJSON()]),
+                JSON.stringify([
+                    (await chat.populate("sender")).toJSON(),
+                    aiChat,
+                ]),
             )
             return
+        } else {
+            res.status(200).send(
+                JSON.stringify([(await chat.populate("sender")).toJSON()]),
+            )
         }
     } else {
-        Activity.create({
-            action: "Replied in",
+        await Activity.create({
+            action: randomActivityAction(),
             message: chat.fuse,
             sender: user._id,
             room: room._id,
         })
-        await createAIResponse(room, chatMessage, room.AI_MODEL, user.username)
-        res.status(200).send(JSON.stringify(data.toJSON()))
+        createAIResponse(room, chatMessage, room.AI_MODEL, user.username)
+        const chatJSON = (await chat.populate("sender")).toJSON()
+        res.status(200).send(chatJSON)
     }
 }
 
 async function createPrivateResponse(room, chatMessage, authorName) {
     const prompt = buildPromptBody(chatMessage, room, authorName)
-    if (prompt !== "no-need") {
+    if (prompt !== "no-need" && Boolean(prompt)) {
         const aiResponse = await getChatGPTResponse(prompt)
         if (typeof aiResponse === "string") {
             const chat = await Chat.create({
@@ -78,35 +86,37 @@ async function createPrivateResponse(room, chatMessage, authorName) {
             })
             room.chatfuses.push(chat._id)
             await room.save()
-            const data = await Chat.findById(chat.id)
-            return data
+            return (await chat.populate("sender")).toJSON()
         }
     }
-    return null
+    return {}
 }
 
 async function createAIResponse(room, chatMessage, aiUser, authorName) {
-    if (!!room) {
+    if (room) {
         const prompt = buildPromptBody(chatMessage, room, authorName)
-        if (prompt !== "no-need") {
+        if (prompt !== "no-need" && Boolean(prompt)) {
             const aiResponse = await getChatGPTResponse(prompt)
 
             if (typeof aiResponse === "string" && aiResponse.length > 1) {
-                const chat = await Chat.create({
+                let chat = await Chat.create({
                     fuse: aiResponse,
                     room: room._id,
                     sender: aiUser._id,
                 })
 
-                axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
+                chat = await chat.populate("sender")
+
+                const chatJSON = chat.toJSON()
+                await axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
                     room_id: room.slug,
-                    data: (await Chat.findById(chat.id)).toJSON(),
+                    data: chatJSON,
                 })
 
                 room.chatfuses.push(chat._id)
-                room.save()
-                Activity.create({
-                    action: "Replied to",
+                await room.save()
+                await Activity.create({
+                    action: randomActivityAction(),
                     message: chat.fuse,
                     sender: aiUser._id,
                     room: room._id,
@@ -117,3 +127,19 @@ async function createAIResponse(room, chatMessage, aiUser, authorName) {
         }
     }
 }
+
+const activityActions = [
+    "Sent a message in",
+    "Posted in",
+    "Responded in",
+    "Added a comment in",
+    "Contributed to",
+    "Shared a post in",
+    // "Started a discussion in",
+    "Replied to a message in",
+    "Commented on a post in",
+    // "Asked a question in",
+]
+
+const randomActivityAction = () =>
+    activityActions[Math.floor(Math.random() * activityActions.length)]

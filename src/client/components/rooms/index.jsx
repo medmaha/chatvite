@@ -2,7 +2,7 @@ import styles from "./styles.module.css"
 import ChatVite from "./chat"
 import Members from "./members"
 import Link from "next/link"
-import { useEffect, useLayoutEffect, useState } from "react"
+import { useCallback, useEffect, useLayoutEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 
 import SocketIOClient from "socket.io-client"
@@ -18,20 +18,39 @@ export default function Room({ data, WEBSOCKET_URL }) {
     const session = useSession()
     const router = useRouter()
 
-    useEffect(() => {
-        if (!data.isPrivate && !socket) {
-            socketInitializer()
-        }
-        return () => {
-            socket?.off("connect")
-            socket?.off("subscribed")
-            socket?.off("disconnect")
-            socket?.disconnect()
-        }
-    }, [socket])
+    // useEffect(() => {
+    //     if (!data.isPrivate && !socket) {
+    //         socketInitializer()
+    //     }
+    //     return () => {
+    //         socket?.off("connect")
+    //         socket?.off("subscribed")
+    //         socket?.off("disconnect")
+    //         socket?.disconnect()
+    //     }
+    // }, [socket])
 
-    const socketInitializer = async () => {
-        const _socket = SocketIOClient(WEBSOCKET_URL)
+    //    const socketInitializer = async () => {
+    //        const _socket = SocketIOClient(WEBSOCKET_URL)
+
+    //        _socket.on("connect", () => {
+    //            console.log("ws connected")
+    //            _socket.emit("subscribe-group", room.slug)
+
+    //            _socket.on("subscribed", () => setSocket(_socket))
+
+    //            _socket.on("disconnect", (reason) => {
+    //                if (reason === "io server disconnect") {
+    //                    _socket.connect()
+    //                    setSocket(null)
+    //                } else setSocket(null)
+    //                console.log("ws disconnected [" + reason + "]")
+    //            })
+    //        })
+    //    }
+
+    const socketInitializer = useCallback(async () => {
+        const _socket = SocketIOClient(process.env.WEBSOCKET_URL)
 
         _socket.on("connect", () => {
             console.log("ws connected")
@@ -47,7 +66,19 @@ export default function Room({ data, WEBSOCKET_URL }) {
                 console.log("ws disconnected [" + reason + "]")
             })
         })
-    }
+    }, [room.slug])
+
+    useEffect(() => {
+        if (!room.isPrivate && !socket) {
+            socketInitializer()
+        }
+        return () => {
+            socket?.off("connect")
+            socket?.off("subscribed")
+            socket?.off("disconnect")
+            socket?.disconnect()
+        }
+    }, [room.isPrivate, socket, socketInitializer])
 
     function joinFuseGroup(ev, callback) {
         if (!session?.data?.user) {
