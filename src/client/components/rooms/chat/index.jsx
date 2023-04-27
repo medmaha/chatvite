@@ -17,7 +17,7 @@ let privateRoomAiResponseTimeout
 
 export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     const outgoingMsgSound = new Audio("/audio/msg-outgoing.mp3")
-    outgoingMsgSound.volume = 0.4
+    outgoingMsgSound.volume = 0.6
     const incomingMsgSound = new Audio("/audio/msg-incoming.mp3")
     const chatContainerRef = useRef()
 
@@ -121,7 +121,6 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
         })
 
         if (!isMember && !room.isPrivate) {
-            callback()
             return toggleMembershipPopup(true)
         }
 
