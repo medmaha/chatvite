@@ -12,8 +12,6 @@ export default async function handler(req, res) {
         for (const f of usernameList) {
             text += f + "|"
         }
-        // ensure that it exist
-
         text += ")$"
 
         return new RegExp(text)

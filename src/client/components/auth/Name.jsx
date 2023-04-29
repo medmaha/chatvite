@@ -14,12 +14,15 @@ export default function Name() {
     const [pending, setPending] = useState(false)
     const { setUser, user } = useContext(GlobalContext)
 
-    useEffect(() => {}, [])
+    useEffect(() => {
+        // authenticated/verify the user token
+        const { token } = getProfileIdFromUrl(window.location.href)
+        console.log(token)
+    }, [])
 
     function submitForm(ev) {
         ev.preventDefault()
         setPending(true)
-
         const name = ev.currentTarget.name
 
         axios
@@ -34,10 +37,8 @@ export default function Name() {
                 await axios.get("/api/auth/session?update=1")
                 name.value = ""
 
-                const { user } = await getSession()
-
-                setUser({ ...data, active: user?.active })
-                router.replace("/feed")
+                setUser({ ...user, ...data, active: user?.active })
+                await router.replace("/feed")
             })
             .catch((err) => {
                 console.error(err.message)
@@ -52,11 +53,11 @@ export default function Name() {
             <Meta>
                 <title>ChatVite | Add Your Name</title>
             </Meta>
-            {!user && (
+            {!user?.name ? (
                 <div className="flex flex-col items-center justify-center mt-[50px]">
                     <div className="w-full relative overflow-hidden max-w-[450px] bg-gray-700 p-4 px-8 rounded-2xl flex flex-col items-center">
                         {pending && (
-                            <div className="absolute top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
+                            <div className="absolute z-10 top-0 w-full left-0 h-full bg-black bg-opacity-50 flex justify-center items-start">
                                 <Pending h="100%" />
                             </div>
                         )}
@@ -119,7 +120,36 @@ export default function Name() {
                         </button>
                     </div>
                 </div>
+            ) : (
+                user && (
+                    <div className="flex justify-center mt-[150px]">
+                        <p className="text-center text-2xl tracking-wider max-w-[35ch] animate-pulse">
+                            Signing you in{" "}
+                            <span className="animate-ping">...</span>
+                        </p>
+                    </div>
+                )
             )}
         </>
     )
+}
+
+function getProfileIdFromUrl(url = "") {
+    const query = {}
+    try {
+        const queryParams = url.split("?")[1]
+        if (queryParams) {
+            const params = queryParams.split("&")
+            for (const _query of params) {
+                const [key, value] = _query.split("=")
+
+                if (key && value) {
+                    query[key] = value
+                }
+            }
+        }
+        return query
+    } catch (error) {
+        return query
+    }
 }

@@ -24,6 +24,7 @@ export default function ProfileAccount({ data }) {
     const router = useRouter()
 
     useLayoutEffect(() => {
+        console.log(data)
         const element = collectionRef.current
         let startPos = element.getBoundingClientRect().y
 
@@ -100,7 +101,7 @@ export default function ProfileAccount({ data }) {
                 className="sticky top-[-88px] w-full h-full block pb-1"
             >
                 <Header account={account} toggleEdit={toggleEdit} />
-                <Stats stats={data.stats} />
+                <Stats stats={data.stats} profileId={account._id} />
 
                 {edit && (
                     <EditProfile

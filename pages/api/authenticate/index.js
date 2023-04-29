@@ -11,14 +11,16 @@ export default async function handler(req, res) {
     const email = data.email
     const password = data.password
 
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email }).populate("password")
 
     if (!user) {
         res.status(400).send(JSON.stringify({ message: "Invalid credentials" }))
         return
     }
 
-    const passwordMatched = await bcrypt.compare(password, user.password)
+    const hash = user.password
+
+    const passwordMatched = await bcrypt.compare(password, hash)
 
     if (passwordMatched == true) {
         const data = await User.findOne(

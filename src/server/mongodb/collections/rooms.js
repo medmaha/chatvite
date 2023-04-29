@@ -6,7 +6,8 @@ const Chat = require("./chat")
 const { getChatGPTResponse, promptHeader } = require("../../chatGPT")
 
 if (mongoose.models.Rooms) {
-    module.exports = mongoose.model("Rooms")
+    const Users = mongoose.model("Rooms")
+    module.exports = Users
 } else {
     const Schema = new mongoose.Schema({
         name: { type: String, unique: true, capitalize: true },

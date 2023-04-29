@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     const user = await User.findById(id, {
         _id: 1,
         name: 1,
+        email: 1,
         active: 1,
         avatar: 1,
         username: 1,

@@ -68,7 +68,7 @@ export default function Verify({ activated }) {
             <Meta>
                 <title>ChatVite | Verify Your Account</title>
             </Meta>
-            {addName || activated ? (
+            {addName || activated || user?.active ? (
                 <Name />
             ) : (
                 <div className="flex justify-center mt-[50px]">

@@ -22,7 +22,7 @@ export default async function handler(req, res) {
                 path: "email",
             }),
         )
-        return
+        return res.end()
     }
     if (username.match(/admin/)) {
         res.status(400).send(
@@ -31,7 +31,7 @@ export default async function handler(req, res) {
                 path: "username",
             }),
         )
-        return
+        return res.end()
     }
 
     const checkEmail = await User.findOne({ email: email })
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
         res.status(400).send(
             JSON.stringify({ message: "email already exist", path: "email" }),
         )
-        return
+        return res.end()
     }
     if (checkUsername?._id) {
         res.status(400).send(
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
                 path: "username",
             }),
         )
-        return
+        return res.end()
     }
 
     const checkPassword = (() => {
@@ -65,17 +65,16 @@ export default async function handler(req, res) {
                 path: "password",
             }),
         )
-        return
+        return res.end()
     }
 
-    // Technique 1 (generate a salt and hash on separate function calls):
     const saltRounds = 10
     const salt = await bcrypt.genSalt(saltRounds)
+
     const hash = await bcrypt.hash(password, salt)
 
-    const user = await User.create({ email, username, password: hash })
+    await User.create({ email, username, password: hash })
 
-    const data = await User.findOne({ _id: user._id }, { _id: 1 })
-
-    res.status(201).send(JSON.stringify(data.toJSON()))
+    res.status(201).send(JSON.stringify({ message: "success" }))
+    return res.end()
 }

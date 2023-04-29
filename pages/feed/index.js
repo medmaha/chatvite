@@ -21,6 +21,7 @@ export async function getServerSideProps(ctx) {
     try {
         const { data } = await axios.get(`${baseUrl}/api/feed`, {
             headers: {
+                cookie: ctx.req.headers.cookie,
                 Authorization: "Bearer " + session?.user?._id || "",
             },
         })

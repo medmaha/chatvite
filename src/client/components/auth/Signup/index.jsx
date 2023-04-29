@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/router"
@@ -16,7 +16,10 @@ export default function Signup({ csrfToken }) {
     const [error, setError] = useState({})
     const [pending, setPending] = useState(false)
 
+    useEffect(() => {}, [])
+
     function submitForm(ev) {
+        console.log("CALLED")
         ev.preventDefault()
 
         const data = new FormData(ev.target)
@@ -27,8 +30,6 @@ export default function Signup({ csrfToken }) {
                 withCredentials: true,
             })
             .then(async (res) => {
-                console.log(res.data)
-
                 const login = await signIn("credentials", {
                     csrfToken,
                     email: data.get("email"),
@@ -40,14 +41,17 @@ export default function Signup({ csrfToken }) {
                     router.replace("/auth/verify")
                 }
                 if (login.error) {
-                    alert(login.error)
+                    throw new Error(login.error)
                 }
             })
             .catch((err) => {
                 if (err.response) {
                     handleError(err.response.data)
+                } else {
+                    alert(err.message)
+                    console.error(err.message)
                 }
-                console.error(err.response?.data.message || err.message)
+                setPending(false)
             })
     }
 
@@ -55,11 +59,12 @@ export default function Signup({ csrfToken }) {
         // console.log(error)
 
         setError({ [error.path]: error.message })
-
         const target = formRef.current[error.path]
 
         target.classList.remove("focus:border-sky-500", "border-gray-700")
         target.classList.add("focus:border-red-400", "border-red-400")
+
+        console.error(error.message)
     }
 
     return (
@@ -75,7 +80,7 @@ export default function Signup({ csrfToken }) {
                         </div>
                     )}
                     <h2 className="font-bold text-2xl tracking-wide text-center pb-1">
-                        ChatVite
+                        Chatvite
                     </h2>
                     <p className="text-center text-sm text-gray-300 font-semibold tracking-wide pb-2">
                         Explore your chat experience

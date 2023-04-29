@@ -6,20 +6,26 @@ export default function Profile({ data }) {
     return <ProfileAccount data={data || {}} />
 }
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context = Nex) {
     const { username } = context.params
 
-    const res = await axios.get(
-        `${process.env.BASE_URL}/api/profile/${username}`,
-    )
+    try {
+        const res = await axios.get(
+            `${process.env.BASE_URL}/api/profile/${username}`,
+            { withCredentials: true, cookies: context.req.headers.cookie },
+        )
 
-    if (res.data) {
         return {
             props: { data: res.data },
         }
-    }
-
-    return {
-        props: {},
+    } catch (error) {
+        console.error(error.message)
+        return {
+            redirect: {
+                destination: "/feed",
+                permanent: false,
+                replace: true,
+            },
+        }
     }
 }
