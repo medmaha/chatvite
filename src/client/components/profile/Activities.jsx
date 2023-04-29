@@ -9,21 +9,22 @@ export default function Activities({ activities: data }) {
     }, [data])
 
     return (
-        <div className="flex-1 bg-gray-700 min-w-[250px] px-1 max-w-[500px]">
-            <h5 className="font-semibold tracking-wide pb-2 text-center text-lg">
+        <div className="hidden md:block flex-1 bg-slate-800 min-w-[250px] px-1 max-w-[450px]">
+            <h5 className="font-semibold tracking-wide py-2 text-center text-lg">
                 Recent Activities
             </h5>
-            <div className="overflow-hidden overflow-y-auto max-h-[75vh] mb-1 p-2">
+            <div className="overflow-hidden overflow-y-auto max-h-[73.5vh] mb-1 p-2">
                 {activities.map((activity) => {
                     return (
                         <div
-                            key={activity.id || activity._id}
+                            key={activity._id}
                             className="block overflow-hidden"
                         >
                             <div className="flex justify-between items-center">
                                 <p>{activity.action}</p>
                                 <Link
-                                    href={`/feed?q=${activity.room.topic.slug}&tid=${activity.room.topic.id}`}
+                                    href={`/room/${activity.room.slug}`}
+                                    // href={`/feed?q=${activity.topic.slug}&tid=${activity.topic._id}`}
                                     className="text-blue-400 hover:text-blue-500 font-semibold tracking-wide"
                                 >
                                     {activity.room.name}

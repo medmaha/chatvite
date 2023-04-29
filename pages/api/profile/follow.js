@@ -29,7 +29,7 @@ export default async function follow(req = new NextRequest(), res) {
     const authUser = await Authenticate(req, res)
 
     if (!authUser) {
-        return res.end()
+        return
     }
 
     const { pid: profileId } = req.body

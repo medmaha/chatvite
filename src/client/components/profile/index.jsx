@@ -12,7 +12,8 @@ import { GlobalContext } from "../../contexts"
 import { updateToFirebase } from "./updateToFirebase"
 import Meta from "../../contexts/Meta"
 
-export default function ProfileAccount({ data }) {
+export default function ProfileAccount({ data: _data }) {
+    const [data, updateData] = useState(_data)
     const [edit, toggleEdit] = useState(false)
     const [account, setAccount] = useState({})
 
@@ -24,26 +25,8 @@ export default function ProfileAccount({ data }) {
     const router = useRouter()
 
     useLayoutEffect(() => {
-        console.log(data)
-        const element = collectionRef.current
-        let startPos = element.getBoundingClientRect().y
-
-        // element.style.setProperty(
-        //     "--max-height",
-        //     `calc((100vh - ${startPos}px) + (${Math.floor(
-        //         startPos / 2,
-        //     )}px + 5rem))`,
-        // )
-    }, [])
-
-    useLayoutEffect(() => {
         setAccount({ ...data.account })
     }, [data])
-
-    useEffect(() => {
-        if (account) {
-        }
-    }, [account])
 
     async function updatedUserSession(data, cb) {
         await axios.get("/api/auth/session?update=1")
@@ -88,6 +71,16 @@ export default function ProfileAccount({ data }) {
             })
     }
 
+    function updateProfileStateData(callback) {
+        updateData((prev) => {
+            const cbData = callback(prev)
+            return {
+                ...prev,
+                ...cbData,
+            }
+        })
+    }
+
     return (
         <>
             <Meta>
@@ -100,8 +93,16 @@ export default function ProfileAccount({ data }) {
                 ref={profileRef}
                 className="sticky top-[-88px] w-full h-full block pb-1"
             >
-                <Header account={account} toggleEdit={toggleEdit} />
-                <Stats stats={data.stats} profileId={account._id} />
+                <Header
+                    account={account}
+                    toggleEdit={toggleEdit}
+                    updateProfileStateData={updateProfileStateData}
+                    followers={data.stats.followers}
+                />
+                <Stats
+                    stats={Object.values(data.stats)}
+                    profileId={account._id}
+                />
 
                 {edit && (
                     <EditProfile
@@ -113,20 +114,20 @@ export default function ProfileAccount({ data }) {
 
                 <div
                     ref={collectionRef}
-                    style={{ maxHeight: "var(--max-height)" }}
+                    style={{ maxHeight: "calc(var(--max-height) - 1em)" }}
                     className="mt-4 h-full flex gap-2 rounded-lg overflow-hidden justify-center flex-wrap"
                 >
-                    {data.activities?.length > 0 && (
-                        <Activities
-                            account={account}
-                            activities={data.activities}
-                        />
-                    )}
                     {data.rooms?.length > 0 && (
                         <TopicAndRooms
                             authUser={user}
                             account={account}
                             rooms={data.rooms}
+                        />
+                    )}
+                    {data.activities?.length > 0 && (
+                        <Activities
+                            account={account}
+                            activities={data.activities}
                         />
                     )}
 
@@ -135,7 +136,7 @@ export default function ProfileAccount({ data }) {
                             <h5 className="font-semibold tracking-wide pb-2 text-center">
                                 Mutual Followers
                             </h5>
-                            <div className="overflow-hidden overflow-y-auto max-h-[74vh] p-2"></div>
+                            <div className="overflow-hidden overflow-y-auto max-h-[73.5vh] p-2"></div>
                         </div>
                     )}
                 </div>

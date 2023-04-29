@@ -10,44 +10,43 @@ const populateUserRefs = (doc, next) => {
     next()
 }
 
-if (mongoose.models.Activity) {
-    module.exports = mongoose.model("Activity")
-} else {
-    const Schema = new mongoose.Schema({
-        room: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Rooms",
-        },
+const Schema = new mongoose.Schema({
+    room: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Rooms",
+    },
 
-        topic: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Topics",
-        },
+    topic: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Topics",
+    },
 
-        sender: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Users",
-        },
+    sender: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+    },
 
-        target: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Users",
-        },
+    target: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Users",
+    },
 
-        action: { type: String },
+    action: { type: String },
 
-        message: { type: String },
+    message: { type: String },
 
-        createdAt: { type: Date, default: () => Date.now(), immutable: true },
-    })
+    createdAt: { type: Date, default: () => Date.now(), immutable: true },
+})
 
-    Schema.pre("find", function (next) {
-        populateUserRefs(this, next)
-    })
+Schema.pre("find", function (next) {
+    populateUserRefs(this, next)
+})
 
-    Schema.pre("findOne", function (next) {
-        populateUserRefs(this, next)
-    })
-    const Activity = mongoose.model("Activity", Schema)
-    module.exports = Activity
-}
+Schema.pre("findOne", function (next) {
+    populateUserRefs(this, next)
+})
+const Activity = mongoose.model("Activity", Schema, undefined, {
+    overwriteModels: true,
+    strick: false,
+})
+module.exports = Activity

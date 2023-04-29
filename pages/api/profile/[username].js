@@ -31,6 +31,7 @@ export default async function handler(req, res) {
         const rooms = await Room.find(
             {
                 host: profileUser._id,
+                isPrivate: profileUser.id === authUser?._id,
             },
             { AI_MODEL: 0 },
         ).limit(15)
@@ -42,6 +43,7 @@ export default async function handler(req, res) {
                     name: _room.name,
                     host: _room.host,
                     slug: _room.slug,
+                    isPrivate: _room.isPrivate,
                     topic: {
                         _id: _room.topic.id,
                         name: _room.topic.name,
@@ -55,10 +57,12 @@ export default async function handler(req, res) {
             })
             .sort((a, b) => b.chats - a.chats)
 
-        const activities = await Activity.find({
-            "sender.username": username,
-        })
-            .populate(["sender", "room", "topic"])
+        const activities = await Activity.find(
+            {
+                sender: profileUser._id,
+            },
+            { topic: 0 },
+        )
             .sort({ createdAt: -1 })
             .limit(15)
 
@@ -68,21 +72,9 @@ export default async function handler(req, res) {
                 action: _activity.action,
                 createdAt: _activity.createdAt,
                 message: _activity.message,
-                topic: {
-                    _id: _activity.topic.id,
-                    name: _activity.topic.name,
-                    slug: _activity.topic.slug,
-                },
-                sender: {
-                    _id: _activity.sender.id,
-                    name: _activity.sender.name,
-                    username: _activity.sender.username,
-                    // slug: _activity.sender.slug,
-                },
                 room: {
-                    _id: _room.id,
-                    name: _room.name,
-                    slug: _room.slug,
+                    name: _activity.room.name,
+                    slug: _activity.room.slug,
                 },
             }
             return data
@@ -111,9 +103,9 @@ export default async function handler(req, res) {
                 sender: profileUser._id,
             })
 
-            return [
-                {
-                    name: "Follow",
+            return {
+                followers: {
+                    name: "Followers",
                     stats: profileUser.followers.length,
                     data: [
                         ...profileUser.followers.map((_follower) => ({
@@ -123,10 +115,13 @@ export default async function handler(req, res) {
                         })),
                     ],
                 },
-                { name: "Chatrooms", stats: rooms.length },
-                { name: "Following", stats: profileUser.following.length },
-                { name: "Chats", stats: chats.length },
-            ]
+                chatrooms: { name: "Chatrooms", stats: rooms.length },
+                following: {
+                    name: "Following",
+                    stats: profileUser.following.length,
+                },
+                chats: { name: "Chats", stats: chats.length },
+            }
         }
 
         data["stats"] = await stats()

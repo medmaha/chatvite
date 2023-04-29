@@ -7,7 +7,7 @@ import axios from "axios"
 import { getUserAvatarUrl } from "../../../../utils"
 import DateFormatter from "../../UI/layouts/DateFormatter"
 
-export default function Room({ room: data }) {
+export default function Room({ room: data, interactions = true }) {
     const router = useRouter()
     const [room, setRoom] = React.useState(data)
 
@@ -99,6 +99,13 @@ export default function Room({ room: data }) {
                                         Hosted by you
                                     </span>
                                 )
+                            if (!interactions)
+                                return (
+                                    <span className="font-semibold text-gray-400">
+                                        Hosted by {room.host.username}
+                                    </span>
+                                )
+
                             const isMember = room.members.find(
                                 (member) =>
                                     member._id === (user?.id || user?._id),

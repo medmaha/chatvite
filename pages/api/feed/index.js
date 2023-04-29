@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import Authenticate from "../../../src/server/authenticate"
 import connectToDatabase from "../../../src/server/db"
-import { Room, Topic } from "../../../src/server/mongodb/collections"
+import { Room as Rooms, Topic } from "../../../src/server/mongodb/collections"
 
 import { NextRequest, NextResponse } from "next/server"
 
@@ -142,7 +142,7 @@ export default async function handler(
 }
 
 function getChatviteRooms(queryList) {
-    return Room.find({ $or: queryList })
+    return Rooms.find({ $or: queryList })
 }
 
 function urlStringToObject(url) {
