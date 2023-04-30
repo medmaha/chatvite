@@ -12,42 +12,12 @@ import Image from "next/image"
 import Popup from "../UI/Popup"
 
 export default function Room({ data, WEBSOCKET_URL }) {
+    const [roomResponseData, setRoomResponseData] = useState(data)
     const [room, setRoom] = useState(data)
     const [socket, setSocket] = useState(null)
 
     const session = useSession()
     const router = useRouter()
-
-    // useEffect(() => {
-    //     if (!data.isPrivate && !socket) {
-    //         socketInitializer()
-    //     }
-    //     return () => {
-    //         socket?.off("connect")
-    //         socket?.off("subscribed")
-    //         socket?.off("disconnect")
-    //         socket?.disconnect()
-    //     }
-    // }, [socket])
-
-    //    const socketInitializer = async () => {
-    //        const _socket = SocketIOClient(WEBSOCKET_URL)
-
-    //        _socket.on("connect", () => {
-    //            console.log("ws connected")
-    //            _socket.emit("subscribe-group", room.slug)
-
-    //            _socket.on("subscribed", () => setSocket(_socket))
-
-    //            _socket.on("disconnect", (reason) => {
-    //                if (reason === "io server disconnect") {
-    //                    _socket.connect()
-    //                    setSocket(null)
-    //                } else setSocket(null)
-    //                console.log("ws disconnected [" + reason + "]")
-    //            })
-    //        })
-    //    }
 
     const socketInitializer = useCallback(async () => {
         const _socket = SocketIOClient(process.env.WEBSOCKET_URL)

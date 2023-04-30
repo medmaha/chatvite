@@ -18,7 +18,6 @@ export default async function handler(req, res) {
             followers: 1,
             password: 0,
             active: 0,
-            email: Number(Boolean(authUser)),
         },
         { populate: "followers" },
     )
@@ -27,11 +26,14 @@ export default async function handler(req, res) {
         const data = {
             account: profileUser.toJSON(),
         }
-
+        console.log(
+            "profileUser.id === authUser?.id",
+            profileUser.id === authUser?.id,
+        )
         const rooms = await Room.find(
             {
                 host: profileUser._id,
-                isPrivate: profileUser.id === authUser?._id,
+                isPrivate: profileUser.id === authUser?.id ? true : false,
             },
             { AI_MODEL: 0 },
         ).limit(15)

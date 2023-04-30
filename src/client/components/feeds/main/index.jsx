@@ -73,7 +73,7 @@ export default function Main({ feeds: data }) {
         axios
             .get(option.url + option.q, { withCredentials: true })
             .then((res) => {
-                setFeeds(res.data)
+                setFeeds(res.data.data)
             })
             .catch((err) => {
                 console.log(err)

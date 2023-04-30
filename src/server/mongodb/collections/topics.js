@@ -25,7 +25,7 @@ const Schema = new mongoose.Schema({
 })
 Schema.pre("save", function (next) {
     if (this.isNew || this.isModified("name")) {
-        this.slug = slugify(this.name, {
+        this.slug = slugify(this.name + `vid=${generateId(6)}`, {
             lower: true,
             truncate: 32,
             remove: new RegExp(/('s)/),
@@ -68,3 +68,23 @@ const Topics = mongoose.model("Topics", Schema, undefined, {
 })
 
 module.exports = Topics
+
+function generateId(length = 7) {
+    let result = ""
+    const characters =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+    function shuffleArray(array = []) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[array[i], array[j]] = [array[j], array[i]]
+        }
+        return array
+    }
+
+    let data = shuffleArray(characters.split(" ")).join("")
+    for (let i = 0; i < length; i++) {
+        result += data.charAt(Math.floor(Math.random() * data.length))
+    }
+    return result
+}

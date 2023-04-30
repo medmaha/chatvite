@@ -12,7 +12,10 @@ export async function getServerSideProps(context = Nex) {
     try {
         const res = await axios.get(
             `${process.env.BASE_URL}/api/profile/${username}`,
-            { withCredentials: true, cookies: context.req.headers.cookie },
+            {
+                withCredentials: true,
+                headers: { cookie: context.req.headers.cookie },
+            },
         )
 
         return {

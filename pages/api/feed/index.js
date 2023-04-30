@@ -4,6 +4,8 @@ import connectToDatabase from "../../../src/server/db"
 import { Room as Rooms, Topic } from "../../../src/server/mongodb/collections"
 
 import { NextRequest, NextResponse } from "next/server"
+import { getPaginatorResponse } from "../../../src/utils/paginator/paginatorResponse"
+import { populate } from "../../../src/server/mongodb/collections/users"
 
 export default async function handler(
     req = new NextRequest(),
@@ -13,17 +15,18 @@ export default async function handler(
     // const authUser = null
 
     const url = req.url
-
-    const page_obj_count = 25
+    const urlPath = req.url.split("?")[0]
+    const maxPageData = 25
 
     const {
         search,
         q: query,
         tid: topicId,
+        page: pageIndex = 0,
         ...otherParams
     } = urlStringToObject(url)
 
-    let rooms
+    let room
 
     res.setHeader("Content-Type", "application/json")
 
@@ -57,9 +60,19 @@ export default async function handler(
                     host: authUser._id,
                 })
             }
-            rooms = await getChatviteRooms(dbQuery).limit(page_obj_count)
-            console.log(rooms)
-            res.status(200).send(JSON.stringify(rooms))
+
+            const paginatorResponse = await getPaginatorResponse({
+                model: Rooms,
+                urlPath,
+                pageIndex,
+                maxPageData,
+                query: { $or: dbQuery },
+                sort: { createdAt: -1 },
+                projector: { chatfuses: 0 },
+                populate: [{ path: "members", select: ["_id"] }],
+            })
+
+            res.status(200).send(JSON.stringify(paginatorResponse))
         } else {
             await setInvalidResponse(res)
         }
@@ -105,9 +118,10 @@ export default async function handler(
             }
             return data
         })()
+        let response
 
         if (authUser) {
-            rooms = await getChatviteRooms([
+            const _dbQuery = [
                 {
                     topic: {
                         $in: topics.map((t) => t._id),
@@ -115,11 +129,30 @@ export default async function handler(
                 },
                 ...dbQuery,
                 ...authenticatedUserQuery,
-            ]).limit(page_obj_count)
+            ]
+            const paginatorResponse = await getPaginatorResponse({
+                model: Rooms,
+                urlPath,
+                pageIndex,
+                maxPageData,
+                query: { $or: _dbQuery },
+                projector: { chatfuses: 0 },
+                populate: [{ path: "members", select: ["_id"] }],
+            })
+            response = paginatorResponse
         } else {
-            rooms = await getChatviteRooms(dbQuery).limit(page_obj_count)
+            const paginatorResponse = await getPaginatorResponse({
+                model: Rooms,
+                urlPath,
+                pageIndex,
+                maxPageData,
+                query: { $or: dbQuery },
+                projector: { chatfuses: 0 },
+                populate: [{ path: "members", select: ["_id"] }],
+            })
+            response = paginatorResponse
         }
-        res.status(200).send(JSON.stringify(rooms))
+        res.status(200).send(JSON.stringify(response))
         return
     }
 
@@ -135,14 +168,21 @@ export default async function handler(
         })
     }
 
-    rooms = await getChatviteRooms(dbQuery)
-        .sort({ createdAt: -1 })
-        .limit(page_obj_count)
-    res.status(200).send(JSON.stringify(rooms))
+    const paginatorResponse = await getPaginatorResponse({
+        model: Rooms,
+        urlPath,
+        pageIndex,
+        maxPageData,
+        query: { $or: dbQuery },
+        sort: { createdAt: -1 },
+        projector: { chatfuses: 0 },
+        populate: [{ path: "members", select: ["_id"] }],
+    })
+    res.status(200).send(JSON.stringify(paginatorResponse))
 }
 
-function getChatviteRooms(queryList) {
-    return Rooms.find({ $or: queryList })
+function getChatviteRooms(queryList, page = 0, count = 25) {
+    return Rooms.find({ $or: queryList }).skip(page * count)
 }
 
 function urlStringToObject(url) {

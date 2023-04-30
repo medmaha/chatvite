@@ -5,8 +5,8 @@ const Chat = require("./chat")
 
 const { getChatGPTResponse, promptHeader } = require("../../chatGPT")
 
-const Schema = new mongoose.Schema({
-    name: { type: String, unique: true, capitalize: true },
+const RoomSchema = new mongoose.Schema({
+    name: { type: String, capitalize: true },
 
     slug: { type: String, unique: true },
 
@@ -34,6 +34,14 @@ const Schema = new mongoose.Schema({
             ref: "Chats",
         },
     ],
+
+    chats: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Chats",
+        },
+    ],
+
     createdAt: { type: Date, default: () => Date.now(), immutable: true },
     AI_MODEL: {
         type: mongoose.Schema.Types.ObjectId,
@@ -63,7 +71,7 @@ const populateUserRefs = (doc, next) => {
     next()
 }
 
-Schema.pre("save", async function (next) {
+RoomSchema.pre("save", async function (next) {
     if (this.isNew) {
         const AIUser = new User({
             name: "AI",
@@ -83,12 +91,13 @@ Schema.pre("save", async function (next) {
         this.members.push(this.host)
     }
     if (this.isNew || this.isModified("name")) {
-        this.slug = slugify(this.name, {
+        this.slug = slugify(this.name + `-vid=${generateId(6)}`, {
             lower: true,
             truncate: 32,
         })
         const capitalizedName = (name) => {
             let text = name.split("")
+
             let firstChar = text[0].toUpperCase()
 
             text[0] = firstChar
@@ -101,7 +110,7 @@ Schema.pre("save", async function (next) {
     next()
 })
 
-Schema.post("save", async function (doc, next) {
+RoomSchema.post("save", async function (doc, next) {
     if (doc.chatfuses.length < 1) {
         const aiUser = await User.findOne({ _id: this.AI_MODEL })
 
@@ -126,18 +135,19 @@ Schema.post("save", async function (doc, next) {
     next()
 })
 
-Schema.pre("find", function (next) {
+RoomSchema.pre("find", function (next) {
     populateUserRefs(this, next)
 })
 
-Schema.pre("findOne", function (next) {
+RoomSchema.pre("findOne", function (next) {
     populateUserRefs(this, next)
 })
 
-const Room = mongoose.model("Rooms", Schema, undefined, {
+const Room = mongoose.model("Rooms", RoomSchema, undefined, {
     overwriteModels: true,
     strick: false,
 })
+
 module.exports = Room
 
 function generateId(length = 7) {
@@ -159,3 +169,19 @@ function generateId(length = 7) {
     }
     return result
 }
+
+function changeSchemaPath(path, value) {
+    const participantsType = RoomSchema.path(path)
+
+    participantsType.set(() => value)
+
+    Room.init(function (err) {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log("Schema updated successfully")
+        }
+    })
+}
+
+// changeSchemaPath("name", { type: String, capitalize: true })
