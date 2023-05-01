@@ -6,12 +6,12 @@ import Activities from "./activities"
 import Main from "./main"
 
 import io from "socket.io-client"
+import Paginator from "../UI/Paginator"
 
 export default function Feed({ feeds }) {
     useEffect(() => {
         // const socket = io(process.env.WEBSOCKET_URL)
         // if (socket.connected) socket.disconnect()
-        console.log(feeds)
     }, [])
     return (
         <div className="flex justify-center gap-3">
@@ -19,7 +19,12 @@ export default function Feed({ feeds }) {
                 <Topics />
             </div>
             <div className=" flex-1 min-w-[350px] lg:min-w-[400px] max-w-[500px]">
-                <Main feeds={feeds.data} />
+                <Paginator
+                    Component={Main}
+                    componentProp="feeds"
+                    data={feeds}
+                    targetSelector="[data-rooms-collections] [data-room]"
+                ></Paginator>
             </div>
             <div className="flex-1 hidden lg:block lg:max-w-[300px] xl:max-w-[330px]">
                 <Activities />

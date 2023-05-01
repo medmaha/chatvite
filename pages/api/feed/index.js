@@ -16,17 +16,17 @@ export default async function handler(
 
     const url = req.url
     const urlPath = req.url.split("?")[0]
-    const maxPageData = 25
 
     const {
         search,
         q: query,
         tid: topicId,
-        page: pageIndex = 0,
+        page,
         ...otherParams
     } = urlStringToObject(url)
 
-    let room
+    const pageIndex = page || 0
+    const maxPageData = 5
 
     res.setHeader("Content-Type", "application/json")
 
@@ -42,41 +42,28 @@ export default async function handler(
         return await setInvalidResponse(res)
     }
 
+    let dbQuery = null
+
     // get rooms that belongs to a specific topic
     if (query && topicId && !search) {
         const topic = await Topic.findOne({ slug: query })
 
-        if (topic.id === topicId) {
-            const dbQuery = [
-                {
-                    topic: topic._id,
-                    isPrivate: false,
-                },
-            ]
-            if (authUser) {
-                dbQuery.push({
-                    topic: topic._id,
-                    isPrivate: true,
-                    host: authUser._id,
-                })
-            }
+        if (topic.id !== topicId) return await setInvalidResponse(res)
 
-            const paginatorResponse = await getPaginatorResponse({
-                model: Rooms,
-                urlPath,
-                pageIndex,
-                maxPageData,
-                query: { $or: dbQuery },
-                sort: { createdAt: -1 },
-                projector: { chatfuses: 0 },
-                populate: [{ path: "members", select: ["_id"] }],
+        dbQuery = [
+            {
+                topic: topic._id,
+                isPrivate: false,
+            },
+        ]
+
+        if (authUser) {
+            dbQuery.push({
+                isPrivate: true,
+                topic: topic._id,
+                host: authUser._id,
             })
-
-            res.status(200).send(JSON.stringify(paginatorResponse))
-        } else {
-            await setInvalidResponse(res)
         }
-        return
     }
 
     if (search) {
@@ -87,7 +74,7 @@ export default async function handler(
             },
         })
 
-        const dbQuery = [
+        dbQuery = [
             {
                 name: {
                     $regex: regex,
@@ -107,82 +94,80 @@ export default async function handler(
                 isPrivate: false,
             },
         ]
-        const authenticatedUserQuery = (function () {
-            let data = []
-            if (authUser) {
-                data = dbQuery.map((q) => {
-                    q.isPrivate = true
-                    q.host = authUser._id
-                    return q
-                })
-            }
-            return data
-        })()
-        let response
-
         if (authUser) {
-            const _dbQuery = [
+            const authUserQuery = dbQuery.map((query) => {
+                query.isPrivate = true
+                query.host = authUser._id
+                return query
+            })
+            dbQuery = [
                 {
                     topic: {
                         $in: topics.map((t) => t._id),
                     },
                 },
                 ...dbQuery,
-                ...authenticatedUserQuery,
+                ...authUserQuery,
             ]
-            const paginatorResponse = await getPaginatorResponse({
-                model: Rooms,
-                urlPath,
-                pageIndex,
-                maxPageData,
-                query: { $or: _dbQuery },
-                projector: { chatfuses: 0 },
-                populate: [{ path: "members", select: ["_id"] }],
-            })
-            response = paginatorResponse
-        } else {
-            const paginatorResponse = await getPaginatorResponse({
-                model: Rooms,
-                urlPath,
-                pageIndex,
-                maxPageData,
-                query: { $or: dbQuery },
-                projector: { chatfuses: 0 },
-                populate: [{ path: "members", select: ["_id"] }],
-            })
-            response = paginatorResponse
         }
-        res.status(200).send(JSON.stringify(response))
-        return
     }
 
-    const dbQuery = [
-        {
-            isPrivate: false,
-        },
-    ]
-    if (authUser) {
-        dbQuery.push({
-            host: authUser._id,
-            isPrivate: true,
-        })
+    if (!dbQuery) {
+        dbQuery = [
+            {
+                isPrivate: false,
+            },
+        ]
+        if (authUser) {
+            dbQuery.push({
+                host: authUser._id,
+                isPrivate: true,
+            })
+        }
     }
 
+    const paginatorResponse = await getChatviteRooms({
+        pageIndex,
+        maxPageData,
+        queryList: dbQuery,
+    })
+
+    res.status(200).send(JSON.stringify(paginatorResponse))
+}
+
+async function getChatviteRooms({
+    queryList,
+    pageIndex = 0,
+    maxPageData = 25,
+}) {
+    const urlPath = "/api/feed"
     const paginatorResponse = await getPaginatorResponse({
         model: Rooms,
         urlPath,
         pageIndex,
         maxPageData,
-        query: { $or: dbQuery },
+        query: { $or: queryList },
         sort: { createdAt: -1 },
-        projector: { chatfuses: 0 },
-        populate: [{ path: "members", select: ["_id"] }],
+        projector: {
+            // chats: 0,
+            name: 1,
+            slug: 1,
+            chatfuses: 0,
+            members: 1,
+            createdAt: 1,
+            AI_MODEL: 0,
+        },
+        queryOptions: {
+            populate: [
+                {
+                    path: "members",
+                    select: ["_id"],
+                    limit: 5,
+                },
+            ],
+        },
     })
-    res.status(200).send(JSON.stringify(paginatorResponse))
-}
-
-function getChatviteRooms(queryList, page = 0, count = 25) {
-    return Rooms.find({ $or: queryList }).skip(page * count)
+    return paginatorResponse
 }
 
 function urlStringToObject(url) {

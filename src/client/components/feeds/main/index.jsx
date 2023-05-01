@@ -5,7 +5,7 @@ import { useRouter } from "next/router"
 import axios from "axios"
 import Pending from "../../UI/Pending"
 
-export default function Main({ feeds: data }) {
+export default function Main({ feeds: data, onInit }) {
     const { setCreateRoom } = useContext(GlobalContext)
     const [feeds, setFeeds] = useState([])
     const [pending, setPending] = useState(false)
@@ -21,7 +21,7 @@ export default function Main({ feeds: data }) {
                 setFeeds(data)
             }
         }
-    }, [])
+    }, [data])
 
     function handleQueryParamSearchOnRouteChange(url, { shallow }) {
         const feedRoute = url.split("?")[0] === "/feed"
@@ -39,6 +39,7 @@ export default function Main({ feeds: data }) {
             "routeChangeStart",
             handleQueryParamSearchOnRouteChange,
         )
+
         return () =>
             router.events.off(
                 "routeChangeStart",
@@ -73,7 +74,7 @@ export default function Main({ feeds: data }) {
         axios
             .get(option.url + option.q, { withCredentials: true })
             .then((res) => {
-                setFeeds(res.data.data)
+                setFeeds(res.data)
             })
             .catch((err) => {
                 console.log(err)
@@ -106,7 +107,7 @@ export default function Main({ feeds: data }) {
                 ) : (
                     <>
                         {!!feeds.length ? (
-                            <RoomCollections feeds={feeds} />
+                            <RoomCollections feeds={feeds} onInit={onInit} />
                         ) : (
                             <div className="h-[400px] w-full flex items-center justify-center">
                                 <div className="animate-pulse transition text-lg font-bold tracking-wider">

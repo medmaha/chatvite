@@ -3,6 +3,7 @@ import connectToDatabase from "../../../src/server/db"
 import Authenticate from "../../../src/server/authenticate"
 import { Room } from "../../../src/server/mongodb/collections"
 import Users from "../../../src/server/mongodb/collections/users"
+import { getPaginatorResponse } from "../../../src/utils/paginator/paginatorResponse"
 
 // import io from "../../socket"
 
@@ -11,7 +12,13 @@ export default async function handler(req, res) {
 
     const { slug } = req.query
 
-    const room = await Room.findOne({ slug })
+    const room = await Room.findOne({ slug }).populate("members")
+
+    // const room = getPaginatorResponse({
+    //     urlPath:req.url.split('?'),
+    //     query:{slug},
+    //     model:Room,
+    // })
 
     res.setHeader("Content-Type", "application/json")
 

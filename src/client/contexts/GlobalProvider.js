@@ -7,6 +7,7 @@ import HostedChats from "../components/UI/layouts/chats"
 import { useRouter } from "next/router"
 
 import Pending from "../components/UI/Pending"
+import Alert from "../components/UI/Alert"
 
 export default function GlobalProvider({ children }) {
     const [createRoom, setCreateRoom] = useState(false)

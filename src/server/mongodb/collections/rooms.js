@@ -55,7 +55,6 @@ const populateUserRefs = (doc, next) => {
         { path: "topic", select: ["_id", "name", "slug"] },
         { path: "host", select: ["_id", "name", "username", "avatar"] },
         { path: "AI_MODEL", select: ["_id", "name", "username", "avatar"] },
-        { path: "members", select: ["_id", "name", "username", "avatar"] },
         {
             path: "chatfuses",
             populate: {
@@ -65,6 +64,7 @@ const populateUserRefs = (doc, next) => {
             },
         },
     ])
+
     // if (doc.isPrivate) {
     //     doc.select("-members")
     // }

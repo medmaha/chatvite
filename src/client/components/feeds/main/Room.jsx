@@ -89,7 +89,7 @@ export default function Room({ room: data, interactions = true }) {
                                         title="This chatroom is private to you"
                                         className="font-semibold text-sky-400"
                                     >
-                                        #Private to you
+                                        #Private
                                     </span>
                                 )
                             }

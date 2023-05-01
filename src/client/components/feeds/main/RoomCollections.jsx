@@ -1,12 +1,15 @@
-import React from "react"
+import React, { useEffect } from "react"
 import Room from "./Room"
 
-export default function RoomCollections({ feeds }) {
+export default function RoomCollections({ feeds, onInit }) {
+    React.useEffect(() => {
+        onInit()
+    }, [])
     return (
-        <div>
+        <div data-rooms-collections>
             {feeds.map((room) => {
                 return (
-                    <span key={room._id}>
+                    <span data-room key={room._id}>
                         <Room room={room} />
                     </span>
                 )

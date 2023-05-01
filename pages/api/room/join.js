@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     const { id, room: returnRoom } = req.body
 
-    const room = await Room.findById(id)
+    const room = await Room.findById(id).populate("members")
 
     if (!room) {
         res.setHeader("content-type", "application/json")
