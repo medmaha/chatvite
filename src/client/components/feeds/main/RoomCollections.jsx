@@ -3,7 +3,7 @@ import Room from "./Room"
 
 export default function RoomCollections({ feeds, onInit }) {
     React.useEffect(() => {
-        onInit()
+        if (onInit) onInit()
     }, [])
     return (
         <div data-rooms-collections>

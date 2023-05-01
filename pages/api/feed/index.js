@@ -126,6 +126,9 @@ export default async function handler(
         }
     }
 
+    console.clear()
+    console.log(dbQuery)
+
     const paginatorResponse = await getChatviteRooms({
         pageIndex,
         maxPageData,

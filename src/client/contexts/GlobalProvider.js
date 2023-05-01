@@ -80,8 +80,9 @@ function App({ children }) {
 
     return (
         <div className="bg-gray-800 text-gray-200 h-full w-full min-h-[100vh]">
-            <Navbar />
-            <div id="_topElement" className="w-full h-[65px] mb-2"></div>
+            {/* <Navbar /> */}
+            <Alert />
+            {/* <div id="_topElement" className="w-full h-[65px] mb-2"></div>
             {createRoom && <CreateRoom />}
             {viewPrivateChats && (
                 <HostedChats
@@ -92,8 +93,8 @@ function App({ children }) {
                         }
                     }}
                 />
-            )}
-            <div className="w-full px-2 lg:px-8 mx-auto">{children}</div>
+            )} */}
+            {/* <div className="w-full px-2 lg:px-8 mx-auto">{children}</div> */}
         </div>
     )
 }

@@ -7,7 +7,7 @@ export default function NavBrand() {
         <div data-nav-brand className="brand inline-flex">
             <h1 className="">
                 <Link
-                    href="/feed"
+                    href="/"
                     className="font-bold text-lg tracking-wider inline-flex gap-1 items-center"
                 >
                     <Image

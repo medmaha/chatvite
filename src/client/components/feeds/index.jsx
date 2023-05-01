@@ -19,12 +19,13 @@ export default function Feed({ feeds }) {
                 <Topics />
             </div>
             <div className=" flex-1 min-w-[350px] lg:min-w-[400px] max-w-[500px]">
-                <Paginator
+                {/* <Paginator
                     Component={Main}
                     componentProp="feeds"
                     data={feeds}
                     targetSelector="[data-rooms-collections] [data-room]"
-                ></Paginator>
+                ></Paginator> */}
+                <Main feeds={feeds.data} />
             </div>
             <div className="flex-1 hidden lg:block lg:max-w-[300px] xl:max-w-[330px]">
                 <Activities />

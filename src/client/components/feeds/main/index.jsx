@@ -21,7 +21,7 @@ export default function Main({ feeds: data, onInit }) {
                 setFeeds(data)
             }
         }
-    }, [data])
+    }, [])
 
     function handleQueryParamSearchOnRouteChange(url, { shallow }) {
         const feedRoute = url.split("?")[0] === "/feed"
