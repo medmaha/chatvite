@@ -18,14 +18,20 @@ export default function Alert({
                 flex justify-center items-center font-semibold max-w-[600px] p-2 py-4 mx-auto shadow-2xl rounded-lg m 7
                 ${invalid && "bg-red-400"}
                  ${!invalid && success && "bg-green-500"}
-                 ${!success && !invalid && "bg-sky-500"}
+                 ${!success && !invalid && "bg-sky-600"}
                   tracking-wide text-lg`}
             >
-                Hello{user ? ", " : ""}
-                {user?.name || user?.username || ""}! We’re sorry but our site
-                is currently experiencing high demand and we are working hard to
-                fix it. We apologize for any inconvenience this may cause and
-                appreciate your patience. Please check back soon for updates.
+                <p className="text-center">
+                    Hello
+                    <b>
+                        {user ? ", " : ""}
+                        {user?.name || user?.username || ""}
+                    </b>
+                    ! We’re sorry but our site is currently experiencing high
+                    demand and we are working hard to fix it. We apologize for
+                    any inconvenience this may cause and appreciate your
+                    patience. Please check back soon for updates.
+                </p>
             </div>
         </div>
     )
