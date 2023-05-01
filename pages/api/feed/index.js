@@ -26,7 +26,7 @@ export default async function handler(
     } = urlStringToObject(url)
 
     const pageIndex = page || 0
-    const maxPageData = 5
+    const maxPageData = 25
 
     res.setHeader("Content-Type", "application/json")
 
