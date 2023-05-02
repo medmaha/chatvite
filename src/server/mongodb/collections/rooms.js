@@ -91,9 +91,9 @@ RoomSchema.pre("save", async function (next) {
         this.members.push(this.host)
     }
     if (this.isNew || this.isModified("name")) {
-        this.slug = slugify(this.name + `-vid=${generateId(6)}`, {
+        this.slug = slugify(this.name + `-vid__${generateId(6)}`, {
             lower: true,
-            truncate: 32,
+            truncate: 64,
         })
         const capitalizedName = (name) => {
             let text = name.split("")

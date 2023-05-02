@@ -11,6 +11,7 @@ import Alert from "../components/UI/Alert"
 
 export default function GlobalProvider({ children }) {
     const [createRoom, setCreateRoom] = useState(false)
+    const [alert, alertOptions] = useState({ open: false })
     const [viewPrivateChats, toggleViewPrivateChats] = useState(false)
     const [user, setUser] = useState(undefined)
 
@@ -33,12 +34,23 @@ export default function GlobalProvider({ children }) {
         }
     }, [viewPrivateChats, createRoom])
 
+    function newAlertEmit(data) {
+        if (data === false) {
+            alertOptions({ open: false })
+        }
+        if (data.text) {
+            alertOptions((prev) => ({ ...data, open: true, show: true }))
+        }
+    }
+
     return (
         <GlobalContext.Provider
             value={{
                 user,
+                alert,
                 setUser,
                 createRoom,
+                newAlertEmit,
                 setCreateRoom,
                 viewPrivateChats,
                 toggleViewPrivateChats,
@@ -61,6 +73,8 @@ function App({ children }) {
         viewPrivateChats,
         setCreateRoom,
         toggleViewPrivateChats,
+        alert,
+        newAlertEmit,
     } = useContext(GlobalContext)
 
     const router = useRouter()
@@ -80,9 +94,17 @@ function App({ children }) {
 
     return (
         <div className="bg-gray-800 text-gray-200 h-full w-full min-h-[100vh]">
-            {/* <Navbar /> */}
-            <Alert />
-            {/* <div id="_topElement" className="w-full h-[65px] mb-2"></div>
+            <Navbar />
+            {alert?.open && (
+                <Alert
+                    text={alert.text}
+                    onCloseCallback={() => {
+                        newAlertEmit(false)
+                    }}
+                    {...alert}
+                />
+            )}
+            <div id="_topElement" className="w-full h-[65px] mb-2"></div>
             {createRoom && <CreateRoom />}
             {viewPrivateChats && (
                 <HostedChats
@@ -93,8 +115,8 @@ function App({ children }) {
                         }
                     }}
                 />
-            )} */}
-            {/* <div className="w-full px-2 lg:px-8 mx-auto">{children}</div> */}
+            )}
+            <div className="w-full px-2 lg:px-8 mx-auto">{children}</div>
         </div>
     )
 }

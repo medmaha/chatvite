@@ -5,7 +5,7 @@ import { useRouter } from "next/router"
 import axios from "axios"
 import Pending from "../../UI/Pending"
 
-export default function Main({ feeds: data, onInit }) {
+export default function Main({ feeds: data, onInit, fetchFeeds }) {
     const { setCreateRoom } = useContext(GlobalContext)
     const [feeds, setFeeds] = useState([])
     const [pending, setPending] = useState(false)
@@ -16,21 +16,24 @@ export default function Main({ feeds: data, onInit }) {
             const url = window.location.href
             const queryString = url.split("?")[1]
             if (queryString) {
-                fetchFeeds({ q: "?" + queryString })
+                _fetchFeeds({ q: "?" + queryString })
             } else {
                 setFeeds(data)
             }
         }
     }, [])
+    useLayoutEffect(() => {
+        setFeeds(data)
+    }, [data])
 
     function handleQueryParamSearchOnRouteChange(url, { shallow }) {
         const feedRoute = url.split("?")[0] === "/feed"
 
         if (shallow) {
             const queryString = url.split("?")[1]
-            fetchFeeds({ q: "?" + queryString })
+            _fetchFeeds({ q: "?" + queryString })
         } else {
-            if (feedRoute) fetchFeeds()
+            if (feedRoute) _fetchFeeds()
         }
     }
 
@@ -63,23 +66,15 @@ export default function Main({ feeds: data, onInit }) {
         }
     }
 
-    function fetchFeeds(data = {}) {
+    async function _fetchFeeds(_data = {}) {
         setPending(true)
-        const option = {
-            url: "/api/feed",
-            q: "",
-            tid: "",
-            ...data,
+        try {
+            await fetchFeeds(_data)
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setPending(false)
         }
-        axios
-            .get(option.url + option.q, { withCredentials: true })
-            .then((res) => {
-                setFeeds(res.data)
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-            .finally(() => setPending(false))
     }
 
     return (

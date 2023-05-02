@@ -1,5 +1,5 @@
 import axios from "axios"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useLayoutEffect, useState } from "react"
 
 export default function Paginator({
     Component,
@@ -9,11 +9,12 @@ export default function Paginator({
     componentProp,
     lastElement = true,
     threshold = 0.2,
+    ...resProps
 }) {
     const [_data, updateData] = useState(data)
     const [OBSERVER, setOBSERVER] = useState(0)
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         updateData(data)
     }, [data])
 
@@ -34,8 +35,6 @@ export default function Paginator({
                     rootMargin: `${rootMargin}px`,
                 },
             )
-            console.log(element)
-            observer.observe(element)
 
             return () => {
                 return observer.disconnect()
@@ -79,6 +78,7 @@ export default function Paginator({
         <Component
             {...{
                 [componentProp]: _data.data,
+                ...resProps,
                 onInit() {
                     setOBSERVER((prev) => prev + 1)
                 },

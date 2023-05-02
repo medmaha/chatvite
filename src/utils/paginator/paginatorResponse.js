@@ -27,15 +27,16 @@ export async function getPaginatorResponse({
     const response = { ...RESPONSE }
 
     response.pageIndex = pageIndex
-    response.totalData = totalData
     response.maxPageData = maxPageData
 
     if (totalData <= maxPageData) {
+        const OBJECTS_DATA = await model.find(query, projector, queryOptions)
+        response.totalData = OBJECTS_DATA.length
         return {
             ...response,
             pageIndex: 1,
             totalPages: 1,
-            data: await model.find(query, projector, queryOptions),
+            data: OBJECTS_DATA,
             links: {
                 next: null,
                 prev: null,
@@ -71,6 +72,8 @@ export async function getPaginatorResponse({
             .populate(populate)
             .sort(sort)
 
+        response.totalData = OBJECTS_DATA.length
+
         if (pageIndex > 0) {
             response.links = {}
             response.links.next = `${process.env.BASE_URL}/${urlPath}?page=${
@@ -99,6 +102,8 @@ export async function getPaginatorResponse({
         response.data = OBJECTS_DATA
         response.links = { next: null, prev: null, links: "broken" }
         response.totalPages = Math.round(totalData / maxPageData)
+
+        response.totalData = OBJECTS_DATA.length
     }
 
     return response

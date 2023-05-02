@@ -52,7 +52,7 @@ export default async function handler(
 
         dbQuery = [
             {
-                topic: topic._id,
+                topic: topic.id,
                 isPrivate: false,
             },
         ]
@@ -60,7 +60,7 @@ export default async function handler(
         if (authUser) {
             dbQuery.push({
                 isPrivate: true,
-                topic: topic._id,
+                topic: topic.id,
                 host: authUser._id,
             })
         }
@@ -126,9 +126,6 @@ export default async function handler(
         }
     }
 
-    console.clear()
-    console.log(dbQuery)
-
     const paginatorResponse = await getChatviteRooms({
         pageIndex,
         maxPageData,
@@ -164,8 +161,8 @@ async function getChatviteRooms({
             populate: [
                 {
                     path: "members",
-                    select: ["_id"],
-                    limit: 5,
+                    select: ["_id", "avatar", "username"],
+                    limit: 20,
                 },
             ],
         },
