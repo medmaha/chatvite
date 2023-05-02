@@ -17,7 +17,7 @@ export default function Create() {
     const [close, setClose] = useState(false)
     const [loading, setLoading] = useState(false)
     const [roomType, setRoomType] = useState(null)
-    const { setCreateRoom } = useContext(GlobalContext)
+    const { setCreateRoom, newAlertEmit } = useContext(GlobalContext)
 
     const session = useSession()
     const router = useRouter()
@@ -49,17 +49,27 @@ export default function Create() {
                         data: res.data,
                     },
                 })
+                newAlertEmit({
+                    text: `Chatroom "${room}" created successfully`,
+                    duration: 3500,
+                })
                 document.dispatchEvent(room)
                 setLoading(false)
                 setClose(true)
             })
             .catch((err) => {
+                let errMsg
                 if (err.response) {
-                    alert(err.response.data.message)
-                    console.error(err.response.data.message)
-                    return
+                    errMsg = err.response.data.message
+                } else {
+                    errMsg = err.message
                 }
-                console.error(err.message)
+                console.error(errMsg)
+                newAlertEmit({
+                    text: errMsg,
+                    invalid: true,
+                    duration: 7000,
+                })
             })
             .finally(() => setLoading(false))
     }

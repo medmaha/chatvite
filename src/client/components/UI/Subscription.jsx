@@ -44,6 +44,7 @@ export default function Subscription() {
             newAlertEmit({
                 text: data.message,
                 success: true,
+                duration: 8000,
             })
         } catch (error) {
             let errMsg = error.response?.data?.message

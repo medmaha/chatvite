@@ -105,6 +105,7 @@ export default async function handler(
                     topic: {
                         $in: topics.map((t) => t._id),
                     },
+                    host: authUser._id,
                 },
                 ...dbQuery,
                 ...authUserQuery,

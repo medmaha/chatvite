@@ -16,6 +16,11 @@ export default function Alert({
 
     useLayoutEffect(() => {
         toggleOpen(show)
+
+        return () => {
+            clearTimeout(openTimeOut)
+            clearTimeout(closeTimeOut)
+        }
     }, [show])
 
     useEffect(() => {
