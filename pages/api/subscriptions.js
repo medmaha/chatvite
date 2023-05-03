@@ -1,3 +1,4 @@
+import connectToDatabase from "../../src/server/db"
 import { Subscriptions } from "../../src/server/mongodb/collections"
 import { getPaginatorResponse } from "../../src/utils/paginator/paginatorResponse"
 
@@ -10,6 +11,8 @@ export default async function handler(req, res) {
         res.status(400).json({ message: "Invalid email address" })
         return res.end()
     }
+
+    await connectToDatabase()
 
     await Subscriptions.create({ email: email })
 

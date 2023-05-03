@@ -12,7 +12,13 @@ export default async function handler(req, res) {
 
     const { slug } = req.query
 
-    const room = await Room.findOne({ slug }).populate("members")
+    const room = await Room.findOne(
+        { slug },
+        {
+            members: 0,
+            _v: 0,
+        },
+    )
 
     // const room = getPaginatorResponse({
     //     urlPath:req.url.split('?'),

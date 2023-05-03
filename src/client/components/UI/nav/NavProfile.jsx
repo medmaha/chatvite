@@ -123,100 +123,122 @@ export default function NavProfile() {
                                     ref={dropdownRef}
                                     className="absolute top-[calc(100%+10px)] sm:top-full right-0 w-max"
                                 >
-                                    <div className="mt-5 bg-gray-600 p-5 shadow-xl rounded-sm shadow-gray-800">
-                                        <div className="flex mb-4 flex-col min-w-[150px] font-semibold tracking-wide w-full gap-4">
-                                            <div className="inline-block w-full">
-                                                <button
-                                                    onClick={() => {
-                                                        toggleViewPrivateChats(
-                                                            (prev) => !prev,
-                                                        )
-                                                    }}
-                                                    className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
-                                                >
-                                                    <span>ChatRooms</span>
-                                                    <span className="">
-                                                        <svg
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            width="1em"
-                                                            height="1em"
-                                                            stroke="currentColor"
-                                                            // fill="none"
-                                                            fill="currentColor"
-                                                            viewBox="0 0 24 24"
-                                                        >
-                                                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
-                                                        </svg>
-                                                    </span>
-                                                </button>
-                                            </div>
-                                            <div className="inline-block w-full">
-                                                <Link
-                                                    href={
-                                                        "/profile/" +
-                                                        user.username
-                                                    }
-                                                    className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
-                                                >
-                                                    <span>Profile</span>
-                                                    <span className="">
-                                                        <svg
-                                                            width="1em"
-                                                            height="1em"
-                                                            stroke="currentColor"
-                                                            // fill="none"
-                                                            fill="currentColor"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                            viewBox="0 0 20 20"
-                                                        >
-                                                            <path d="M5 5a5 5 0 0 1 10 0v2A5 5 0 0 1 5 7V5zM0 16.68A19.9 19.9 0 0 1 10 14c3.64 0 7.06.97 10 2.68V20H0v-3.32z" />
-                                                        </svg>
-                                                    </span>
-                                                </Link>
-                                            </div>
-                                            <div className="inline-block">
-                                                <Link
-                                                    href={"/account/logout"}
-                                                    onClick={(e) => {
-                                                        e.preventDefault()
-                                                        logoutAccount()
-                                                    }}
-                                                    className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
-                                                >
-                                                    <span>Logout</span>
-                                                    <span>
-                                                        <svg
-                                                            stroke="currentColor"
-                                                            // fill="none"
-                                                            fill="currentColor"
-                                                            fillOpacity=".5"
-                                                            strokeWidth="2"
-                                                            viewBox="0 0 24 24"
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            className="h-4 w-4"
-                                                            height="1em"
-                                                            width="1em"
-                                                            xmlns="http://www.w3.org/2000/svg"
-                                                        >
-                                                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                                            <polyline points="16 17 21 12 16 7"></polyline>
-                                                            <line
-                                                                x1="21"
-                                                                y1="12"
-                                                                x2="9"
-                                                                y2="12"
-                                                            ></line>
-                                                        </svg>
-                                                    </span>
-                                                </Link>
+                                    <div className="mt-5 bg-gray-600 p-2 pb-4 shadow-xl rounded-sm shadow-gray-800">
+                                        <div className="inline-flex pb-2 flex-col items-center justify-center w-full">
+                                            <span className="text-center inline-block w-[20ch] truncate">
+                                                {user.name}
+                                            </span>
+                                            <span
+                                                className={`text-center text-sm inline-block w-[20ch] truncate ${
+                                                    user.name
+                                                        ? "text-gray-400"
+                                                        : ""
+                                                }`}
+                                            >
+                                                {/* Signed in as{" "} */}
+                                                <b className="">
+                                                    @{user.username}
+                                                </b>{" "}
+                                            </span>
+                                        </div>
+                                        <div className="flex mb-4 flex-col max-w-max font-semibold tracking-wide w-full gap-4">
+                                            <div className="divider"></div>
+                                            <div className="flex flex-col gap-4 w-[20ch]">
+                                                <div className="inline-block w-full">
+                                                    <Link
+                                                        href={
+                                                            "/profile/" +
+                                                            user.username
+                                                        }
+                                                        className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
+                                                    >
+                                                        <span>Account</span>
+                                                        <span className="">
+                                                            <svg
+                                                                width="1em"
+                                                                height="1em"
+                                                                stroke="currentColor"
+                                                                // fill="none"
+                                                                fill="currentColor"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                viewBox="0 0 20 20"
+                                                            >
+                                                                <path d="M5 5a5 5 0 0 1 10 0v2A5 5 0 0 1 5 7V5zM0 16.68A19.9 19.9 0 0 1 10 14c3.64 0 7.06.97 10 2.68V20H0v-3.32z" />
+                                                            </svg>
+                                                        </span>
+                                                    </Link>
+                                                </div>
+                                                <div className="divider"></div>
+                                                <div className="inline-block w-full">
+                                                    <button
+                                                        onClick={() => {
+                                                            toggleViewPrivateChats(
+                                                                (prev) => !prev,
+                                                            )
+                                                        }}
+                                                        className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
+                                                    >
+                                                        <span>ChatRooms</span>
+                                                        <span className="">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width="1em"
+                                                                height="1em"
+                                                                stroke="currentColor"
+                                                                // fill="none"
+                                                                fill="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+                                                            </svg>
+                                                        </span>
+                                                    </button>
+                                                </div>
+                                                <div className="divider"></div>
+
+                                                <div className="inline-block">
+                                                    <Link
+                                                        href={"/account/logout"}
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            logoutAccount()
+                                                        }}
+                                                        className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
+                                                    >
+                                                        <span>Logout</span>
+                                                        <span>
+                                                            <svg
+                                                                stroke="currentColor"
+                                                                // fill="none"
+                                                                fill="currentColor"
+                                                                fillOpacity=".5"
+                                                                strokeWidth="2"
+                                                                viewBox="0 0 24 24"
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                className="h-4 w-4"
+                                                                height="1em"
+                                                                width="1em"
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                            >
+                                                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                                <polyline points="16 17 21 12 16 7"></polyline>
+                                                                <line
+                                                                    x1="21"
+                                                                    y1="12"
+                                                                    x2="9"
+                                                                    y2="12"
+                                                                ></line>
+                                                            </svg>
+                                                        </span>
+                                                    </Link>
+                                                </div>
                                             </div>
                                         </div>
                                         <span className="divider"></span>
                                         <div className="pt-2">
                                             <p className="text-xs text-gray-400">
-                                                Copyright © 2023 ChatVite Labs
-                                                Inc.
+                                                Copyright © 2023 ChatVite Inc.
                                             </p>
                                         </div>
                                     </div>

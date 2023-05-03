@@ -11,6 +11,40 @@ export default function SearchBar() {
     const brandElm = useRef()
     const profileElm = useRef()
 
+    function awaitExit(ev) {
+        const inputQueryFieldClicked =
+            !!ev.target.dataset.queryField ||
+            !!ev.target.closest("[data-query-field]")
+        const initQueryBtnClicked =
+            !!ev.target.dataset.initQuery ||
+            !!ev.target.closest("[data-init-query]")
+        const exitQueryBtnClicked =
+            !!ev.target.dataset.exitQuery ||
+            !!ev.target.closest("[data-exit-query]")
+        const searchQueryBtnClicked =
+            !!ev.target.dataset.searchQuery ||
+            !!ev.target.closest("[data-search-query]")
+
+        if (
+            !inputQueryFieldClicked &&
+            !exitQueryBtnClicked &&
+            !searchQueryBtnClicked &&
+            !initQueryBtnClicked
+        )
+            toggleSearch()
+    }
+
+    useEffect(() => {
+        if (showSearchForm) {
+            const input = document.querySelector(
+                "nav .search-bar [data-mobile-search] input",
+            )
+            if (input) input.focus()
+            document.addEventListener("click", awaitExit)
+            return () => document.removeEventListener("click", awaitExit)
+        }
+    }, [showSearchForm])
+
     useEffect(() => {
         brandElm.current = document.querySelector("nav [data-nav-brand]")
         profileElm.current = document.querySelector("nav [data-nav-profile]")
@@ -38,7 +72,8 @@ export default function SearchBar() {
     }
 
     return (
-        <div className="max-w-[400px] flex-1 flex justify-end sm:justify-start h-full items-center">
+        <div className="max-w-[420px] flex-1 gap-1 flex justify-end sm:justify-start h-full items-center search-bar">
+            {/* Desktop searchBar */}
             <form
                 onSubmit={handleSearch}
                 className="form w-full  hidden sm:inline-block relative"
@@ -67,24 +102,31 @@ export default function SearchBar() {
                 </button>
             </form>
 
+            {/* Mobile searchBar */}
             {showSearchForm && (
                 <form
+                    data-mobile-search
                     onSubmit={handleSearch}
-                    className="form w-full inline-block relative"
+                    className="form w-full inline-block relative flex-1"
                 >
                     <input
                         type="search"
+                        data-query-field
+                        // onBlur={toggleSearch}
                         placeholder="Search"
                         name="search"
+                        tabIndex={1}
                         className="bg-gray-800 rounded-md w-full p-2 border-gray-600 transition-[border-color] border-solid focus:outline-none border-[2px] focus:border-sky-500"
                     />
                     <button
                         title="search"
                         type="button"
+                        data-search-query
                         onClick={handleSearch}
                         className="absolute right-0 h-full inline-flex items-center px-2"
                     >
                         <svg
+                            data-search-query
                             xmlns="http://www.w3.org/2000/svg"
                             width="18"
                             height="18"
@@ -97,13 +139,25 @@ export default function SearchBar() {
                 </form>
             )}
 
-            <div className="self-end sm:hidden px-2 h-full flex items-center">
+            <div className="self-end sm:hidden h-full flex items-center">
                 {!showSearchForm && !!user ? (
-                    <button title="search" onClick={toggleSearch}>
+                    <button
+                        data-init-query
+                        title="search"
+                        className="inline-flex gap-[2px] items-center"
+                        onClick={toggleSearch}
+                    >
+                        <span
+                            data-init-query
+                            className="text-gray-400 hover:text-gray-300 transition"
+                        >
+                            search
+                        </span>
                         <svg
+                            data-init-query
                             xmlns="http://www.w3.org/2000/svg"
-                            width="25"
-                            height="25"
+                            width="20"
+                            height="20"
                             viewBox="0 0 24 24"
                             fill="currentColor"
                         >
@@ -112,23 +166,23 @@ export default function SearchBar() {
                     </button>
                 ) : (
                     !!user && (
-                        <div className="inline-flex items-center sm:hidden h-full">
-                            <button
-                                className="bg-red-400 p-1 rounded-full bg-opacity-30 hover:bg-opacity-40 transition"
-                                title="close"
-                                onClick={toggleSearch}
+                        <button
+                            className="bg-red-400 w-7 h-7 inline-flex items-center justify-center rounded-full bg-opacity-40 hover:bg-opacity-40 transition"
+                            title="close"
+                            data-exit-query
+                            onClick={toggleSearch}
+                        >
+                            <svg
+                                data-exit-query
+                                fill="currentColor"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="18"
+                                height="18"
+                                viewBox="0 0 18 18"
                             >
-                                <svg
-                                    fill="currentColor"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 18 18"
-                                >
-                                    <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
-                                </svg>
-                            </button>
-                        </div>
+                                <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z" />
+                            </svg>
+                        </button>
                     )
                 )}
             </div>

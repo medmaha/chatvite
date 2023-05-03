@@ -2,7 +2,13 @@ import styles from "./styles.module.css"
 import ChatVite from "./chat"
 import Members from "./members"
 import Link from "next/link"
-import { useCallback, useEffect, useLayoutEffect, useState } from "react"
+import {
+    useCallback,
+    useContext,
+    useEffect,
+    useLayoutEffect,
+    useState,
+} from "react"
 import { useSession } from "next-auth/react"
 
 import SocketIOClient from "socket.io-client"
@@ -10,13 +16,15 @@ import { useRouter } from "next/router"
 import axios from "axios"
 import Image from "next/image"
 import Popup from "../UI/Popup"
+import { GlobalContext } from "../../contexts"
 
 export default function Room({ data, WEBSOCKET_URL }) {
     const [roomResponseData, setRoomResponseData] = useState(data)
     const [room, setRoom] = useState(data)
     const [socket, setSocket] = useState(null)
+    const [isMember, setIsMember] = useState(false)
+    const { user, newAlertEmit } = useContext(GlobalContext)
 
-    const session = useSession()
     const router = useRouter()
 
     const socketInitializer = useCallback(async () => {
@@ -51,7 +59,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
     }, [room.isPrivate, socket, socketInitializer])
 
     function joinFuseGroup(ev, callback) {
-        if (!session?.data?.user) {
+        if (!user) {
             router.push("/auth/login")
             return
         }
@@ -67,21 +75,21 @@ export default function Room({ data, WEBSOCKET_URL }) {
             .then((res) => {
                 const data = res.data
                 if (!!data.joined) {
-                    const user = session.data?.user
-                    setRoom((prev) => {
-                        return {
-                            ...prev,
-                            members: [...prev.members, user],
-                        }
-                    })
                     socket.emit("add-group-member", room.slug, user, socket.id)
-                } else {
-                    const user = session.data.user
-                    const members = room.members.filter(
-                        (member) => member._id !== user._id,
+
+                    const CustomEventEmitter = new CustomEvent(
+                        "member-subscription",
+                        { detail: { type: "add", data: user } },
                     )
+                    document.dispatchEvent(CustomEventEmitter)
+                } else {
                     socket.emit("remove-group-member", room.slug, user.id)
-                    setRoom((prev) => ({ ...prev, members }))
+
+                    const CustomEventEmitter = new CustomEvent(
+                        "member-subscription",
+                        { detail: { type: "remove", data: user } },
+                    )
+                    document.dispatchEvent(CustomEventEmitter)
                 }
             })
             .catch((err) => {
@@ -178,20 +186,8 @@ export default function Room({ data, WEBSOCKET_URL }) {
                                 <div className="mr-4 transition">
                                     {(() => {
                                         if (!socket) return <></>
-                                        if (
-                                            room.host._id ===
-                                            session.data?.user._id
-                                        )
+                                        if (room.host._id === user?._id)
                                             return ""
-
-                                        const isMember = room.members?.find(
-                                            (user) => {
-                                                return (
-                                                    user._id ===
-                                                    session.data?.user?._id
-                                                )
-                                            },
-                                        )
 
                                         if (isMember) {
                                             return (
@@ -228,13 +224,19 @@ export default function Room({ data, WEBSOCKET_URL }) {
                     <ChatVite
                         socket={socket}
                         room={room}
+                        isMember={isMember}
                         joinFuseGroup={joinFuseGroup}
                         roomId={room._id}
                     />
                 </div>
             </div>
             {!room.isPrivate && (
-                <Members socket={socket} room={room} roomId={room._id} />
+                <Members
+                    socket={socket}
+                    roomId={room._id}
+                    hostId={room.host._id}
+                    setIsMember={setIsMember}
+                />
             )}
         </div>
     )
