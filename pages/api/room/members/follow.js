@@ -35,12 +35,17 @@ export default async function handler(req, res) {
         user.followers = user.followers.filter(
             (_member) => _member.id !== authUser.id,
         )
+        authUser.following = authUser.following.filter(
+            (_member) => _member.id !== user.id,
+        )
         isFollowing = false
     } else {
         user.followers.push(authUser._id)
+        authUser.following.push(user._id)
         isFollowing = true
     }
     await user.save()
+    await authUser.save()
 
     res.status(200).json({ isFollowing })
     return res.end()

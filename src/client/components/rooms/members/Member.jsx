@@ -4,14 +4,20 @@ import Link from "next/link"
 import axios from "axios"
 import { GlobalContext } from "../../../contexts"
 
-export default function Member({ member, host }) {
+export default function Member({ member: data, host }) {
+    const [member, setMember] = useState(data)
+
     const [isFollowing, toggleFollowing] = useState(null)
 
     const { user, newAlertEmit } = useContext(GlobalContext)
 
     useLayoutEffect(() => {
+        setMember(data)
+    }, [data])
+
+    useLayoutEffect(() => {
         toggleFollowing(!!member.followers.find((_id) => _id === user?._id))
-    }, [user])
+    }, [user, data])
 
     async function follow() {
         if (!user) return
@@ -24,6 +30,21 @@ export default function Member({ member, host }) {
                 { userId: member._id },
                 { withCredentials: true },
             )
+            setMember((prev) => {
+                let _mFn, _mFs
+                if (data.isFollowing) {
+                    _mFs = [...prev.followers, user._id]
+                    _mFn = [...prev.following, user._id]
+                } else {
+                    _mFs = prev.followers.filter((_id) => _id !== user._id)
+                    _mFn = prev.following.filter((_id) => _id !== user._id)
+                }
+                return {
+                    ...prev,
+                    followers: _mFs,
+                    following: _mFn,
+                }
+            })
         } catch (error) {
             const errMsg =
                 error?.response?.data?.message ||

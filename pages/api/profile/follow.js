@@ -72,9 +72,13 @@ export default async function follow(req = new NextRequest(), res) {
         profileUser.followers = profileUser.followers.filter(
             (user) => user.id !== authUser.id,
         )
+        authUser.following = authUser.following.filter(
+            (user) => user.id !== profileUser.id,
+        )
     } else {
         joined = true
-        profileUser.followers.push(authUser.id)
+        profileUser.followers.push(authUser._id)
+        authUser.following.push(profileUser._id)
     }
 
     // save the updated profile
