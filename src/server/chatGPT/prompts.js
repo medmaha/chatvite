@@ -21,9 +21,10 @@ export function promptHeader(room, host, isPrivate = false) {
     const intro = (() => {
         if (isPrivate)
             return `
-Welcome to our Chatroom on ${appName}, a new startup app.
+Welcome to our Chatroom on ${appName}, a new startup app that provides a rich set of features for both public and private chatrooms.
 App is developed and maintain by Mahamed Toure self-taught full-stack developer.
-Mahamed Toure's portfolio link is https://porfolio-mahamed.vercel.app
+Mahamed Toure's portfolio link is https://portfolio-mahamed.vercel.app
+${appName} is in preview state amd production
 
 This room is a one to one private chat between ${host.username} and AI.
 Our chat room's information includes the topic of discussion, which is "${room.name}", under the category of "${room.topic.name}".
