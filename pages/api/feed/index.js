@@ -168,7 +168,7 @@ async function getChatviteRooms({
             ],
         },
     })
-    paginatorResponse.data = paginatorResponse.data?.reverse()
+    // paginatorResponse.data = paginatorResponse.data?.reverse()
     return paginatorResponse
 }
 
