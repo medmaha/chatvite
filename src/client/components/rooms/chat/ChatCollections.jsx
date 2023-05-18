@@ -1,9 +1,16 @@
-import React from "react"
+import React, { useEffect, useRef } from "react"
 import Chat from "./Chat"
 
 export default function ChatCollections({ fuses }) {
+    const lastElemRef = useRef()
+    // useEffect(() => {
+    //     if (fuses?.length > 5)
+    //         lastElemRef.current.scrollIntoView({
+    //             behavior: "smooth",
+    //         })
+    // }, [fuses])
     return (
-        <div data-chat-collections>
+        <div data-chat-collections className="overflow-hidden overflow-y-auto">
             {fuses && (
                 <>
                     {fuses?.map((fuse) => {
@@ -20,7 +27,11 @@ export default function ChatCollections({ fuses }) {
                 </>
             )}
             {fuses?.length > 2 && (
-                <div data-last-target className="pt-1 w-full"></div>
+                <div
+                    ref={lastElemRef}
+                    data-last-target
+                    className="pt-1 w-full"
+                ></div>
             )}
         </div>
     )

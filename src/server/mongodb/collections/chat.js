@@ -26,6 +26,8 @@ const populateUserRefs = (doc, next) => {
 }
 
 Schema.pre("find", function (next) {
+    // this.sort({ createdAt: +1 })
+    // this.sort("createdAt")
     populateUserRefs(this, next)
 })
 

@@ -73,13 +73,13 @@ export default function Chat({ fuse }) {
                                         )}
                                     </>
                                 ) : (
-                                    <>@{user?.username}</>
+                                    <b>Me</b>
                                 )}
                             </Link>
                         </p>
                     </div>
                     <div
-                        className={`break-words ${
+                        className={`break-words flex flex-col gap-1 ${
                             myFuse
                                 ? "pl-[10%] sm:pl-[20%] md:pl-[30%] lg:pl-[40%]"
                                 : "pr-[10%] sm:pr-[20%] md:pr-[30%] lg:pr-[40%]"
@@ -90,7 +90,13 @@ export default function Chat({ fuse }) {
                                 myFuse && "justify-end"
                             }`}
                         >
-                            <p className="break-words ">{fuse.fuse}</p>
+                            <p
+                                className={`break-words float-right ${
+                                    myFuse ? " text-right " : ""
+                                }`}
+                            >
+                                {fuse.fuse}
+                            </p>
                         </div>
                         <p
                             data-fuse-failed

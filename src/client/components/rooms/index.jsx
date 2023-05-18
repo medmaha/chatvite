@@ -82,6 +82,10 @@ export default function Room({ data, WEBSOCKET_URL }) {
                         { detail: { type: "add", data: user } },
                     )
                     document.dispatchEvent(CustomEventEmitter)
+                    // setRoom({
+                    //     ...room,
+                    //     members: [user],
+                    // })
                 } else {
                     socket.emit("remove-group-member", room.slug, user.id)
 
@@ -90,6 +94,14 @@ export default function Room({ data, WEBSOCKET_URL }) {
                         { detail: { type: "remove", data: user } },
                     )
                     document.dispatchEvent(CustomEventEmitter)
+                    // setRoom((prev) => {
+                    //     return {
+                    //         ...room,
+                    //         members: prev.members?.filter(
+                    //             (_usr) => _usr._id !== user._id,
+                    //         ),
+                    //     }
+                    // })
                 }
             })
             .catch((err) => {
@@ -233,6 +245,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
             {!room.isPrivate && (
                 <Members
                     socket={socket}
+                    setRoom={setRoom}
                     roomId={room._id}
                     hostId={room.host._id}
                     setIsMember={setIsMember}

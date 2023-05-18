@@ -3,7 +3,13 @@ import MemberCollections from "./MemberCollections"
 import axios from "axios"
 import { GlobalContext } from "../../../contexts"
 
-export default function Members({ socket, roomId, hostId, setIsMember }) {
+export default function Members({
+    socket,
+    roomId,
+    hostId,
+    setIsMember,
+    setRoom,
+}) {
     const [members, setMembers] = useState()
     const { user, newAlertEmit } = useContext(GlobalContext)
 
@@ -55,7 +61,6 @@ export default function Members({ socket, roomId, hostId, setIsMember }) {
     }
 
     async function updateMemberSubscription(type) {
-        console.log(type, user)
         switch (type) {
             case "add":
                 setMembers((prev) => {
@@ -78,6 +83,7 @@ export default function Members({ socket, roomId, hostId, setIsMember }) {
         try {
             const { data } = await axios.get(`/api/room/members?rid=${roomId}`)
             updateMembers(data)
+            // setRoom((prev) => ({ ...prev, members: data }))
         } catch (error) {
             const errorMsg = error?.response?.data?.message || error?.message
             console.error(errorMsg)

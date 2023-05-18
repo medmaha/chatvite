@@ -62,6 +62,7 @@ const populateUserRefs = (doc, next) => {
                 model: "Users",
                 select: ["_id", "name", "username", "avatar"],
             },
+            // sort: "createdAt",
         },
     ])
 

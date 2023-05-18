@@ -1,7 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import connectToDatabase from "../../../src/server/db"
 import Authenticate from "../../../src/server/authenticate"
-import { Room } from "../../../src/server/mongodb/collections"
+import { Chat, Room } from "../../../src/server/mongodb/collections"
 import Users from "../../../src/server/mongodb/collections/users"
 import { getPaginatorResponse } from "../../../src/utils/paginator/paginatorResponse"
 
@@ -17,6 +17,7 @@ export default async function handler(req, res) {
         {
             members: 0,
             _v: 0,
+            chatfuses: 0,
         },
     )
 
@@ -46,11 +47,25 @@ export default async function handler(req, res) {
                 .status(403)
                 .send({ message: "This request is forbidden" })
         }
-
-        const data = room.toJSON()
-        delete data["members"]
-        return res.status(200).send(JSON.stringify(data))
     }
 
-    res.status(200).send(JSON.stringify(room.toJSON()))
+    const data = room.toJSON()
+
+    if (data.isPrivate) {
+        delete data["members"]
+    }
+
+    const messages = await Chat.find({ room: data._id })
+        .sort({
+            createdAt: -1,
+        })
+        .skip(0)
+        .limit(20)
+
+    res.status(200).send(
+        JSON.stringify({
+            ...data,
+            chatfuses: messages.reverse(),
+        }),
+    )
 }

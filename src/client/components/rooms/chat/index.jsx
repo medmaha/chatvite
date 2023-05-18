@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, {
+    Children,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+} from "react"
 import ChatCollections from "./ChatCollections"
 import Textarea from "./Textarea"
 import { useSession } from "next-auth/react"
@@ -15,13 +21,21 @@ let AutoScroll = true
 let cachedMessages
 let privateRoomAiResponseTimeout
 
-export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
+let messageRenderingDelay
+
+export default function ChatVite({
+    socket,
+    room,
+    roomId,
+    joinFuseGroup,
+    isMember,
+}) {
     const outgoingMsgSound = new Audio("/audio/msg-outgoing.mp3")
     outgoingMsgSound.volume = 0.6
     const incomingMsgSound = new Audio("/audio/msg-incoming.mp3")
     const chatContainerRef = useRef()
 
-    const [messages, setMessages] = useState(room.chatfuses || [])
+    const [messages, setMessages] = useState([])
     const [inputOffset, setInputOffset] = useState(0)
     const [membershipPopup, toggleMembershipPopup] = useState(false)
 
@@ -41,12 +55,22 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
                 `${height - offset - 5}px`,
             )
         }
-        scrollToBottom()
+        // scrollToBottom()
     }, [inputOffset])
 
     useEffect(() => {
-        scrollToBottom()
+        setMessages(room.chatfuses)
+    }, [room])
+
+    useEffect(() => {
+        messageRenderingDelay = setTimeout(() => {
+            scrollToBottom()
+        }, 300)
         cachedMessages = messages
+
+        return () => {
+            clearTimeout(messageRenderingDelay)
+        }
     }, [messages])
 
     useEffect(() => {
@@ -67,12 +91,18 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     }, [socket])
 
     function scrollToBottom() {
-        const element = document.querySelector("[data-chat-collections]")
+        if (!Boolean(messages.length)) return
+        const element = chatContainerRef.current
+
+        // element.scrollTop = -element.screenHeight
+        // element.scrollTo(0, 500)
+
         if (element) {
-            const maxScrollTop = element.clientHeight
-            element.parentElement.scrollTo({
+            // const maxScrollTop = element.firstChild.clientHeight
+
+            element.scrollTo({
                 behavior: "smooth",
-                top: maxScrollTop,
+                top: 5000,
             })
         }
     }
@@ -112,16 +142,15 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
     ) {
         if (!message?.length) return
 
-        if (!session.data?.user._id) {
+        const _userId = session.data?.user._id
+
+        if (!_userId) {
             return router.push("/auth/login")
         }
 
-        const isMember = room.members?.find((user) => {
-            return user._id === session.data?.user?._id
-        })
-
-        if (!isMember && !room.isPrivate) {
-            return toggleMembershipPopup(true)
+        if (!room.isPrivate) {
+            if (room.host._id !== _userId && !isMember)
+                return toggleMembershipPopup(true)
         }
 
         let chat
@@ -280,7 +309,7 @@ export default function ChatVite({ socket, room, roomId, joinFuseGroup }) {
                         boxShadow: "inset 0 0 15px 1px rgba(0,0,0,.2)",
                     }}
                     ref={chatContainerRef}
-                    className=" overflow-hidden overflow-y-auto p-1 sm:p-2"
+                    className="overflow-hidden overflow-y-auto p-1 sm:p-2"
                 >
                     <ChatCollections fuses={messages} />
                 </div>
