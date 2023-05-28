@@ -20,13 +20,13 @@ export default function Chat({ fuse: chat }) {
     }, [user, chat])
 
     function transFormTextUrl(text) {
-        const urlRegex = /(https?:\/\/[^\s]+)/g
+        const urlRegex = /(https?:\/\/[^\s]+\w)/g
         const urls = text.match(urlRegex)
         if (urls) {
             urls.forEach((url) => {
                 text = text.replace(
                     url,
-                    `<a href="${url}" class="text-sky-500 cursor-pointer">${url}</a>`,
+                    `<a href="${url}" target='blank' class="text-sky-500 cursor-pointer">${url}</a>`,
                 )
             })
         }
