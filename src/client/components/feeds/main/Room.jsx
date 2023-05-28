@@ -62,15 +62,16 @@ export default function Room({ room: data, interactions = true }) {
                     <DateFormatter data={room.createdAt} />
                 </div>
             </div>
-            <div className="h-max">
+            <div className="h-max overflow-hidden w-full">
                 <Link
                     className="px-1 cursor-pointer hover:text-blue-400 transition-[color] h-max py-2 mb-1 inline-block"
                     href={`/room/${room.slug}`}
                     // onClick={navigateToRoom}
                 >
-                    <span className="text-xl font-semibold tracking-wide inline-block">
-                        {room.name}
-                    </span>
+                    <p className="text-xl font-semibold tracking-wide inline-block w-full break-words truncate_ max-w-[20ch] mobile:max-w-[40ch]">
+                        {room.name} sgsggss ssgsggs ssg sggs sgsg suuuu
+                        zzzzzzzzzzzzzz
+                    </p>
                     <p className=" text-gray-300 text-sm opacity-70 font-semibold tracking-wide line-clamp-3">
                         {room.description}
                     </p>

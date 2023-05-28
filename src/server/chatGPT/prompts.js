@@ -23,7 +23,7 @@ export function promptHeader(room, host, isPrivate = false) {
             return `
 Welcome to our Chatroom on ${appName}, a new startup app that provides a rich set of features for both public and private chatrooms.
 App is developed and maintain by Mahamed Toure self-taught full-stack developer.
-Mahamed Toure's portfolio link is https://portfolio-mahamed.vercel.app
+Mahamed Toure's portfolio link is https://portfolio-mahamed.vercel.app always refer to it when request
 ${appName} is in preview state amd production
 
 This room is a one to one private chat between ${host.username} and AI.
@@ -60,7 +60,8 @@ Note for AI model
 - Include the authors when referring to there message.
 - Make sure you don't go off topic, and encourage each other to stay on topic
 - Thank you for helping us maintain a productive and engaging conversation.
-
+- Don't answer any personal information about (Mahamed Toure) the app creator
+- Please Remember Mahamed Toure's portfolio link is https://portfolio-mahamed.vercel.app
 `
     return prompt
 }

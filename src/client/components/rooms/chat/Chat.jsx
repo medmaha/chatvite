@@ -5,19 +5,33 @@ import Image from "next/image"
 import Link from "next/link"
 import DateFormatter from "../../UI/layouts/DateFormatter"
 
-export default function Chat({ fuse }) {
+export default function Chat({ fuse: chat }) {
     const { user } = useContext(GlobalContext)
 
     const [myFuse, setMyFuse] = useState(false)
 
     useLayoutEffect(() => {
         const me = (() => {
-            if (user?._id === fuse.sender._id) return true
+            if (user?._id === chat.sender._id) return true
             return false
         })()
 
         setMyFuse(me)
-    }, [user, fuse])
+    }, [user, chat])
+
+    function transFormTextUrl(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)/g
+        const urls = text.match(urlRegex)
+        if (urls) {
+            urls.forEach((url) => {
+                text = text.replace(
+                    url,
+                    `<a href="${url}" class="text-sky-500 cursor-pointer">${url}</a>`,
+                )
+            })
+        }
+        return text
+    }
 
     return (
         <div
@@ -26,21 +40,21 @@ export default function Chat({ fuse }) {
                 myFuse ? "border-r-[2px] myFuse" : "border-l-[2px]"
             }`}
             style={{
-                borderColor: convertNameToColor(fuse.sender?.username || ""),
+                borderColor: convertNameToColor(chat.sender?.username || ""),
             }}
         >
             <div className={`flex gap-2 w-full ${myFuse && "justify-end"} `}>
                 <div className={`${myFuse && "order-last"}`}>
                     {!myFuse && (
                         <Link
-                            href={`/profile/${fuse.sender.username}`}
+                            href={`/profile/${chat.sender.username}`}
                             className="inline-block w-[35px] h-[35px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]"
                         >
                             <Image
                                 width={35}
                                 height={35}
                                 alt="sender avatar"
-                                src={fuse.sender.avatar}
+                                src={chat.sender.avatar}
                                 className="rounded-full"
                             />
                         </Link>
@@ -58,17 +72,17 @@ export default function Chat({ fuse }) {
                             }`}
                         >
                             <Link
-                                href={`/profile/${fuse.sender.username}`}
+                                href={`/profile/${chat.sender.username}`}
                                 className="font-bold"
                             >
-                                {fuse.sender._id !== user?._id ? (
+                                {chat.sender._id !== user?._id ? (
                                     <>
-                                        {fuse.sender.name === "AI" ? (
+                                        {chat.sender.name === "AI" ? (
                                             "AI"
                                         ) : (
                                             <>
-                                                {fuse.sender.name ||
-                                                    fuse.sender.username}
+                                                {chat.sender.name ||
+                                                    chat.sender.username}
                                             </>
                                         )}
                                     </>
@@ -94,8 +108,11 @@ export default function Chat({ fuse }) {
                                 className={`break-words float-right ${
                                     myFuse ? " text-right " : ""
                                 }`}
+                                dangerouslySetInnerHTML={{
+                                    __html: transFormTextUrl(chat.fuse),
+                                }}
                             >
-                                {fuse.fuse}
+                                {/* {transFormTextUrl(chat.fuse)} */}
                             </p>
                         </div>
                         <p
@@ -133,8 +150,8 @@ export default function Chat({ fuse }) {
                             }`}
                         >
                             <span className="'text-sm">
-                                {fuse.createdAt && (
-                                    <DateFormatter data={fuse.createdAt} />
+                                {chat.createdAt && (
+                                    <DateFormatter data={chat.createdAt} />
                                 )}
                             </span>
                         </div>
