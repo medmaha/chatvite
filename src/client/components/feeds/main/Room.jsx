@@ -69,8 +69,7 @@ export default function Room({ room: data, interactions = true }) {
                     // onClick={navigateToRoom}
                 >
                     <p className="text-xl font-semibold tracking-wide inline-block w-full break-words truncate_ max-w-[20ch] mobile:max-w-[40ch]">
-                        {room.name} sgsggss ssgsggs ssg sggs sgsg suuuu
-                        zzzzzzzzzzzzzz
+                        {room.name}
                     </p>
                     <p className=" text-gray-300 text-sm opacity-70 font-semibold tracking-wide line-clamp-3">
                         {room.description}
