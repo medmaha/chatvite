@@ -9,6 +9,7 @@ export default function Paginator({
     componentProp,
     lastElement = true,
     threshold = 0.2,
+
     ...resProps
 }) {
     const [_data, updateData] = useState(data)

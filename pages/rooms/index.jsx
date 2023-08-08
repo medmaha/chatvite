@@ -1,47 +1,120 @@
-import { useRouter } from "next/router"
-import React, { useContext, useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { GlobalContext } from "../../../contexts"
+import React, { useEffect, useState } from "react"
 import axios from "axios"
-import { getUserAvatarUrl } from "../../../../utils"
-import DateFormatter from "../../UI/layouts/DateFormatter"
 
-export default function Room({ room: data, interactions = true }) {
+import { useSession } from "next-auth/react"
+import Link from "next/link"
+import Image from "next/image"
+import { getUserAvatarUrl } from "../../src/utils"
+
+import DateFormatter from "../../src/client/components/UI/layouts/DateFormatter"
+import { useRouter } from "next/router"
+
+export default function Index({ data }) {
+    const session = useSession()
     const router = useRouter()
-    const [room, setRoom] = React.useState(data)
+    const [loaded, toggleLoaded] = useState(false)
 
-    const { user } = useContext(GlobalContext)
-
-    function navigateToRoom() {
-        router.push(`/room/${room.slug}`)
-    }
-
-    function joinRoom() {
-        if (!user) {
-            router.push("/auth/login")
-            return
+    useEffect(() => {
+        if (session.status !== "loading") {
+            console.log(session.data)
+            toggleLoaded(true)
         }
-        setRoom({ ...room, members: [user, ...room.members] })
-        axios
-            .post(
-                "/api/room/join",
-                { id: room._id, room: true },
-                { withCredentials: true },
-            )
-            .then((res) => {
-                setRoom(res.data.room)
-            })
-            .catch((err) => {
-                console.log(err)
-            })
-    }
+    }, [session])
 
+    return (
+        <>
+            {loaded && session.data && (
+                <>
+                    <div className="flex items-center justify-evenly gap-4">
+                        <button
+                            title="Back"
+                            onClick={() => router.back()}
+                            className="ml-4"
+                        >
+                            <span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    className="fill-blue-400"
+                                >
+                                    <path d="M21 11H6.83l3.58-3.59L9 6l-6 6 6 6 1.41-1.41L6.83 13H21z" />
+                                </svg>
+                            </span>
+                        </button>
+                        <h1 className="text-xl font-semibold">Chat Rooms</h1>
+                    </div>
+                    <div className="flex flex-wrap gap-1 pt-4 pb-8 px-1">
+                        <div className="p-2 flex-1 max-w-[550px]">
+                            <h2 className="text-lg font-semibold text-center bg-gray-600 py-1 rounded-md">
+                                My Public Rooms
+                            </h2>
+                            <div className="py-2">
+                                <RoomCollections
+                                    user={session.data.user}
+                                    feeds={data.public.map((room) => ({
+                                        ...room,
+                                        host: session.data.user,
+                                    }))}
+                                />
+                            </div>
+                        </div>
+                        <div className="p-2 flex-1 max-w-[550px]">
+                            <h2 className="text-lg font-semibold text-center bg-gray-600 py-1 rounded-md">
+                                My Private Rooms
+                            </h2>
+                            <div className="py-2">
+                                <RoomCollections
+                                    user={session.data.user}
+                                    feeds={data.private.map((room) => ({
+                                        ...room,
+                                        host: session.data.user,
+                                    }))}
+                                />
+                            </div>
+                        </div>
+                        <div className="p-2 flex-1 max-w-[550px]">
+                            <h2 className="text-lg font-semibold text-center bg-gray-600 py-1 rounded-md">
+                                Joined Rooms
+                            </h2>
+                            <div className="py-2">
+                                <RoomCollections
+                                    user={session.data.user}
+                                    feeds={data.joined}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </>
+            )}
+        </>
+    )
+}
+
+function RoomCollections({ feeds, user }) {
+    return (
+        <div
+            data-rooms-collections
+            className="max-h-[600px] overflow-hidden overflow-y-auto"
+        >
+            {feeds.map((room) => {
+                return (
+                    <span data-room key={room._id || room.slug}>
+                        <Room user={user} room={room} />
+                    </span>
+                )
+            })}
+        </div>
+    )
+}
+
+function Room({ user, room, isMember }) {
     return (
         <div className="bg-gray-700 p-3 rounded-md mb-2 min-w-[180px] sm:min-w-[250px]">
             <div className="headers flex justify-between items-center">
                 <Link
-                    href={"/profile/" + room.host.username}
+                    href={"/profile/" + (room.host || user).username}
                     className="flex gap-2 items-center"
                     id=""
                 >
@@ -54,9 +127,10 @@ export default function Room({ room: data, interactions = true }) {
                             className="rounded-full"
                         />
                     </span>
-                    <span className="text-blue-400 font-semibold text-sm tracking-wide">
-                        @{room.host.username}
-                    </span>
+                    <div className="text-blue-400 font-semibold text-sm tracking-wide inline-flex flex-col">
+                        <span>{room.host.name}</span>
+                        <span>@{room.host.username}</span>
+                    </div>
                 </Link>
                 <div className="inline text-sm text-gray-500">
                     <DateFormatter data={room.createdAt} />
@@ -89,27 +163,17 @@ export default function Room({ room: data, interactions = true }) {
                                         title="This chatroom is private to you"
                                         className="font-semibold text-sky-400"
                                     >
-                                        #Private
+                                        #Private to You
                                     </span>
                                 )
                             }
                             if (user?._id === room.host._id)
                                 return (
                                     <span className="font-semibold text-gray-400">
-                                        Hosted by you
-                                    </span>
-                                )
-                            if (!interactions)
-                                return (
-                                    <span className="font-semibold text-gray-400">
-                                        Hosted by {room.host.username}
+                                        Hosted by You
                                     </span>
                                 )
 
-                            const isMember = room.members.find(
-                                (member) =>
-                                    member._id === (user?.id || user?._id),
-                            )
                             if (isMember)
                                 return (
                                     <>
@@ -132,11 +196,8 @@ export default function Room({ room: data, interactions = true }) {
                                     </>
                                 )
                             return (
-                                <span
-                                    onClick={joinRoom}
-                                    className="px-4 font-semibold py-1 rounded-md bg-blue-400 hover:bg-blue-500 transition cursor-pointer"
-                                >
-                                    Join
+                                <span className="font-semibold text-gray-400">
+                                    Hosted by {room.host.username}
                                 </span>
                             )
                         })()}
@@ -162,4 +223,26 @@ export default function Room({ room: data, interactions = true }) {
             </div>
         </div>
     )
+}
+
+export async function getServerSideProps(context) {
+    try {
+        const res = await axios.get(`${process.env.BASE_URL}/api/rooms`, {
+            withCredentials: true,
+            headers: { cookie: context.req.headers.cookie },
+        })
+
+        return {
+            props: { data: res.data },
+        }
+    } catch (error) {
+        console.log(error.message)
+        return {
+            redirect: {
+                destination: "/feed",
+                permanent: false,
+                replace: true,
+            },
+        }
+    }
 }

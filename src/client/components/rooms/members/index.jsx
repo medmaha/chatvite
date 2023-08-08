@@ -1,30 +1,11 @@
-import React, { useContext, useEffect, useState } from "react"
+import React, { useCallback, useContext, useEffect, useState } from "react"
 import MemberCollections from "./MemberCollections"
 import axios from "axios"
 import { GlobalContext } from "../../../contexts"
 
-export default function Members({
-    socket,
-    roomId,
-    hostId,
-    setIsMember,
-    setRoom,
-}) {
-    const [members, setMembers] = useState()
+export default function Members({ socket, room, setIsMember, setRoom }) {
+    const [members, setMembers] = useState(null)
     const { user, newAlertEmit } = useContext(GlobalContext)
-
-    useEffect(() => {
-        if (user) {
-            document.addEventListener("member-subscription", (ev) => {
-                const { type } = ev.detail
-                updateMemberSubscription(type)
-            })
-
-            return () => {
-                document.removeEventListener("member-subscription", (ev) => {})
-            }
-        }
-    }, [user])
 
     useEffect(() => {
         setIsMember(isMember())
@@ -52,7 +33,7 @@ export default function Members({
             socket?.off("member-added", () => {})
             socket?.off("member-removed", () => {})
         }
-    }, [socket])
+    }, [socket, members])
 
     function isMember() {
         return !!members?.find((_user) => {
@@ -60,30 +41,40 @@ export default function Members({
         })
     }
 
-    async function updateMemberSubscription(type) {
-        switch (type) {
-            case "add":
-                setMembers((prev) => {
-                    const _members = prev || []
-                    return [..._members, user]
-                })
-                break
-            case "remove":
-                setMembers((prev) => {
-                    const _members = prev || []
-                    return _members?.filter((member) => member._id !== user._id)
-                })
-                break
-            default:
-                break
-        }
-    }
+    const updateMemberSubscription = useCallback(
+        (type) => {
+            switch (type) {
+                case "add":
+                    setMembers((prev) => {
+                        const _members = prev || []
+                        return [..._members, user]
+                    })
+                    break
+                case "remove":
+                    setMembers((prev) => {
+                        const _members = prev || []
+                        return _members?.filter(
+                            (member) => member._id !== user._id,
+                        )
+                    })
+                    break
+                default:
+                    break
+            }
+        },
+        [user],
+    )
 
     async function getMembers() {
+        if (Array.isArray(room?.members)) {
+            return setMembers(room.members)
+        }
         try {
-            const { data } = await axios.get(`/api/room/members?rid=${roomId}`)
-            updateMembers(data)
-            // setRoom((prev) => ({ ...prev, members: data }))
+            const { data } = await axios.get(
+                `/api/room/members?rid=${room._id}`,
+            )
+            setMembers(data)
+            setRoom((prev) => ({ ...prev, members: data }))
         } catch (error) {
             const errorMsg = error?.response?.data?.message || error?.message
             console.error(errorMsg)
@@ -95,20 +86,38 @@ export default function Members({
         }
     }
 
-    async function updateMembers(data) {
-        setMembers((prev) => data)
-    }
+    useEffect(() => {
+        if (user) {
+            document.addEventListener("member-subscription", (ev) => {
+                const { type } = ev.detail
+                updateMemberSubscription(type)
+            })
+
+            return () => {
+                document.removeEventListener("member-subscription", (ev) => {})
+            }
+        }
+    }, [user, updateMemberSubscription])
 
     return (
-        <div className="flex-1 rounded-lg sm:rounded-xl overflow-hidden max-w-[280px] lg:max-w-[350px] bg-gray-700 hidden md:block">
-            <div className="flex items-center justify-between bg-gray-600 p-[.5em] sm:p-[1em] text-gray-200 font-bold">
-                <h1 className="text-[1.125em] tracking-wide">Members</h1>
-                <span>{members?.length || ""}</span>
-            </div>
+        <>
+            {members && (
+                <>
+                    <div className="flex items-center justify-between bg-gray-600 p-[.5em] sm:p-[1em] text-gray-200 font-bold">
+                        <h1 className="text-[1.125em] tracking-wide">
+                            Members
+                        </h1>
+                        <span>{members?.length || ""}</span>
+                    </div>
 
-            <div className="mt-[.5em]">
-                <MemberCollections members={members} hostId={hostId} />
-            </div>
-        </div>
+                    <div className="mt-[.5em] w-full">
+                        <MemberCollections
+                            members={members}
+                            hostId={room.host.id}
+                        />
+                    </div>
+                </>
+            )}
+        </>
     )
 }

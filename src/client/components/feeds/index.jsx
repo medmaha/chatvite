@@ -9,7 +9,7 @@ import io from "socket.io-client"
 import Paginator from "../UI/Paginator"
 import axios from "axios"
 
-export default function Feed({ feeds }) {
+export default function Feed({ feeds, roomsCount }) {
     const [_feeds, setFeeds] = useState(feeds)
     useLayoutEffect(() => {
         setFeeds(feeds)
@@ -38,21 +38,22 @@ export default function Feed({ feeds }) {
     }
 
     return (
-        <div className="flex justify-center gap-3">
-            <div className="flex-1 hidden md:block min-w-[270px] lg:min-w-[250px] max-w-[320px]  basis-[100px]">
+        <div className="grid md:grid-cols-[auto,1fr,auto] gap-2">
+            <div className="hidden md:block">
                 <Topics />
             </div>
-            <div className=" flex-1 min-w-[350px] lg:min-w-[400px] max-w-[500px]">
+            <div className="block md:min-w-[450px] mx-auto w-full max-w-[600px]">
                 <Paginator
                     Component={Main}
                     componentProp="feeds"
                     data={_feeds}
                     fetchFeeds={fetchFeeds}
                     targetSelector="[data-rooms-collections] [data-room]"
+                    roomsCount={roomsCount}
                 ></Paginator>
                 {/* <Main feeds={feeds.data} fetchFeeds={fetchFeeds} /> */}
             </div>
-            <div className="flex-1 hidden lg:block lg:max-w-[300px] xl:max-w-[330px]">
+            <div className="hidden lg:block">
                 <Activities />
             </div>
         </div>

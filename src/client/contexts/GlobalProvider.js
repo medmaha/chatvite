@@ -43,6 +43,8 @@ export default function GlobalProvider({ children }) {
         }
     }
 
+    function toggleDrawer() {}
+
     return (
         <GlobalContext.Provider
             value={{
@@ -50,6 +52,7 @@ export default function GlobalProvider({ children }) {
                 alert,
                 setUser,
                 createRoom,
+                toggleDrawer,
                 newAlertEmit,
                 setCreateRoom,
                 viewPrivateChats,
@@ -57,7 +60,10 @@ export default function GlobalProvider({ children }) {
             }}
         >
             {session.status === "loading" ? (
-                <div className="bg-gray-800 text-gray-200 min-h-[100vh]">
+                <div
+                    style={{ height: "100vh" }}
+                    className="bg-gray-800 text-gray-200 min-h-[100vh] block"
+                >
                     <Pending h={"100vh"} />
                 </div>
             ) : (

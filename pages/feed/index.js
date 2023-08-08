@@ -5,8 +5,8 @@ import { authOptions } from "../api/auth/[...nextauth]"
 
 import Feed from "../../src/client/components/feeds"
 
-export default function Index({ feeds }) {
-    return <Feed feeds={feeds} />
+export default function Index({ feeds, roomsCount }) {
+    return <Feed feeds={feeds} roomsCount={roomsCount} />
 }
 
 export async function getServerSideProps(ctx) {
@@ -25,11 +25,16 @@ export async function getServerSideProps(ctx) {
                 Authorization: "Bearer " + session?.user?._id || "",
             },
         })
+        const { data: roomsCount } = await axios.get(
+            `${baseUrl}/api/feed/total`,
+            {},
+        )
 
         if (data) {
             return {
                 props: {
                     feeds: data,
+                    roomsCount: roomsCount.count,
                 },
             }
         }
@@ -40,6 +45,7 @@ export async function getServerSideProps(ctx) {
     return {
         props: {
             feeds: [],
+            roomsCount: 0,
         },
     }
 }

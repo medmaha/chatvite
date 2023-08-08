@@ -12,7 +12,9 @@ import { GlobalContext } from "../../contexts"
 import { updateToFirebase } from "./updateToFirebase"
 import Meta from "../../contexts/Meta"
 
-export default function ProfileAccount({ data: _data }) {
+let USERNAME
+
+export default function ProfileAccount({ data: _data, username }) {
     const [data, updateData] = useState(_data)
     const [edit, toggleEdit] = useState(false)
     const [account, setAccount] = useState({})
@@ -24,9 +26,10 @@ export default function ProfileAccount({ data: _data }) {
 
     const router = useRouter()
 
-    useLayoutEffect(() => {
-        setAccount({ ...data.account })
-    }, [data])
+    useEffect(() => {
+        setAccount(_data.account)
+        updateData(_data)
+    }, [username, _data])
 
     async function updatedUserSession(data, cb) {
         await axios.get("/api/auth/session?update=1")
@@ -100,8 +103,9 @@ export default function ProfileAccount({ data: _data }) {
                     followers={data.stats.followers}
                 />
                 <Stats
-                    stats={Object.values(data.stats)}
+                    stats={data.stats}
                     profileId={account._id}
+                    username={username}
                 />
 
                 {edit && (

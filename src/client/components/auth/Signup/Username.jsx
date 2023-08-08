@@ -189,9 +189,8 @@ export default function Username({ errorMsg }) {
                 ref={usernameRef}
                 type="text"
                 placeholder="my-username"
-                autoComplete="off"
+                autoComplete="user_name"
                 autoCorrect="false"
-                aria-autocomplete="none"
                 name="username"
                 id="username"
                 required

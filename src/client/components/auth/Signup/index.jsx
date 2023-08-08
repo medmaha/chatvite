@@ -120,7 +120,7 @@ export default function Signup({ csrfToken }) {
                                     href={"/auth/login"}
                                     className="text-sky-400 font-semibold p-1 border-b border-solid border-current"
                                 >
-                                    Sign up
+                                    Log in
                                 </Link>
                             </p>
                         </div>

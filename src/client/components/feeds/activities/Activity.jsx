@@ -6,8 +6,8 @@ import DateFormatter from "../../UI/layouts/DateFormatter"
 
 export default function Activity({ activity }) {
     return (
-        <div className="border-[1px] border-gray-600 p-2 mb-2">
-            <div className="flex gap-2 w-full">
+        <div className="border-b-[1px] border-gray-600 p-2">
+            <div className="flex gap-2">
                 <div className="">
                     <button className="user w-[45px] h-[45px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]">
                         <Image
@@ -29,14 +29,16 @@ export default function Activity({ activity }) {
                         </Link>
                     </div>
                     <div className="pr-1 pb-1">
-                        <p className="text-gray-400 text-sm">
+                        <p className="text-gray-400 text-xs">
                             <DateFormatter data={activity.createdAt} />
                         </p>
                         <div className="flex flex-wrap justify-between gap-1 items-center">
-                            <p className="max-w-[15c">{activity.action}</p>
+                            <p className="max-w-[15c text-sm">
+                                {activity.action}
+                            </p>
                             <Link
                                 href={`room/${activity.room.slug}`}
-                                className="p-1 bg-gray-800 ml-1 rounded-lg outline outline-[1px] outline-blue-400 text-blue-400 font-semibold tracking-wide truncate"
+                                className="p-1 text-sm bg-gray-800 ml-1 rounded-lg outline outline-[1px] outline-blue-400 text-blue-400 font-semibold tracking-wide truncate"
                             >
                                 {activity.room.name}
                             </Link>
@@ -44,8 +46,8 @@ export default function Activity({ activity }) {
                     </div>
                 </div>
             </div>
-            <div className="ml-[50px]">
-                <p className="p-2  bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[20ch] lg:max-w-[32ch]">
+            <div className="mx-auto">
+                <p className="p-2 w-max bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[32ch] mx-auto">
                     {activity.message}
                 </p>
             </div>

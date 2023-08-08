@@ -6,15 +6,10 @@ export default function Pending({ h }) {
         const element = ref.current
     }, [])
 
-    useEffect(() => {
-        const element = ref.current
-        if (h) {
-            element.style.height = h
-        }
-    }, [])
     return (
         <div
             ref={ref}
+            style={{ height: h || "auto" }}
             className={`relative w-full flex justify-center items-center`}
         >
             <div

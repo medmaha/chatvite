@@ -5,7 +5,6 @@ import Authenticate from "../../../../src/server/authenticate"
 import { Room } from "../../../../src/server/mongodb/collections"
 
 export default async function handler(req, res) {
-    await connectToDatabase()
     const authUser = await Authenticate(req, res)
 
     const { roomtype } = req.query
@@ -13,8 +12,6 @@ export default async function handler(req, res) {
     if (!authUser) {
         return
     }
-
-    console.log(roomtype)
 
     const rooms = await Room.find({
         isPrivate: roomtype === "private",

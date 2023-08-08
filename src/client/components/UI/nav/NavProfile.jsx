@@ -9,7 +9,7 @@ import { getUserAvatarUrl } from "../../../../utils/index"
 
 export default function NavProfile() {
     const [dropdown, toggleDropdown] = useState(false)
-    const { user, toggleViewPrivateChats } = useContext(GlobalContext)
+    const { user } = useContext(GlobalContext)
 
     const dropdownRef = useRef()
     const router = useRouter()
@@ -123,7 +123,7 @@ export default function NavProfile() {
                                     ref={dropdownRef}
                                     className="absolute top-[calc(100%+10px)] sm:top-full right-0 w-max"
                                 >
-                                    <div className="mt-5 bg-gray-600 p-2 pb-4 shadow-xl rounded-sm shadow-gray-800">
+                                    <div className="mt-5 bg-gray-600 pt-2 px-4 pb-4 shadow-xl rounded-sm shadow-gray-800">
                                         <div className="inline-flex pb-2 flex-col items-center justify-center w-full">
                                             <span className="text-center inline-block w-[20ch] truncate">
                                                 {user.name}
@@ -170,12 +170,8 @@ export default function NavProfile() {
                                                 </div>
                                                 <div className="divider"></div>
                                                 <div className="inline-block w-full">
-                                                    <button
-                                                        onClick={() => {
-                                                            toggleViewPrivateChats(
-                                                                (prev) => !prev,
-                                                            )
-                                                        }}
+                                                    <Link
+                                                        href={"/rooms"}
                                                         className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
                                                     >
                                                         <span>ChatRooms</span>
@@ -192,10 +188,49 @@ export default function NavProfile() {
                                                                 <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
                                                             </svg>
                                                         </span>
-                                                    </button>
+                                                    </Link>
                                                 </div>
                                                 <div className="divider"></div>
-
+                                                <div className="inline-block">
+                                                    <Link
+                                                        href={"/topics"}
+                                                        className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
+                                                    >
+                                                        <span>Topics</span>
+                                                        <span>
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width="1rem"
+                                                                height="1rem"
+                                                                fill="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z" />
+                                                            </svg>
+                                                        </span>
+                                                    </Link>
+                                                </div>
+                                                <div className="divider"></div>
+                                                <div className="inline-block">
+                                                    <Link
+                                                        href={"/activities"}
+                                                        className="inline-flex transition-[color] justify-between items-center w-full text-gray-300 hover:text-blue-400"
+                                                    >
+                                                        <span>Activities</span>
+                                                        <span>
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                width="1rem"
+                                                                height="1rem"
+                                                                fill="currentColor"
+                                                                viewBox="0 0 24 24"
+                                                            >
+                                                                <path d="M3 9h14V7H3v2zm0 4h14v-2H3v2zm0 4h14v-2H3v2zm16 0h2v-2h-2v2zm0-10v2h2V7h-2zm0 6h2v-2h-2v2z" />
+                                                            </svg>
+                                                        </span>
+                                                    </Link>
+                                                </div>
+                                                <div className="divider"></div>
                                                 <div className="inline-block">
                                                     <Link
                                                         href={"/account/logout"}

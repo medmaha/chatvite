@@ -123,7 +123,7 @@ export default function SearchBar() {
                         type="button"
                         data-search-query
                         onClick={handleSearch}
-                        className="absolute right-0 h-full inline-flex items-center px-2"
+                        className="absolute right-0 h-full inline-flex items-center px-2 "
                     >
                         <svg
                             data-search-query
@@ -144,20 +144,17 @@ export default function SearchBar() {
                     <button
                         data-init-query
                         title="search"
-                        className="inline-flex gap-[2px] items-center"
+                        className="inline-flex hover:text-blue-400 transition text-gray-400 border-gray-400 gap-2 items-center border-2 hover:border-blue-400 px-4 rounded-md py-1 text-sm"
                         onClick={toggleSearch}
                     >
-                        <span
-                            data-init-query
-                            className="text-gray-400 hover:text-gray-300 transition"
-                        >
-                            search
+                        <span data-init-query className="">
+                            Search
                         </span>
                         <svg
                             data-init-query
                             xmlns="http://www.w3.org/2000/svg"
-                            width="20"
-                            height="20"
+                            width="18"
+                            height="18"
                             viewBox="0 0 24 24"
                             fill="currentColor"
                         >

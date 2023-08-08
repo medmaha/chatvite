@@ -7,6 +7,7 @@ import {
     useContext,
     useEffect,
     useLayoutEffect,
+    useRef,
     useState,
 } from "react"
 import { useSession } from "next-auth/react"
@@ -17,18 +18,24 @@ import axios from "axios"
 import Image from "next/image"
 import Popup from "../UI/Popup"
 import { GlobalContext } from "../../contexts"
+import DateFormatter from "../UI/layouts/DateFormatter"
+import MobileMembers from "./members/MobileMembersCollection"
 
 export default function Room({ data, WEBSOCKET_URL }) {
     const [roomResponseData, setRoomResponseData] = useState(data)
     const [room, setRoom] = useState(data)
     const [socket, setSocket] = useState(null)
+    const [mobileScreenMembers, toggleMobileScreenMembers] = useState(false)
     const [isMember, setIsMember] = useState(false)
     const { user, newAlertEmit } = useContext(GlobalContext)
 
     const router = useRouter()
 
     const socketInitializer = useCallback(async () => {
-        const _socket = SocketIOClient(process.env.WEBSOCKET_URL)
+        const _socket = SocketIOClient(process.env.WEBSOCKET_URL, {
+            retries: 3,
+            reconnectionAttempts: 3,
+        })
 
         _socket.on("connect", () => {
             console.log("ws connected")
@@ -47,14 +54,16 @@ export default function Room({ data, WEBSOCKET_URL }) {
     }, [room.slug])
 
     useEffect(() => {
-        if (!room.isPrivate && !socket) {
-            socketInitializer()
-        }
-        return () => {
-            socket?.off("connect")
-            socket?.off("subscribed")
-            socket?.off("disconnect")
-            socket?.disconnect()
+        if (navigator.onLine) {
+            if (!room.isPrivate && !socket) {
+                socketInitializer()
+            }
+            return () => {
+                socket?.off("connect")
+                socket?.off("subscribed")
+                socket?.off("disconnect")
+                socket?.disconnect()
+            }
         }
     }, [room.isPrivate, socket, socketInitializer])
 
@@ -115,11 +124,20 @@ export default function Room({ data, WEBSOCKET_URL }) {
     return (
         <div
             style={styles}
-            className="flex justify-center w-full gap-[.2em] lg:gap-[.5em]"
+            className="grid grid-cols-[1fr,auto] justify-center w-full gap-[.2em] lg:gap-[.5em]"
         >
-            {/* ?  Heading  */}
+            {room && (
+                <MobileMembers
+                    room={room}
+                    socket={socket}
+                    setRoom={setRoom}
+                    setIsMember={setIsMember}
+                    mobileScreenMembers={mobileScreenMembers}
+                    toggleMobileScreenMembers={toggleMobileScreenMembers}
+                />
+            )}
 
-            <div className="flex-1 max-w-[850px] rounded-t-lg sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
+            <div className="max-w-[850px] rounded-t-lg sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
                 <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
                     <div className="mr-[.5em] lg:mr-[1em] px-[.5em]">
                         <button
@@ -156,13 +174,40 @@ export default function Room({ data, WEBSOCKET_URL }) {
                 </div>
                 {!room.isPrivate && (
                     <div className="p-[.75em]">
-                        <div className="flex justify-between items-center">
-                            <h4 className="text-gray-400 text-sm md:text-base sm:font-semibold pb-[.5em]">
+                        <div className="flex justify-between items-center pb-1">
+                            <h4 className="text-gray-400 text-sm md:text-base sm:font-semibold">
                                 HOSTED BY
                             </h4>
-                            <div className="inline text-sm text-gray-500">
-                                {room.updatedAt}
+
+                            <div className="inline-flex items-center gap-4 text-sm">
+                                <span className="text-gray-500 inline-block text-xs sm:text-sm">
+                                    <DateFormatter data={room.createdAt} />
+                                </span>
                             </div>
+                            {!room.isPrivate && (
+                                <div className="inline-block md:hidden">
+                                    <button
+                                        title="Group Participants"
+                                        className="text-xs inline-flex items-center gap-2 p-1 rounded-full border px-2 hover:text-blue-400 transition border-blue-400"
+                                        onClick={() => {
+                                            toggleMobileScreenMembers((p) => !p)
+                                        }}
+                                    >
+                                        <span>Members</span>
+                                        <span>
+                                            <svg
+                                                fill="currentColor"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </div>
+                            )}
                         </div>
                         <div className="flex gap-[.5em]" id="">
                             <div className="">
@@ -243,13 +288,14 @@ export default function Room({ data, WEBSOCKET_URL }) {
                 </div>
             </div>
             {!room.isPrivate && (
-                <Members
-                    socket={socket}
-                    setRoom={setRoom}
-                    roomId={room._id}
-                    hostId={room.host._id}
-                    setIsMember={setIsMember}
-                />
+                <div className="rounded-lg sm:rounded-xl overflow-hidden max-w-[280px] lg:max-w-[350px] bg-gray-700 hidden md:block">
+                    <Members
+                        room={room}
+                        socket={socket}
+                        setRoom={setRoom}
+                        setIsMember={setIsMember}
+                    />
+                </div>
             )}
         </div>
     )

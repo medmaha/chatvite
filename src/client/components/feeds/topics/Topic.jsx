@@ -55,11 +55,11 @@ export default function Topic({ topic: data, user }) {
     }
 
     return (
-        <div className="flex justify-between gap-1 items-center cursor-pointer min-h-[50px] my-1 px-1 rounded-md transition hover:bg-gray-700">
+        <div className="flex justify-between gap-2 items-center cursor-pointer min-h-[50px] my-1 px-1 rounded-md transition hover:bg-gray-700">
             <Link
-                href={`?q=${topic.slug}&tid=${topic.id || topic._id}`}
+                href={`/feed?q=${topic.slug}&tid=${topic.id || topic._id}`}
                 shallow={true}
-                className="md:text-lg lg:text-base flex-1 py-2 truncate"
+                className="text-sm max-w-[25ch] lg:max-w-[22ch] xl:max-w-[30ch] flex-1 py-2 truncate"
             >
                 <span title={topic.name}>{topic.name}</span>
             </Link>

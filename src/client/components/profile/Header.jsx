@@ -27,11 +27,11 @@ export default function Header({
         } else if (user) {
             setMyAccount(account._id === user._id)
         }
-    }, [followersList, user])
+    }, [account, followersList, user])
 
     async function followProfile() {
         if (!user) {
-            alert("Login first")
+            alert("You must login first")
             return
         }
 

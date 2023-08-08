@@ -30,7 +30,7 @@ export default function Activities() {
                         Activities
                     </h3>
                 </div>
-                <div className="p-2 max-h-[calc(100vh-135px)] overflow-hidden overflow-y-auto h-full mt-1">
+                <div className="max-h-[calc(100vh-135px)] overflow-hidden overflow-y-auto h-full mt-1">
                     {activities ? (
                         <ActivityCollections activities={activities} />
                     ) : (

@@ -2,12 +2,13 @@ import { useContext, useEffect, useState } from "react"
 import { GlobalContext } from "../../contexts"
 import axios from "axios"
 
-export default function Stats({ stats }) {
-    const [statistics, setStatistics] = useState(stats || [])
+export default function Stats({ stats, username }) {
+    const [statistics, setStatistics] = useState([])
 
     useEffect(() => {
-        setStatistics(stats)
-    }, [stats])
+        console.log(stats)
+        setStatistics(Object.values(stats))
+    }, [stats, username])
 
     return (
         <>
