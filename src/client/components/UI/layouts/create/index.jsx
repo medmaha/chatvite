@@ -44,7 +44,7 @@ export default function Create() {
                 },
             )
             .then((res) => {
-                const room = new CustomEvent("room", {
+                const _room = new CustomEvent("room", {
                     detail: {
                         data: res.data,
                     },
@@ -53,7 +53,7 @@ export default function Create() {
                     text: `Chatroom "${room}" created successfully`,
                     duration: 3500,
                 })
-                document.dispatchEvent(room)
+                document.dispatchEvent(_room)
                 setLoading(false)
                 setClose(true)
             })
