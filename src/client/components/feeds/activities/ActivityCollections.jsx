@@ -3,7 +3,7 @@ import Activity from "./Activity"
 
 export default function ActivityCollections({ activities }) {
     return (
-        <div>
+        <div className="max-w-[300]px]">
             {activities.map((activity) => {
                 return (
                     <span key={activity._id}>

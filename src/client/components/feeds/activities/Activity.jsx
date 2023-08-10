@@ -46,8 +46,8 @@ export default function Activity({ activity }) {
                     </div>
                 </div>
             </div>
-            <div className="mx-auto">
-                <p className="p-2 w-max bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[32ch] mx-auto">
+            <div className="">
+                <p className="p-2 w-max bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[32ch]">
                     {activity.message}
                 </p>
             </div>
