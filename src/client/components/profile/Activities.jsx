@@ -10,7 +10,7 @@ export default function Activities({ activities: data }) {
 
     return (
         <div className="hidden md:block flex-1 bg-slate-800 min-w-[250px] px-1 max-w-[450px]">
-            <h5 className="font-semibold tracking-wide py-2 text-center text-lg">
+            <h5 className="font-semibold tracking-wide py-2 px-4 sm:text-center text-lg">
                 Recent Activities
             </h5>
             <div className="overflow-hidden overflow-y-auto max-h-[73.5vh] mb-1 p-2">

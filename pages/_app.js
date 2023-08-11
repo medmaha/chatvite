@@ -2,6 +2,7 @@ import "../styles/globals.css"
 import NextJSProgressBar from "nextjs-progressbar"
 import GlobalProvider from "../src/client/contexts/GlobalProvider"
 import { SessionProvider } from "next-auth/react"
+import { useEffect } from "react"
 
 export default function ChatVite({ Component, pageProps }) {
     return (
@@ -21,7 +22,7 @@ export default function ChatVite({ Component, pageProps }) {
                 }}
             />
             <GlobalProvider>
-                <Component {...pageProps} />
+                <Component {...{ ...pageProps, _data: "Mahamed Toure" }} />
             </GlobalProvider>
         </SessionProvider>
     )

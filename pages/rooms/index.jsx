@@ -9,7 +9,7 @@ import { getUserAvatarUrl } from "../../src/utils"
 import DateFormatter from "../../src/client/components/UI/layouts/DateFormatter"
 import { useRouter } from "next/router"
 
-export default function Index({ data }) {
+export default function Index({ data, _data }) {
     const session = useSession()
     const router = useRouter()
     const [loaded, toggleLoaded] = useState(false)
@@ -25,7 +25,7 @@ export default function Index({ data }) {
         <>
             {loaded && session.data && (
                 <>
-                    <div className="flex items-center justify-evenly gap-4">
+                    <div className="flex items-center px-2 justify-between pt-4 md:justify-evenly gap-4">
                         <button
                             title="Back"
                             onClick={() => router.back()}
@@ -43,10 +43,17 @@ export default function Index({ data }) {
                                 </svg>
                             </span>
                         </button>
-                        <h1 className="text-xl font-semibold">Chat Rooms</h1>
+                        <div className="text-center">
+                            <h2 className="text-gray-300 text-lg font-semibold">
+                                Your Chat rooms
+                            </h2>
+                            <p className="text-sm text-gray-400 tracking-wide font-semibold">
+                                View rooms you&apos;ve participated
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex flex-wrap gap-1 pt-4 pb-8 px-1">
-                        <div className="p-2 flex-1 max-w-[550px]">
+                    <div className="sm:flex flex-wrap gap-1 pt-4 pb-8 px-1 w-full">
+                        <div className="p-2 flex-1 max-w-[450px] w-full mx-auto">
                             <h2 className="text-lg font-semibold text-center bg-gray-600 py-1 rounded-md">
                                 My Public Rooms
                             </h2>
@@ -60,7 +67,7 @@ export default function Index({ data }) {
                                 />
                             </div>
                         </div>
-                        <div className="p-2 flex-1 max-w-[550px]">
+                        <div className="p-2 flex-1 max-w-[450px] w-full mx-auto">
                             <h2 className="text-lg font-semibold text-center bg-gray-600 py-1 rounded-md">
                                 My Private Rooms
                             </h2>
@@ -74,7 +81,7 @@ export default function Index({ data }) {
                                 />
                             </div>
                         </div>
-                        <div className="p-2 flex-1 max-w-[550px]">
+                        <div className="p-2 flex-1 max-w-[450px] w-full mx-auto">
                             <h2 className="text-lg font-semibold text-center bg-gray-600 py-1 rounded-md">
                                 Joined Rooms
                             </h2>
@@ -128,7 +135,13 @@ function Room({ user, room, isMember }) {
                         />
                     </span>
                     <div className="text-blue-400 font-semibold text-sm tracking-wide inline-flex flex-col">
-                        <span>{room.host.name}</span>
+                        <span>
+                            {!!(room.host.username === user.username) ? (
+                                <b>Me</b>
+                            ) : (
+                                room.host.name
+                            )}
+                        </span>
                         <span>@{room.host.username}</span>
                     </div>
                 </Link>

@@ -47,7 +47,7 @@ export default function Activity({ activity }) {
                 </div>
             </div>
             <div className="">
-                <p className="p-2 w-max bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[32ch]">
+                <p className="p-2 w-full bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[32ch]">
                     {activity.message}
                 </p>
             </div>

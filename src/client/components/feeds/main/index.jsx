@@ -164,7 +164,7 @@ export default function Main({ feeds: data, onInit, fetchFeeds, roomsCount }) {
                         </span>
                     </button>
                 </div>
-                <div className="md:order-[2] order-last">
+                <div className="md:order-[2] order-last text-center pr-1">
                     <h4>Chat Rooms</h4>
                     <p className="text-gray-400">
                         {roomsCount} rooms available

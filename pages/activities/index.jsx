@@ -11,7 +11,7 @@ export default function Index() {
     const router = useRouter()
     return (
         <>
-            <div className="flex justify-evenly items-center gap-4 px-2 pb-6 pt-8">
+            <div className="flex items-center px-2 justify-between pt-4 md:justify-evenly gap-4">
                 <button
                     title="Back"
                     onClick={() => router.back()}
@@ -29,9 +29,15 @@ export default function Index() {
                         </svg>
                     </span>
                 </button>
-                <h2 className="text-2xl font-semibold tracking-wide">
-                    Activities In Chatvite
-                </h2>
+
+                <div className="text-center">
+                    <h2 className="text-gray-300 text-lg font-semibold">
+                        View Activities
+                    </h2>
+                    <p className="text-sm text-gray-400 tracking-wide font-semibold">
+                        All latest public rooms activities
+                    </p>
+                </div>
             </div>
             <div className="pb-8 pt-4 mx-auto max-w-[500px]">
                 <Activities />
@@ -60,7 +66,7 @@ function Activities() {
 
     return (
         <div className="sticky top-[0]">
-            <div className="bg-gray-700 rounded-md overflow-hidden pb-2">
+            <div className="bg-gray-700 rounded-md overflow-hidden pb-2 min-h-screen">
                 <div className="bg-gray-600 p-2 ">
                     <h3 className="text-lg font-semibold tracking-wide">
                         Activities
@@ -135,7 +141,7 @@ function Activity({ activity }) {
                 </div>
             </div>
             <div className="">
-                <p className="p-2 w-max bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[90%]">
+                <p className="p-2 w-full bg-gray-800 my-2 text-sm rounded-md text-gray-400 truncate max-w-[90%]">
                     {activity.message}
                 </p>
             </div>

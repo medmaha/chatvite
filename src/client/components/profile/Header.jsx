@@ -91,7 +91,7 @@ export default function Header({
 
     return (
         <>
-            <div className="h-max flex justify-center items-center flex-col">
+            <div className="h-max flex justify-center items-center flex-col gap-2 sm:gap-0">
                 <div className="relative">
                     {account?.avatar && (
                         <Image
@@ -162,7 +162,7 @@ export default function Header({
                     </div>
                 </div>
                 <div className="text-center mt-1 leading-none">
-                    <h2 className="font-bold md:text-lg tracking-wide">
+                    <h2 className="font-bold md:text-lg tracking-wide sm:pt-2">
                         {account.name}
                     </h2>
                     <h5 className="text-gray-300 font-semibold text-sm md:text-[1em] leading-none">
