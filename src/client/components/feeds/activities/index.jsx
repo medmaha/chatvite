@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import ActivityCollections from "./ActivityCollections"
 import { Footer } from "../../UI/layouts"
 import axios from "axios"
@@ -23,7 +23,7 @@ export default function Activities() {
     }
 
     return (
-        <div className="sticky top-[0] max-w-[400px]">
+        <div className="sticky top-[0] max-w-[350px]">
             <div className="bg-gray-700 rounded-md overflow-hidden pb-2">
                 <div className="bg-gray-600 p-2 ">
                     <h3 className="text-lg font-semibold tracking-wide">
