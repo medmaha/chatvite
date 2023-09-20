@@ -101,16 +101,16 @@ async function createPublicAIResponse(room, chatMessage, aiUser, authorName) {
 
             room.chatfuses.push(chat._id)
 
+            await axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
+                room_id: room.slug,
+                data: chat.toJSON(),
+            })
+
             Activity.create({
                 action: randomActivityAction(),
                 message: chat.fuse,
                 sender: aiUser._id,
                 room: room._id,
-            })
-
-            axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
-                room_id: room.slug,
-                data: chat.toJSON(),
             })
         }
     }
