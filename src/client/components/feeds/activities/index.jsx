@@ -23,7 +23,7 @@ export default function Activities() {
     }
 
     return (
-        <div className="sticky top-[0]">
+        <div className="sticky top-[0] max-w-[400px]">
             <div className="bg-gray-700 rounded-md overflow-hidden pb-2">
                 <div className="bg-gray-600 p-2 ">
                     <h3 className="text-lg font-semibold tracking-wide">
