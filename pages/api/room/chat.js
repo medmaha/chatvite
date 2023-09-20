@@ -32,8 +32,6 @@ export default async function handler(req, res) {
         return
     }
 
-    console.time()
-
     const chat = await (
         await Chat.create({
             fuse: chatMessage,
@@ -55,21 +53,17 @@ export default async function handler(req, res) {
         } else {
             res.status(200).send(JSON.stringify([chat.toJSON()]))
         }
-        return
     } else {
+        createPublicAIResponse(room, chatMessage, room.AI_MODEL, user.username)
         Activity.create({
             action: randomActivityAction(),
             message: chat.fuse,
             sender: user._id,
             room: room._id,
         })
-        console.log(
-            "-------------------------------------------------- TIME --------------------------------------------------",
-        )
-        console.timeEnd()
         res.status(200).send(chat.toJSON())
-        createPublicAIResponse(room, chatMessage, room.AI_MODEL, user.username)
     }
+    return res.end()
 }
 
 async function createPrivateAIResponse(room, chatMessage, authorName) {
