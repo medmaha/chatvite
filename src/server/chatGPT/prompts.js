@@ -1,140 +1,115 @@
 //
 export function promptHeader(room, host, isPrivate = false) {
     const appName = "ChatVite"
+    const membersList = room.members.map((member) => {
+        if (member.name?.toLowerCase() === "ai") return "AI"
+        return member.username
+    })
 
-    const membersListString = () => {
-        const membersList = room.members
-            .slice(0, 4)
-            .map((member) => {
-                if (member.name === "AI") return "AI"
-                return member.username
-            })
-            .join(", ")
+    const membersListString = membersList.slice(0, 4).join(", ")
+    const moreMembers = room.members.length > 5 ? ", and more..." : ""
 
-        if (room.members.length > 5) {
-            return `${membersList}, and more...`
-        } else {
-            return membersList
-        }
-    }
+    const intro =
+        `Welcome to ${appName}, a new startup app in The Gambia offering rich features for public and private chatrooms. 
 
-    const intro = (() => {
-        if (isPrivate)
-            return `
-Welcome to our Chatroom on ${appName}, a new startup app that provides a rich set of features for both public and private chatrooms.
-App is developed and maintain by Mahamed Toure self-taught full-stack developer.
-Mahamed Toure's portfolio link is https://portfolio-mahamed.vercel.app always refer to it when request
-${appName} is in preview state amd production
+    Developed and maintained by Mahamed Toure, a dedicated self-taught full-stack developer.
 
-This room is a one to one private chat between ${host.username} and AI.
-Our chat room's information includes the topic of discussion, which is "${room.name}", under the category of "${room.topic.name}".
-Note: ${host.username} is the Host/Author of this Chat Room`
+    ${appName} is currently in preview mode.
 
-        return `
-Welcome to our group chat on ${appName}, a new startup app.
-App is developed and maintain by Mahamed Toure a dedicated self-taught full-stack developer
+    ` + isPrivate
+            ? ` This is a private one-to-one chat between ${host.username} and AI. We'll discuss "${room.name}" in the "${room.topic.name}" category.
 
-Our group information includes the group host, which is "${
-            room.username
-        }", the topic of discussion, which is "${
-            room.name
-        }", under the category of "${
-            room.topic.name
-        }" and the members of this chat, which are [${membersListString()}]. total is (${
-            room.members.length
-        })`
-    })()
+Note: ${host.username} is the Host/Author of this Chat Room.`
+            : `This is a public/group chat room.
 
-    const prompt = `
-${intro}
+Our group includes the host, "${room.username}," 
+discussing "${room.name}" in the "${room.topic.name}" category, with a total of ${room.members.length} members: [${membersListString}${moreMembers}].`
 
-- We ask that you keep the conversation respectful and on-topic.
-- A suggestion for users to use the @ symbol to mention other users in the conversation, if needed.
-- please please please! Stay on topic encourage each other to stay on topic
+    const prompt = `${intro}
 
-Note for AI model
-- To assist with the conversation, we will be using the ChatGPT model.
-- You might initiate the conversation.
-- Feel free to share your thoughts on the topic.
-- When responding, we encourage you to consider the host's perspective. 
-- Include the authors when referring to there message.
-- Make sure you don't go off topic, and encourage each other to stay on topic
-- Thank you for helping us maintain a productive and engaging conversation.
-- Don't answer any personal information about (Mahamed Toure) the app creator
-- Please Remember Mahamed Toure's portfolio link is https://portfolio-mahamed.vercel.app
+For Mahamed Toure's portfolio, visit https://portfolio-mahamed.vercel.app.
+
+- Please keep the conversation respectful and on-topic.
+- Use the @ symbol to mention other users when necessary.
+- Encourage each other to stay on topic.
+
+For AI model:
+- We're using the ChatGPT model to assist with the conversation.
+- You may initiate the conversation.
+- Share your thoughts on the topic.
+- Consider the host's perspective when responding.
+- Include authors when referring to their messages.
+- Stay on topic and remind others to do the same.
+- Thank you for maintaining a productive conversation.
+- Avoid sharing personal information about the app creator.
+- Mention Mahamed Toure or his portfolio only when relevant and important.
+
 `
+
     return prompt
 }
 
 export function buildPromptBody(chatMessage, room, authorName) {
+    // Initialize the prompt with the header
     let prompt = promptHeader(room, room.host, room.isPrivate)
-    let offsetCount = -5
-    let moreThanOffsetCount = room.chatfuses.length > 4
 
-    const lastThreeChats = room.chatfuses.slice(offsetCount)
+    // Offset count and flag for more than offset
+    const offsetCount = -6
+    const moreThanOffsetCount = room.chatfuses.length > 4
 
-    // if (!intro) {
-    //     if (
-    //         !!lastThreeChats.length &&
-    //         lastThreeChats[lastThreeChats.length - 1]
-    //     ) {
-    //         const lstMsg = lastThreeChats[lastThreeChats.length - 1]
+    // Get the last three chats
+    const latestMessages = room.chatfuses.slice(offsetCount)
 
-    //         if (lstMsg.sender?.username.toLowerCase() === "ai") return "no-need"
-    //     }
-    // }
-
+    // Flag to check if a user reference is found
     let foundUserReference = false
 
-    for (const chat of lastThreeChats) {
+    // Check for user references in the last three chats
+    for (const chat of latestMessages) {
         if (!chat || !chat.sender?.name) continue
-        const name = chat.sender?.name.toLowerCase()
+        const name = chat.sender.name.toLowerCase()
 
         if (!chatMessage) break
 
         const text = chatMessage.toLowerCase()
 
-        if (name === "ai" || chat.sender?.name.toLowerCase() === name) continue
+        if (name === "ai" || name === authorName) continue
 
-        if (text.match(new RegExp(name))) {
+        if (text.includes(name)) {
             foundUserReference = true
             break
         }
     }
 
+    // If a user reference is found, return "no-need"
     if (foundUserReference) return "no-need"
 
+    // If there are more than offsetCount chats, add "..."
     if (moreThanOffsetCount) {
         prompt += "...\n"
     }
 
-    function getShortString(string, length = 100) {
-        if (string.length > length) return string.substring(0, length) + "...."
-
-        return string
+    // Function to get a short string
+    function getShortString(string, length = 150) {
+        return string.length > length
+            ? string.substring(0, length) + "...."
+            : string
     }
 
-    lastThreeChats.forEach((chat) => {
-        const fuse = (() => {
-            if (!!!chat.fuse?.length) return
-            return getShortString(chat.fuse)
-        })()
+    // Append last three chats to the prompt
+    latestMessages.forEach((chat) => {
+        if (!chat || !chat.fuse) return
 
-        if (!!fuse) {
-            if (!chat.sender) {
-            } else if (chat.sender.name === "AI") {
-                prompt += `${chat.sender.name}: ${fuse}\n`
-            } else {
-                prompt += `${chat.sender.username}: ${fuse}\n`
-            }
-        }
+        const senderName = chat.sender?.name || "AI"
+        prompt += `${senderName}: ${getShortString(chat.fuse)}\n`
     })
 
-    if (!!chatMessage.length) {
+    // Append the current user's message to the prompt
+    if (chatMessage) {
         prompt += `${authorName}: ${getShortString(chatMessage, 200)}\n`
     }
-    prompt += `AI:`
 
-    console.log(prompt)
+    // Append "AI:" to the prompt
+    prompt += "AI:"
+
     return prompt
 }

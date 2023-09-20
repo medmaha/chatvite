@@ -43,7 +43,7 @@ Schema.pre("save", function (next) {
     this.name = capitalizedName(this.name)
     next()
 })
-const populateUserRefs = (doc, next) => {
+const populateUserRefs = (doc) => {
     doc.populate([
         { path: "creator", select: ["_id", "name", "username", "avatar"] },
         {
@@ -51,15 +51,16 @@ const populateUserRefs = (doc, next) => {
             select: ["_id", "name", "username", "avatar"],
         },
     ])
-    next()
 }
 
 Schema.pre("find", function (next) {
-    populateUserRefs(this, next)
+    populateUserRefs(this)
+    next()
 })
 
 Schema.pre("findOne", function (next) {
-    populateUserRefs(this, next)
+    populateUserRefs(this)
+    next()
 })
 
 const Topics = mongoose.model("Topics", Schema, undefined, {

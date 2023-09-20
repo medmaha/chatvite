@@ -32,49 +32,47 @@ export default async function handler(req, res) {
         return
     }
 
-    const chat = await Chat.create({
-        fuse: chatMessage,
-        room: room._id,
-        sender: user._id,
-    })
+    console.time()
+
+    const chat = await (
+        await Chat.create({
+            fuse: chatMessage,
+            room: room._id,
+            sender: user._id,
+        })
+    ).populate("sender")
 
     room.chatfuses.push(chat._id)
-    await room.save()
 
     if (!!room.isPrivate) {
-        const aiChat = await createPrivateResponse(
+        const aiChat = await createPrivateAIResponse(
             room,
             chatMessage,
             user.username,
         )
-        console.log(aiChat)
         if (aiChat._id) {
-            res.status(200).send(
-                JSON.stringify([
-                    (await chat.populate("sender")).toJSON(),
-                    aiChat,
-                ]),
-            )
-            return
+            res.status(200).send(JSON.stringify([chat.toJSON(), aiChat]))
         } else {
-            res.status(200).send(
-                JSON.stringify([(await chat.populate("sender")).toJSON()]),
-            )
+            res.status(200).send(JSON.stringify([chat.toJSON()]))
         }
+        return
     } else {
-        await Activity.create({
+        Activity.create({
             action: randomActivityAction(),
             message: chat.fuse,
             sender: user._id,
             room: room._id,
         })
-        createAIResponse(room, chatMessage, room.AI_MODEL, user.username)
-        const chatJSON = (await chat.populate("sender")).toJSON()
-        res.status(200).send(chatJSON)
+        console.log(
+            "-------------------------------------------------- TIME --------------------------------------------------",
+        )
+        console.timeEnd()
+        res.status(200).send(chat.toJSON())
+        createPublicAIResponse(room, chatMessage, room.AI_MODEL, user.username)
     }
 }
 
-async function createPrivateResponse(room, chatMessage, authorName) {
+async function createPrivateAIResponse(room, chatMessage, authorName) {
     const prompt = buildPromptBody(chatMessage, room, authorName)
     if (prompt !== "no-need" && Boolean(prompt)) {
         const aiResponse = await getChatGPTResponse(prompt)
@@ -92,38 +90,34 @@ async function createPrivateResponse(room, chatMessage, authorName) {
     return {}
 }
 
-async function createAIResponse(room, chatMessage, aiUser, authorName) {
-    if (room) {
-        const prompt = buildPromptBody(chatMessage, room, authorName)
-        if (prompt !== "no-need" && Boolean(prompt)) {
-            const aiResponse = await getChatGPTResponse(prompt)
+async function createPublicAIResponse(room, chatMessage, aiUser, authorName) {
+    const prompt = buildPromptBody(chatMessage, room, authorName)
 
-            if (typeof aiResponse === "string" && aiResponse.length > 1) {
-                let chat = await Chat.create({
+    if (prompt !== "no-need" && Boolean(prompt)) {
+        const aiResponse = await getChatGPTResponse(prompt)
+
+        if (typeof aiResponse === "string" && aiResponse.length > 1) {
+            let chat = await (
+                await Chat.create({
                     fuse: aiResponse,
                     room: room._id,
                     sender: aiUser._id,
                 })
+            ).populate("sender")
 
-                chat = await chat.populate("sender")
+            room.chatfuses.push(chat._id)
 
-                const chatJSON = chat.toJSON()
-                await axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
-                    room_id: room.slug,
-                    data: chatJSON,
-                })
+            Activity.create({
+                action: randomActivityAction(),
+                message: chat.fuse,
+                sender: aiUser._id,
+                room: room._id,
+            })
 
-                room.chatfuses.push(chat._id)
-                await room.save()
-                await Activity.create({
-                    action: randomActivityAction(),
-                    message: chat.fuse,
-                    sender: aiUser._id,
-                    room: room._id,
-                })
-
-                return Promise.resolve()
-            }
+            axios.post(`${process.env.WEBSOCKET_URL}/chatvite-ai`, {
+                room_id: room.slug,
+                data: chat.toJSON(),
+            })
         }
     }
 }

@@ -124,7 +124,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
     return (
         <div
             style={styles}
-            className="grid grid-cols-[1fr,auto] justify-center w-full gap-[.2em] lg:gap-[.5em]"
+            className="grid grid-cols-[auto,auto] items-center justify-center w-full gap-4"
         >
             {room && (
                 <MobileMembers
@@ -288,7 +288,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                 </div>
             </div>
             {!room.isPrivate && (
-                <div className="rounded-lg sm:rounded-xl overflow-hidden max-w-[280px] lg:max-w-[350px] bg-gray-700 hidden md:block">
+                <div className="rounded-lg sm:rounded-xl overflow-hidden max-w-[280px] mx-auto lg:max-w-[350px] bg-gray-700 hidden md:block">
                     <Members
                         room={room}
                         socket={socket}
