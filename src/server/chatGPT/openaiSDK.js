@@ -4,7 +4,7 @@ const openai = new OpenAI({
     apiKey: process.env.OPEN_AI_KEY,
 })
 
-export default async function getChatGPTResponse(prompt) {
+export async function openAiSDK(prompt) {
     try {
         const completion = await openai.chat.completions.create({
             messages: [{ role: "system", content: prompt }],
@@ -12,10 +12,8 @@ export default async function getChatGPTResponse(prompt) {
         })
 
         const content = completion.choices[0]?.message?.content
-
-        if (!content) throw new Error("Wrong setup")
-        return content
+        return content || null
     } catch (error) {
-        return { message: error.message }
+        return null
     }
 }

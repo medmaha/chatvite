@@ -70,6 +70,7 @@ async function createPrivateAIResponse(room, chatMessage, authorName) {
     const prompt = buildPromptBody(chatMessage, room, authorName)
     if (prompt !== "no-need" && Boolean(prompt)) {
         const aiResponse = await getChatGPTResponse(prompt)
+        console.log("AI Response", aiResponse)
         if (typeof aiResponse === "string") {
             const chat = await Chat.create({
                 fuse: aiResponse,
