@@ -313,7 +313,7 @@ export default function ChatVite({
                 >
                     <ChatCollections fuses={messages} />
                 </div>
-                <div className=" min-h-[48px] py-2 items-center flex w-full bg-gray-700">
+                <div className="min-h-[48px] py-2 items-center flex w-full bg-gray-700">
                     <Input onSubmit={createChat} setOffset={setInputOffset} />
                 </div>
             </div>

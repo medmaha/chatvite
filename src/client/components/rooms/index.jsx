@@ -124,7 +124,9 @@ export default function Room({ data, WEBSOCKET_URL }) {
     return (
         <div
             style={styles}
-            className="grid grid-cols-[auto,auto] items-center justify-center w-full gap-4"
+            className={`grid ${
+                room && !room.isPrivate ? "grid-cols-[auto,auto]" : ""
+            } items-center justify-center w-full gap-4`}
         >
             {room && (
                 <MobileMembers
@@ -137,7 +139,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                 />
             )}
 
-            <div className="max-w-[850px] rounded-t-lg sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
+            <div className="max-w-[850px] w-full rounded-t-lg mx-auto sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
                 <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
                     <div className="mr-[.5em] lg:mr-[1em] px-[.5em]">
                         <button
