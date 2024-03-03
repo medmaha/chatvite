@@ -9,7 +9,7 @@ export default function Input({ onSubmit, setOffset }) {
 
     useLayoutEffect(() => {
         setOffset(height + padding)
-    }, [height])
+    }, [height, padding, setOffset])
 
     function handleTextareaChange() {
         const element = textareaRef.current

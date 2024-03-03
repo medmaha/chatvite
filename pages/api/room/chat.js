@@ -50,8 +50,13 @@ export default async function handler(req, res) {
             res.status(200).send(JSON.stringify([chat.toJSON()]))
         }
     } else {
-        createPublicAIResponse(room, chatMessage, room.AI_MODEL, user.username)
-        Activity.create({
+        await createPublicAIResponse(
+            room,
+            chatMessage,
+            room.AI_MODEL,
+            user.username,
+        )
+        await Activity.create({
             action: randomActivityAction(),
             message: chat.fuse,
             sender: user._id,
@@ -66,7 +71,6 @@ async function createPrivateAIResponse(room, chatMessage, authorName) {
     const prompt = buildPromptBody(chatMessage, room, authorName)
     if (prompt !== "no-need" && Boolean(prompt)) {
         const aiResponse = await getChatGPTResponse(prompt)
-        console.log("AI Response", aiResponse)
         if (typeof aiResponse === "string") {
             const chat = await Chat.create({
                 fuse: aiResponse,
@@ -103,7 +107,7 @@ async function createPublicAIResponse(room, chatMessage, aiUser, authorName) {
                 data: chat.toJSON(),
             })
 
-            Activity.create({
+            await Activity.create({
                 action: randomActivityAction(),
                 message: chat.fuse,
                 sender: aiUser._id,

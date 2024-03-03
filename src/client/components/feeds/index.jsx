@@ -30,7 +30,7 @@ export default function Feed({ feeds, roomsCount }) {
     }
 
     return (
-        <div className="grid md:grid-cols-[auto,1fr,auto] gap-2">
+        <div className="grid container mx-auto md:grid-cols-[auto,1fr,auto] gap-2">
             <div className="hidden md:block">
                 <Topics />
             </div>

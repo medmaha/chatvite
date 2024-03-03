@@ -1,15 +1,13 @@
 import React, {
-    Children,
     useEffect,
     useLayoutEffect,
     useRef,
     useState,
+    useMemo,
 } from "react"
 import ChatCollections from "./ChatCollections"
-import Textarea from "./Textarea"
 import { useSession } from "next-auth/react"
 import axios from "axios"
-import { create } from "../../../../server/mongodb/collections/users"
 import Input from "./Input"
 import { useRouter } from "next/router"
 import Popup from "../../UI/Popup"
@@ -17,11 +15,10 @@ import Pending from "../../UI/Pending"
 import Meta from "../../../contexts/Meta"
 
 const queuedUnsentMessages = []
-let AutoScroll = true
 let cachedMessages
 let privateRoomAiResponseTimeout
 
-let messageRenderingDelay
+let AutoScroll = true
 
 export default function ChatVite({
     socket,
@@ -30,9 +27,15 @@ export default function ChatVite({
     joinChatRoom,
     isMember,
 }) {
-    const outgoingMsgSound = new Audio("/audio/msg-outgoing.mp3")
-    outgoingMsgSound.volume = 0.6
-    const incomingMsgSound = new Audio("/audio/msg-incoming.mp3")
+    const outgoingMsgSound = useMemo(() => {
+        const sound = new Audio("/audio/msg-outgoing.mp3")
+        sound.volume = 0.6
+        return sound
+    }, [])
+    const incomingMsgSound = useMemo(
+        () => new Audio("/audio/msg-incoming.mp3"),
+        [],
+    )
     const chatContainerRef = useRef()
 
     const [messages, setMessages] = useState([])
@@ -55,7 +58,6 @@ export default function ChatVite({
                 `${height - offset - 5}px`,
             )
         }
-        // scrollToBottom()
     }, [inputOffset])
 
     useEffect(() => {
@@ -63,7 +65,7 @@ export default function ChatVite({
     }, [room])
 
     useEffect(() => {
-        messageRenderingDelay = setTimeout(() => {
+        const messageRenderingDelay = setTimeout(() => {
             scrollToBottom()
         }, 300)
         cachedMessages = messages
@@ -74,21 +76,19 @@ export default function ChatVite({
     }, [messages])
 
     useEffect(() => {
+        const update = (chat) => {
+            incomingMsgSound.play()
+            setMessages((prev) => [...prev, chat])
+        }
         if (!room.isPrivate && socket) {
-            socket?.on("chatvite", (chat) => {
-                incomingMsgSound.play()
-                updateMessages(chat)
-            })
-            socket?.on("chatvite-ai", (chat) => {
-                incomingMsgSound.play()
-                updateMessages(chat)
-            })
+            socket?.on("chatvite", update)
+            socket?.on("chatvite-ai", update)
         }
         return () => {
-            socket?.off("chatvite", () => {})
-            socket?.off("chatvite-ai", () => {})
+            socket?.off("chatvite", update)
+            socket?.off("chatvite-ai", update)
         }
-    }, [socket])
+    }, [socket, room, incomingMsgSound])
 
     function scrollToBottom() {
         if (!Boolean(messages.length)) return
@@ -161,7 +161,7 @@ export default function ChatVite({
         callback()
 
         try {
-            if (room.isPrivate) outgoingMsgSound.play()
+            // if (room.isPrivate) outgoingMsgSound.play()
 
             const { data, statusText } = await axios.post(
                 "/api/room/chat",
@@ -177,6 +177,9 @@ export default function ChatVite({
                 },
             )
             if (data._id) {
+                if (!room.isPrivate && socket) {
+                    socket.emit("new-chat", room.slug, data)
+                }
                 if (display) {
                     AutoScroll = true
                     updateIndividualChat(chat, data)
@@ -209,12 +212,8 @@ export default function ChatVite({
                         })
                     }, 1500)
                 callback()
-            } else {
-                outgoingMsgSound.play()
-                if (socket) socket.emit("new-chat", room.slug, data)
             }
         } catch (err) {
-            console.error(err.response?.data.message || err.message)
             handleFailedMessageResubmission(
                 message,
                 callback,

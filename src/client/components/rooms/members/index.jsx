@@ -9,11 +9,11 @@ export default function Members({ socket, room, setIsMember }) {
 
     useEffect(() => {
         if (socket) {
-            socket.on("member-added", (member) => {
+            socket.on("member-added", (newMember) => {
                 setMembers((prev) => {
                     return [
                         ...prev.filter((member) => member._id !== member._id),
-                        member,
+                        newMember,
                     ]
                 })
             })
@@ -101,7 +101,7 @@ export default function Members({ socket, room, setIsMember }) {
             </div>
 
             <div className="mt-[.5em] w-full">
-                <MemberCollections host={room.host}  members={members} />
+                <MemberCollections host={room.host} members={members} />
             </div>
         </>
     )
