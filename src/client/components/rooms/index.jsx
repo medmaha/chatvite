@@ -2,30 +2,22 @@ import styles from "./styles.module.css"
 import ChatVite from "./chat"
 import Members from "./members"
 import Link from "next/link"
-import {
-    useCallback,
-    useContext,
-    useEffect,
-    useLayoutEffect,
-    useRef,
-    useState,
-} from "react"
-import { useSession } from "next-auth/react"
+import { useCallback, useContext, useEffect, useState } from "react"
 
 import SocketIOClient from "socket.io-client"
 import { useRouter } from "next/router"
 import axios from "axios"
 import Image from "next/image"
-import Popup from "../UI/Popup"
 import { GlobalContext } from "../../contexts"
 import DateFormatter from "../UI/layouts/DateFormatter"
 import MobileMembers from "./members/MobileMembersCollection"
+import SubscribeButton from "./Componenets/SubscribeButton"
 
-export default function Room({ data, WEBSOCKET_URL }) {
+export default function Room({ data }) {
     const [room, setRoom] = useState(data)
     const [socket, setSocket] = useState(null)
     const [mobileScreenMembers, toggleMobileScreenMembers] = useState(false)
-    const [isMember, setIsMember] = useState(false)
+    const [isMember, setIsMember] = useState(undefined)
     const { user } = useContext(GlobalContext)
 
     const router = useRouter()
@@ -61,65 +53,51 @@ export default function Room({ data, WEBSOCKET_URL }) {
                 socket?.off("connect")
                 socket?.off("subscribed")
                 socket?.off("disconnect")
+
                 socket?.disconnect()
             }
         }
     }, [room.isPrivate, socket, socketInitializer])
 
-    function joinFuseGroup(ev, callback) {
+    async function joinChatRoom(ev, callback) {
         if (!user) {
             router.push("/auth/login")
-            return
+            return false
         }
 
-        axios
-            .post(
+        try {
+            const { data } = await axios.post(
                 "/api/room/join",
                 { id: room._id },
                 {
                     withCredentials: true,
                 },
             )
-            .then((res) => {
-                const data = res.data
+            console.log(data)
+            if (!!data.joined) {
+                socket.emit("add-group-member", room.slug, user, socket.id)
 
-                console.log(data)
-                if (!!data.joined) {
-                    socket.emit("add-group-member", room.slug, user, socket.id)
+                const CustomEventEmitter = new CustomEvent(
+                    "member-subscription",
+                    { detail: { type: "add", data: user } },
+                )
+                document.dispatchEvent(CustomEventEmitter)
+            } else {
+                socket.emit("remove-group-member", room.slug, user.id)
 
-                    const CustomEventEmitter = new CustomEvent(
-                        "member-subscription",
-                        { detail: { type: "add", data: user } },
-                    )
-                    document.dispatchEvent(CustomEventEmitter)
-                    // setRoom({
-                    //     ...room,
-                    //     members: [user],
-                    // })
-                } else {
-                    socket.emit("remove-group-member", room.slug, user.id)
-
-                    const CustomEventEmitter = new CustomEvent(
-                        "member-subscription",
-                        { detail: { type: "remove", data: user } },
-                    )
-                    document.dispatchEvent(CustomEventEmitter)
-                    // setRoom((prev) => {
-                    //     return {
-                    //         ...room,
-                    //         members: prev.members?.filter(
-                    //             (_usr) => _usr._id !== user._id,
-                    //         ),
-                    //     }
-                    // })
-                }
-            })
-            .catch((err) => {
-                throw new Error(err.message)
-            })
-            .finally(() => {
-                if (callback) callback()
-            })
+                const CustomEventEmitter = new CustomEvent(
+                    "member-subscription",
+                    { detail: { type: "remove", data: user } },
+                )
+                document.dispatchEvent(CustomEventEmitter)
+            }
+            if (callback) callback()
+            return true
+        } catch (error) {
+            if (callback) callback()
+            // TODO, notify the user about the error
+            return false
+        }
     }
 
     let isPrivateChat = Boolean(room.isPrivate)
@@ -190,7 +168,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                                 HOSTED BY
                             </h4>
 
-                            <div className="inline-flex items-center gap-4 text-sm">
+                            <div className="inline-flex md:items-center gap-4 text-sm">
                                 <span className="text-gray-500 inline-block text-xs sm:text-sm">
                                     <DateFormatter data={room.createdAt} />
                                 </span>
@@ -250,40 +228,14 @@ export default function Room({ data, WEBSOCKET_URL }) {
                                         </button>
                                     </div>
                                 </Link>
-                                <div className="mr-4 transition">
-                                    {(() => {
-                                        if (!socket) return <></>
+                                {/* Sub */}
 
-                                        if (room.host._id === user?._id)
-                                            return ""
-
-                                        if (isMember) {
-                                            return (
-                                                <button
-                                                    onClick={joinFuseGroup}
-                                                    className="py-1 px-2 inline-flex gap-1 items-center hover:bg-red-500 transition bg-red-400 font-semibold rounded-2xl"
-                                                >
-                                                    <span className="capitalize">
-                                                        Unsubscribe
-                                                    </span>
-                                                </button>
-                                            )
-                                        }
-                                        return (
-                                            <button
-                                                onClick={joinFuseGroup}
-                                                className="py-1  px-2 inline-flex gap-1 items-center hover:bg-blue-500 transition bg-blue-400 font-semibold rounded-2xl"
-                                            >
-                                                <span className="leading-none">
-                                                    +
-                                                </span>
-                                                <span className="capitalize">
-                                                    Subscribe
-                                                </span>
-                                            </button>
-                                        )
-                                    })()}
-                                </div>
+                                {socket && room.host._id !== user._id && (
+                                    <SubscribeButton
+                                        isMember={isMember}
+                                        joinChatRoom={joinChatRoom}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>
@@ -293,7 +245,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                         socket={socket}
                         room={room}
                         isMember={isMember}
-                        joinFuseGroup={joinFuseGroup}
+                        joinChatRoom={joinChatRoom}
                         roomId={room._id}
                     />
                 </div>

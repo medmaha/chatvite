@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 
 const Schema = new mongoose.Schema({
     email: {
@@ -11,4 +11,4 @@ const Subscriptions = mongoose.model("Subscriptions", Schema, undefined, {
     overwriteModels: true,
     strick: false,
 })
-module.exports = Subscriptions
+export default Subscriptions

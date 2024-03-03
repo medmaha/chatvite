@@ -27,7 +27,7 @@ export default function ChatVite({
     socket,
     room,
     roomId,
-    joinFuseGroup,
+    joinChatRoom,
     isMember,
 }) {
     const outgoingMsgSound = new Audio("/audio/msg-outgoing.mp3")
@@ -292,7 +292,7 @@ export default function ChatVite({
                             toggleMembershipPopup(false)
                         }}
                         onConfirm={(config, cb) => {
-                            joinFuseGroup(null, () => {
+                            joinChatRoom(null, () => {
                                 toggleMembershipPopup(false)
                             })
 

@@ -1,9 +1,9 @@
-const mongoose = require("mongoose")
-const slugify = require("slugify")
-const User = require("./users")
-const Chat = require("./chat")
+import mongoose from "mongoose"
+import slugify from "slugify"
+import User from "./users"
+import Chat from "./chat"
 
-const { getChatGPTResponse, promptHeader } = require("../../chatGPT")
+import { promptHeader, getChatGPTResponse } from "../../chatGPT/prompts"
 
 const RoomSchema = new mongoose.Schema({
     name: { type: String, capitalize: true },
@@ -149,7 +149,7 @@ const Room = mongoose.model("Rooms", RoomSchema, undefined, {
     strick: false,
 })
 
-module.exports = Room
+export default Room
 
 function generateId(length = 7) {
     let result = ""

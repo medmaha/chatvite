@@ -1,5 +1,5 @@
-const mongoose = require("mongoose")
-const slugify = require("slugify")
+import mongoose from "mongoose"
+import slugify from "slugify"
 
 const populateUsers = (doc, next, friends) => {
     doc.select("-followers -following")
@@ -70,4 +70,4 @@ const Users = mongoose.model("Users", Schema, undefined, {
     strick: false,
 })
 
-module.exports = Users
+export default Users

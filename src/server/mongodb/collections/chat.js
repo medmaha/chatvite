@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 
 const Schema = new mongoose.Schema({
     fuse: { type: String },
@@ -39,4 +39,5 @@ const Chats = mongoose.model("Chats", Schema, undefined, {
     overwriteModels: true,
     strick: false,
 })
-module.exports = Chats
+
+export default Chats

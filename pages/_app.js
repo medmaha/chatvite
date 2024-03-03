@@ -15,6 +15,9 @@ export default function ChatVite({ Component, pageProps }) {
             <NextJSProgressBar
                 color="lightblue"
                 startPosition={0.2}
+                options={{
+                    showSpinner: false,
+                }}
                 transformCSS={(css) => {
                     // manipulate css string here
 
@@ -27,4 +30,3 @@ export default function ChatVite({ Component, pageProps }) {
         </SessionProvider>
     )
 }
-

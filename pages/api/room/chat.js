@@ -1,16 +1,12 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 
 import Authenticate from "../../../src/server/authenticate"
-import {
-    User,
-    Room,
-    Chat,
-    Activity,
-} from "../../../src/server/mongodb/collections"
+import { Room, Chat, Activity } from "../../../src/server/mongodb/collections"
 import {
     buildPromptBody,
     getChatGPTResponse,
 } from "../../../src/server/chatGPT"
+
 import axios from "axios"
 
 export default async function handler(req, res) {

@@ -1,5 +1,5 @@
-const mongoose = require("mongoose")
-const slugify = require("slugify")
+import mongoose from "mongoose"
+import slugify from "slugify"
 
 const Schema = new mongoose.Schema({
     name: { type: String, unique: true },
@@ -68,7 +68,7 @@ const Topics = mongoose.model("Topics", Schema, undefined, {
     strick: false,
 })
 
-module.exports = Topics
+export default Topics
 
 function generateId(length = 7) {
     let result = ""

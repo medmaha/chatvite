@@ -1,7 +1,7 @@
 import React, { useRef, useLayoutEffect } from "react"
 import Member from "./Member"
 
-export default function MemberCollections({ hostId, members }) {
+export default function MemberCollections({ members, host }) {
     const membersContainerRef = useRef()
 
     useLayoutEffect(() => {
@@ -22,7 +22,7 @@ export default function MemberCollections({ hostId, members }) {
             {members?.map((member) => {
                 return (
                     <span key={member._id}>
-                        <Member member={member} host={member._id === hostId} />
+                        <Member member={member} host={host} />
                     </span>
                 )
             })}

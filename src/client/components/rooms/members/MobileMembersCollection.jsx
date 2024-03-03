@@ -40,7 +40,7 @@ export default function MobileMembers({ setIsMember, socket, room, setRoom, mobi
                 Click outside to close
             </p>
             {mobileScreenMembers && (
-                <div className="max-w-[400px] w-full bg-gray-700 block">
+                <div className="min-w-[250px] min-h-[50svh]  max-w-[500px] w-full bg-gray-700 block">
                     <Members
                         socket={socket}
                         setRoom={setRoom}

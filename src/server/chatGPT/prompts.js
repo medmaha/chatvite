@@ -1,5 +1,7 @@
 //
-export function promptHeader(room, host, isPrivate = false) {
+import { getChatGPTResponse } from "./response"
+
+function promptHeader(room, host, isPrivate = false) {
     const appName = "ChatVite"
     const membersList = room.members.map((member) => {
         if (member.name?.toLowerCase() === "ai") return "AI"
@@ -49,7 +51,7 @@ For AI model:
     return prompt
 }
 
-export function buildPromptBody(chatMessage, room, authorName) {
+function buildPromptBody(chatMessage, room, authorName) {
     // Initialize the prompt with the header
     let prompt = promptHeader(room, room.host, room.isPrivate)
 
@@ -113,3 +115,5 @@ export function buildPromptBody(chatMessage, room, authorName) {
 
     return prompt
 }
+
+export { promptHeader, buildPromptBody, getChatGPTResponse }

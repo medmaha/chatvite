@@ -4,7 +4,7 @@ const openai = new OpenAI({
     apiKey: process.env.OPEN_AI_KEY,
 })
 
-export default async function getChatGPTResponse(prompt) {
+export async function getChatGPTResponse(prompt) {
     try {
         const completion = await openai.chat.completions.create({
             messages: [{ role: "system", content: prompt }],

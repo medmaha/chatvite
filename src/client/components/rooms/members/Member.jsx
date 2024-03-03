@@ -66,33 +66,35 @@ export default function Member({ member: data, host }) {
     return (
         <div className="mb-4 w-full">
             <div className="flex gap-2 ">
-                <div className="w-max">
-                    <button className="user w-[37px] h-[37px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]">
+                <div className="w-max h-max">
+                    <button className="user w-[32px] h-[32px] rounded-full bg-gray-800 border-solid border-blue-400 border-[1px]">
                         <Image
-                            width={35}
-                            height={35}
+                            width={30}
+                            height={30}
                             alt="member avatar"
                             src={member.avatar}
                             className="rounded-full"
-                            style={{ objectFit: "cover", height: "35px" }}
+                            style={{ objectFit: "cover" }}
                         />
                     </button>
                 </div>
                 <div className="inline-flex flex-col justify-between w-full flex-1">
                     <div className="flex flex-col  text-sm">
-                        {!host ? (
+                        {member._id !== host._id ? (
                             <div className="pb-1 flex flex-col gap-[2px]">
                                 <Link
                                     href={`profile/${member.username}`}
                                     className="inline-flex flex-col justify-start text-left gap-1 text-gray-300"
                                 >
-                                    <span className="py-[1px] leading-none lg:text-lg font-semibold truncate md:max-w-[15ch] lg:max-w-[20ch]">
-                                        {member.name}
+                                    <span className="py-[1px] leading-none lg:text-lg md:font-semibold truncate md:max-w-[15ch] lg:max-w-[20ch]">
+                                        {member._id !== user?._id
+                                            ? member.name || "No Name"
+                                            : "Me"}
                                     </span>
                                 </Link>
                                 <Link
                                     href={`profile/${member.username}`}
-                                    className="leading-none text-xs font-semibold text-gray-400 truncate max-w-[18ch]"
+                                    className="leading-none text-xs md:font-semibold text-gray-400 truncate max-w-[18ch]"
                                 >
                                     <>@{member.username}</>
                                 </Link>
@@ -103,10 +105,10 @@ export default function Member({ member: data, host }) {
                                     href={`profile/${member.username}`}
                                     className="inline-flex items-start justify-start text-left gap-1 text-gray-300"
                                 >
-                                    <span className="leading-none font-semibold truncate md:max-w-[15ch] lg:max-w-[20ch]">
+                                    <span className="leading-none md:font-semibold truncate md:max-w-[15ch] lg:max-w-[20ch]">
                                         <b>HOST</b>
                                     </span>
-                                    <span className="pb-1">
+                                    <span className="text-xs">
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             width="16"
@@ -120,13 +122,9 @@ export default function Member({ member: data, host }) {
                                 </Link>
                                 <Link
                                     href={`profile/${member.username}`}
-                                    className="leading-none text-xs font-semibold text-gray-400 truncate max-w-[18ch]"
+                                    className="leading-none text-xs md:font-semibold text-gray-400 truncate max-w-[18ch]"
                                 >
-                                    {member.name ? (
-                                        member.name
-                                    ) : (
-                                        <>@{member.username}</>
-                                    )}
+                                    {"N/A"} | @{member.username}
                                 </Link>
                             </div>
                         )}
@@ -143,19 +141,19 @@ export default function Member({ member: data, host }) {
                 </div>
                 <div className="w-max inline-block self-center">
                     <div className="">
-                        {isFollowing !== null && (
+                        {isFollowing !== null && user?._id !== member._id && (
                             <>
                                 {!isFollowing ? (
                                     <button
                                         onClick={follow}
-                                        className="text-sm bg-blue-400 hover:bg-blue-500 bg-opacity-80 hover:bg-opacity-100 transition font-semibold tracking-wide rounded-lg px-[.25em] py-[.15em]"
+                                        className="text-sm bg-blue-400 hover:bg-blue-500 bg-opacity-80 hover:bg-opacity-100 transition md:md:font-semibold tracking-wide rounded-lg px-[.4em] py-[.15em]"
                                     >
-                                        + follow
+                                        follow
                                     </button>
                                 ) : (
                                     <button
                                         onClick={follow}
-                                        className="bg-red-400 text-sm hover:bg-red-500 bg-opacity-80 hover:bg-opacity-100 transition font-semibold tracking-wide rounded-lg px-[.25em] py-[.15em]"
+                                        className="bg-red-400 text-sm hover:bg-red-500 bg-opacity-80 hover:bg-opacity-100 transition md:md:font-semibold tracking-wide rounded-lg px-[.4em] py-[.15em]"
                                     >
                                         Unfollow
                                     </button>

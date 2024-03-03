@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import Navbar from "../components/UI/nav/Navbar"
 import { CreateRoom, Modal } from "../components/UI/layouts"
 import { GlobalContext } from "./index"
@@ -68,7 +68,7 @@ export default function GlobalProvider({ children }) {
                 </div>
             ) : (
                 <>{user !== undefined && <App>{children}</App>}</>
-            )}
+                )}
         </GlobalContext.Provider>
     )
 }

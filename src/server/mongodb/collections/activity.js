@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+import mongoose from "mongoose"
 
 const populateUserRefs = (doc, next) => {
     doc.populate([
@@ -49,4 +49,5 @@ const Activity = mongoose.model("Activity", Schema, undefined, {
     overwriteModels: true,
     strick: false,
 })
-module.exports = Activity
+
+export default Activity
