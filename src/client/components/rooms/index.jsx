@@ -22,12 +22,11 @@ import DateFormatter from "../UI/layouts/DateFormatter"
 import MobileMembers from "./members/MobileMembersCollection"
 
 export default function Room({ data, WEBSOCKET_URL }) {
-    const [roomResponseData, setRoomResponseData] = useState(data)
     const [room, setRoom] = useState(data)
     const [socket, setSocket] = useState(null)
     const [mobileScreenMembers, toggleMobileScreenMembers] = useState(false)
     const [isMember, setIsMember] = useState(false)
-    const { user, newAlertEmit } = useContext(GlobalContext)
+    const { user } = useContext(GlobalContext)
 
     const router = useRouter()
 
@@ -83,6 +82,8 @@ export default function Room({ data, WEBSOCKET_URL }) {
             )
             .then((res) => {
                 const data = res.data
+
+                console.log(data)
                 if (!!data.joined) {
                     socket.emit("add-group-member", room.slug, user, socket.id)
 
@@ -121,26 +122,34 @@ export default function Room({ data, WEBSOCKET_URL }) {
             })
     }
 
+    let isPrivateChat = Boolean(room.isPrivate)
+
     return (
         <div
             style={styles}
             className={`grid ${
-                room && !room.isPrivate ? "grid-cols-[auto,auto]" : ""
-            } items-center justify-center w-full gap-4`}
+                room && !isPrivateChat
+                    ? "md:grid-cols-[auto,auto] grid-cols-1"
+                    : ""
+            } justify-center w-full gap-4`}
         >
-            {room && (
-                <MobileMembers
-                    room={room}
-                    socket={socket}
-                    setRoom={setRoom}
-                    setIsMember={setIsMember}
-                    mobileScreenMembers={mobileScreenMembers}
-                    toggleMobileScreenMembers={toggleMobileScreenMembers}
-                />
-            )}
+            <MobileMembers
+                room={room}
+                socket={socket}
+                setRoom={setRoom}
+                setIsMember={setIsMember}
+                mobileScreenMembers={mobileScreenMembers}
+                toggleMobileScreenMembers={toggleMobileScreenMembers}
+            />
 
-            <div className="max-w-[850px] w-full rounded-t-lg mx-auto sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden">
-                <div className="header px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
+            <div
+                className={`${
+                    isPrivateChat
+                        ? "sm:w-[95svw] md:w-[90svw] lg:w-[800px]"
+                        : "md:w-[calc(95svw-250px)] xl:w-[calc(90svw-250px)]"
+                } block w-full rounded-t-lg mx-auto sm:rounded-t-xl bg-gray-700 rounded-b-sm overflow-hidden`}
+            >
+                <div className="header w-full px-[.5em] py-[.5em] lg:py-[.75em] flex items-center h-max bg-gray-600">
                     <div className="mr-[.5em] lg:mr-[1em] px-[.5em]">
                         <button
                             className="leading-none hover:text-blue-500 transition"
@@ -174,8 +183,8 @@ export default function Room({ data, WEBSOCKET_URL }) {
                         </Link>
                     </div>
                 </div>
-                {!room.isPrivate && (
-                    <div className="p-[.75em]">
+                {!isPrivateChat && (
+                    <div className="p-[.75em] w-full">
                         <div className="flex justify-between items-center pb-1">
                             <h4 className="text-gray-400 text-sm md:text-base sm:font-semibold">
                                 HOSTED BY
@@ -186,30 +195,29 @@ export default function Room({ data, WEBSOCKET_URL }) {
                                     <DateFormatter data={room.createdAt} />
                                 </span>
                             </div>
-                            {!room.isPrivate && (
-                                <div className="inline-block md:hidden">
-                                    <button
-                                        title="Group Participants"
-                                        className="text-xs inline-flex items-center gap-2 p-1 rounded-full border px-2 hover:text-blue-400 transition border-blue-400"
-                                        onClick={() => {
-                                            toggleMobileScreenMembers((p) => !p)
-                                        }}
-                                    >
-                                        <span>Members</span>
-                                        <span>
-                                            <svg
-                                                fill="currentColor"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="16"
-                                                height="16"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                                            </svg>
-                                        </span>
-                                    </button>
-                                </div>
-                            )}
+
+                            <div className="inline-block md:hidden">
+                                <button
+                                    title="Group Participants"
+                                    className="text-xs inline-flex items-center gap-2 p-1 rounded-full border px-2 hover:text-blue-400 transition border-blue-400"
+                                    onClick={() => {
+                                        toggleMobileScreenMembers((p) => !p)
+                                    }}
+                                >
+                                    <span>Members</span>
+                                    <span>
+                                        <svg
+                                            fill="currentColor"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                                        </svg>
+                                    </span>
+                                </button>
+                            </div>
                         </div>
                         <div className="flex gap-[.5em]" id="">
                             <div className="">
@@ -245,6 +253,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                                 <div className="mr-4 transition">
                                     {(() => {
                                         if (!socket) return <></>
+
                                         if (room.host._id === user?._id)
                                             return ""
 
@@ -279,7 +288,7 @@ export default function Room({ data, WEBSOCKET_URL }) {
                         </div>
                     </div>
                 )}
-                <div className="pt-2 pb-0 sm:px-4 px-2">
+                <div className="pt-2 pb-0 sm:px-4 px-2 w-full">
                     <ChatVite
                         socket={socket}
                         room={room}
@@ -289,8 +298,8 @@ export default function Room({ data, WEBSOCKET_URL }) {
                     />
                 </div>
             </div>
-            {!room.isPrivate && (
-                <div className="rounded-lg sm:rounded-xl overflow-hidden max-w-[280px] mx-auto lg:max-w-[350px] bg-gray-700 hidden md:block">
+            {!isPrivateChat && (
+                <div className="rounded-lg h-full sm:rounded-xl overflow-hidden min-w-[250px] bg-gray-700 hidden md:block">
                     <Members
                         room={room}
                         socket={socket}

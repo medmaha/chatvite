@@ -1,12 +1,8 @@
-import connectToDatabase from "../../../src/server/db"
 import Authenticate from "../../../src/server/authenticate"
 import { User, Room } from "../../../src/server/mongodb/collections"
 
 export default async function handler(req, res) {
-    await connectToDatabase()
-
     const user = await Authenticate(req, res)
-
     if (!user) {
         return Promise.resolve()
     }

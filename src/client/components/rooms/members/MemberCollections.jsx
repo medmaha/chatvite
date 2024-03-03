@@ -17,7 +17,7 @@ export default function MemberCollections({ hostId, members }) {
     return (
         <div
             ref={membersContainerRef}
-            className="p-[.5em] overflow-hidden overflow-y-auto"
+            className="p-[.5em] overflow-hidden overflow-y-auto h-full"
         >
             {members?.map((member) => {
                 return (

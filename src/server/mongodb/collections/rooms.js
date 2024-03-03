@@ -170,19 +170,3 @@ function generateId(length = 7) {
     }
     return result
 }
-
-function changeSchemaPath(path, value) {
-    const participantsType = RoomSchema.path(path)
-
-    participantsType.set(() => value)
-
-    Room.init(function (err) {
-        if (err) {
-            console.log(err)
-        } else {
-            console.log("Schema updated successfully")
-        }
-    })
-}
-
-// changeSchemaPath("name", { type: String, capitalize: true })

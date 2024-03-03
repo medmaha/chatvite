@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react"
+import { Suspense } from "react"
 import styles from "./styles.module.css"
 
 import Topics from "./topics"
@@ -10,14 +10,6 @@ import Paginator from "../UI/Paginator"
 import axios from "axios"
 
 export default function Feed({ feeds, roomsCount }) {
-    const [_feeds, setFeeds] = useState(feeds)
-    useLayoutEffect(() => {
-        setFeeds(feeds)
-    }, [feeds])
-    useEffect(() => {
-        console.log(feeds)
-    }, [_feeds])
-
     async function fetchFeeds(data = {}, callback) {
         const option = {
             url: "/api/feed",
@@ -43,19 +35,36 @@ export default function Feed({ feeds, roomsCount }) {
                 <Topics />
             </div>
             <div className="block md:min-w-[450px] mx-auto w-full max-w-[600px]">
-                <Paginator
-                    Component={Main}
-                    componentProp="feeds"
-                    data={_feeds}
-                    fetchFeeds={fetchFeeds}
-                    targetSelector="[data-rooms-collections] [data-room]"
-                    roomsCount={roomsCount}
-                ></Paginator>
+                <Suspense fallback={<ChatCard />}>
+                    <Paginator
+                        Component={Main}
+                        componentProp="feeds"
+                        data={feeds}
+                        fetchFeeds={fetchFeeds}
+                        targetSelector="[data-rooms-collections] [data-room]"
+                        roomsCount={roomsCount}
+                    ></Paginator>
+                </Suspense>
                 {/* <Main feeds={feeds.data} fetchFeeds={fetchFeeds} /> */}
             </div>
-            <div className="hidden lg:block">
+            <div className="hidden lg:block max-w-[280px]">
                 <Activities />
             </div>
         </div>
+    )
+}
+
+function ChatCard() {
+    return (
+        <>
+            {new Array(7).fill(0).map((_, index) => {
+                return (
+                    <div
+                        key={index}
+                        className="min-h-[60px] w-full block bg-slate-700 animate-pulse"
+                    ></div>
+                )
+            })}
+        </>
     )
 }
