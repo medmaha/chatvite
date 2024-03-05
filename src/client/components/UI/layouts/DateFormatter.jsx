@@ -1,19 +1,26 @@
+import { format, formatDistance, subDays } from "date-fns"
 import React, { useLayoutEffect, useState } from "react"
 
-export default function DateFormatter({ data }) {
-    const [date, updateDate] = useState()
-    const [dataTime, setDateTime] = useState(data)
+export default function DateFormatter({ data, distance, _format }) {
+    const [date, updateDate] = useState("")
 
     useLayoutEffect(() => {
-        Formatter.date = new Date(dataTime)
-        updateDate(Formatter.format())
-    }, [dataTime])
+        try {
+            if (distance)
+                updateDate(
+                    formatDistance(data, new Date(), {
+                        addSuffix: true,
+                        includeSeconds: true,
+                    }),
+                )
+            else updateDate(format(new Date(data), _format || "PPp"))
+        } catch (error) {
+            Formatter.date = new Date(data)
+            updateDate(Formatter.format())
+        }
+    }, [data, _format, distance])
 
-    useLayoutEffect(() => {
-        setDateTime(data)
-    }, [data])
-
-    return <>{date}</>
+    return date !== "less than 5 seconds ago" ? date : "just now"
 }
 
 class CSDateTime {

@@ -15,12 +15,26 @@ import Link from "next/link"
 
 export default function Main({ feeds: data, onInit, fetchFeeds, roomsCount }) {
     const { setCreateRoom } = useContext(GlobalContext)
-    const [feeds, setFeeds] = useState([])
+    const [feeds, setFeeds] = useState(data)
     const [pending, setPending] = useState(false)
 
     const router = useRouter()
 
     const dialogRef = useRef()
+
+    const _fetchFeeds = useCallback(
+        async (_data = {}) => {
+            setPending(true)
+            try {
+                await fetchFeeds(_data)
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setPending(false)
+            }
+        },
+        [fetchFeeds],
+    )
 
     useLayoutEffect(() => {
         if (!!window.location.pathname.match(/\/feed/)) {
@@ -28,26 +42,27 @@ export default function Main({ feeds: data, onInit, fetchFeeds, roomsCount }) {
             const queryString = url.split("?")[1]
             if (queryString) {
                 _fetchFeeds({ q: "?" + queryString })
-            } else {
-                setFeeds(data)
             }
         }
-    }, [])
+    }, [_fetchFeeds])
 
     useLayoutEffect(() => {
         setFeeds(data)
     }, [data])
 
-    function handleQueryParamSearchOnRouteChange(url, { shallow }) {
-        const feedRoute = url.split("?")[0] === "/feed"
+    const handleQueryParamSearchOnRouteChange = useCallback(
+        (url, { shallow }) => {
+            const feedRoute = url.split("?")[0] === "/feed"
 
-        if (shallow) {
-            const queryString = url.split("?")[1]
-            _fetchFeeds({ q: "?" + queryString })
-        } else {
-            if (feedRoute) _fetchFeeds()
-        }
-    }
+            if (shallow) {
+                const queryString = url.split("?")[1]
+                _fetchFeeds({ q: "?" + queryString })
+            } else {
+                if (feedRoute) _fetchFeeds()
+            }
+        },
+        [_fetchFeeds],
+    )
 
     useEffect(() => {
         router.events.on(
@@ -60,11 +75,10 @@ export default function Main({ feeds: data, onInit, fetchFeeds, roomsCount }) {
                 "routeChangeStart",
                 handleQueryParamSearchOnRouteChange,
             )
-    }, [])
+    }, [handleQueryParamSearchOnRouteChange, router])
 
     useEffect(() => {
         document.addEventListener("room", updateFeedFromCreate)
-
         return () => document.removeEventListener("room", updateFeedFromCreate)
     }, [])
 
@@ -75,17 +89,6 @@ export default function Main({ feeds: data, onInit, fetchFeeds, roomsCount }) {
             setFeeds((prev) => {
                 return [data, ...prev]
             })
-        }
-    }
-
-    async function _fetchFeeds(_data = {}) {
-        setPending(true)
-        try {
-            await fetchFeeds(_data)
-        } catch (error) {
-            console.error(error)
-        } finally {
-            setPending(false)
         }
     }
 

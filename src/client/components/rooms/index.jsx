@@ -2,9 +2,8 @@ import styles from "./styles.module.css"
 import ChatVite from "./chat"
 import Members from "./members"
 import Link from "next/link"
-import { useCallback, useContext, useEffect, useState } from "react"
+import { useContext, useState, useEffect } from "react"
 
-import SocketIOClient from "socket.io-client"
 import { useRouter } from "next/router"
 import axios from "axios"
 import Image from "next/image"
@@ -12,52 +11,16 @@ import { GlobalContext } from "../../contexts"
 import DateFormatter from "../UI/layouts/DateFormatter"
 import MobileMembers from "./members/MobileMembersCollection"
 import SubscribeButton from "./Componenets/SubscribeButton"
+import { useChatWebsocket } from "./Websocket"
 
 export default function Room({ data }) {
     const [room, setRoom] = useState(data)
-    const [socket, setSocket] = useState(null)
+    const { socket } = useChatWebsocket()
     const [mobileScreenMembers, toggleMobileScreenMembers] = useState(false)
     const [isMember, setIsMember] = useState(undefined)
     const { user } = useContext(GlobalContext)
 
     const router = useRouter()
-
-    const socketInitializer = useCallback(async () => {
-        const _socket = SocketIOClient(process.env.WEBSOCKET_URL, {
-            retries: 3,
-            reconnectionAttempts: 3,
-        })
-
-        _socket.on("connect", () => {
-            console.log("ws connected")
-            _socket.emit("subscribe-group", room.slug)
-
-            _socket.on("subscribed", () => setSocket(_socket))
-
-            _socket.on("disconnect", (reason) => {
-                if (reason === "io server disconnect") {
-                    _socket.connect()
-                    setSocket(null)
-                } else setSocket(null)
-                console.log("ws disconnected [" + reason + "]")
-            })
-        })
-    }, [room.slug])
-
-    useEffect(() => {
-        if (navigator.onLine) {
-            if (!room.isPrivate && !socket) {
-                socketInitializer()
-            }
-            return () => {
-                socket?.off("connect")
-                socket?.off("subscribed")
-                socket?.off("disconnect")
-
-                socket?.disconnect()
-            }
-        }
-    }, [room.isPrivate, socket, socketInitializer])
 
     async function joinChatRoom(ev, callback) {
         if (!user) {
@@ -75,7 +38,7 @@ export default function Room({ data }) {
             )
             console.log(data)
             if (!!data.joined) {
-                socket.emit("add-group-member", room.slug, user, socket.id)
+                socket.emit("subscribe", room.slug, user)
 
                 const CustomEventEmitter = new CustomEvent(
                     "member-subscription",
@@ -83,7 +46,7 @@ export default function Room({ data }) {
                 )
                 document.dispatchEvent(CustomEventEmitter)
             } else {
-                socket.emit("remove-group-member", room.slug, user.id)
+                socket.emit("unsubscribe", room.slug, user.id)
 
                 const CustomEventEmitter = new CustomEvent(
                     "member-subscription",
@@ -230,7 +193,7 @@ export default function Room({ data }) {
                                 </Link>
                                 {/* Sub */}
 
-                                {socket && room.host._id !== user._id && (
+                                {socket && room.host._id !== user?._id && (
                                     <SubscribeButton
                                         isMember={isMember}
                                         joinChatRoom={joinChatRoom}
@@ -242,7 +205,6 @@ export default function Room({ data }) {
                 )}
                 <div className="pt-2 pb-0 sm:px-4 px-2 w-full">
                     <ChatVite
-                        socket={socket}
                         room={room}
                         isMember={isMember}
                         joinChatRoom={joinChatRoom}
