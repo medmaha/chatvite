@@ -9,7 +9,7 @@ export default function Members({ socket, room, setIsMember }) {
 
     useEffect(() => {
         if (socket) {
-            socket.on("member-added", (newMember) => {
+            socket.on("add-subscription", (newMember) => {
                 setMembers((prev) => {
                     return [
                         ...prev.filter((member) => member._id !== member._id),
@@ -17,7 +17,7 @@ export default function Members({ socket, room, setIsMember }) {
                     ]
                 })
             })
-            socket.on("member-removed", (member_id) => {
+            socket.on("del-subscription", (member_id) => {
                 setMembers((prev) =>
                     prev.filter((member) => member._id !== member_id),
                 )
@@ -90,7 +90,9 @@ export default function Members({ socket, room, setIsMember }) {
     }, [user, updateMemberSubscription])
 
     useEffect(() => {
-        setIsMember(Boolean(members?.find((member) => member._id === user._id)))
+        setIsMember(
+            Boolean(members?.find((member) => member._id === user?._id)),
+        )
     }, [members, setIsMember, user])
 
     return (

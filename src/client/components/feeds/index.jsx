@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import { Suspense, useCallback, useState } from "react"
 import styles from "./styles.module.css"
 
 import Topics from "./topics"
@@ -10,7 +10,9 @@ import Paginator from "../UI/Paginator"
 import axios from "axios"
 
 export default function Feed({ feeds, roomsCount }) {
-    async function fetchFeeds(data = {}, callback) {
+    const [data, setData] = useState(feeds)
+
+    const fetchFeeds = useCallback(async (data = {}) => {
         const option = {
             url: "/api/feed",
             q: "",
@@ -21,13 +23,12 @@ export default function Feed({ feeds, roomsCount }) {
             const { data } = await axios.get(option.url + option.q, {
                 withCredentials: true,
             })
-            setFeeds(data)
+            setData(data)
             return Promise.resolve()
         } catch (error) {
-            console.log(error.message)
             return Promise.reject(error)
         }
-    }
+    }, [])
 
     return (
         <div className="grid container mx-auto md:grid-cols-[auto,1fr,auto] gap-2">
@@ -39,7 +40,7 @@ export default function Feed({ feeds, roomsCount }) {
                     <Paginator
                         Component={Main}
                         componentProp="feeds"
-                        data={feeds}
+                        data={data}
                         fetchFeeds={fetchFeeds}
                         targetSelector="[data-rooms-collections] [data-room]"
                         roomsCount={roomsCount}

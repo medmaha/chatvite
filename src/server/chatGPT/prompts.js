@@ -1,4 +1,5 @@
 //
+import { Chat } from "../mongodb/collections"
 import { getChatGPTResponse } from "./response"
 
 function promptHeader(room, host, isPrivate = false) {
@@ -51,32 +52,45 @@ For AI model:
     return prompt
 }
 
-function buildPromptBody(chatMessage, room, authorName) {
+async function buildPromptBody(chatMessage, room, authorName) {
+    // Check if the message is a user mention
+
+    const mentions =
+        chatMessage
+            .match(/@[^\s]+/gi)
+            ?.join(" ")
+            .toLowerCase() || ""
+
+    if (mentions) {
+        if (mentions.includes("@ai")) {
+        }
+    }
+
     // Initialize the prompt with the header
     let prompt = promptHeader(room, room.host, room.isPrivate)
 
     // Offset count and flag for more than offset
-    const offsetCount = -6
+    const offsetCount = -4
     const moreThanOffsetCount = room.chatfuses.length > 4
 
     // Get the last three chats
-    const latestMessages = room.chatfuses.slice(offsetCount)
+    const latestMessages = await Chat.find({ room: room._id }).skip(
+        room.chatfuses.length - offsetCount + 1,
+    )
 
     // Flag to check if a user reference is found
     let foundUserReference = false
 
     // Check for user references in the last three chats
     for (const chat of latestMessages) {
-        if (!chat || !chat.sender?.name) continue
-        const name = chat.sender.name.toLowerCase()
+        const name = chat?.sender?.name.toLowerCase()
+        const username = chat?.sender?.username.toLowerCase()
 
-        if (!chatMessage) break
-
-        const text = chatMessage.toLowerCase()
+        if (!name) continue
 
         if (name === "ai" || name === authorName) continue
 
-        if (text.includes(name)) {
+        if (mentions.includes(name) || mentions.includes(username)) {
             foundUserReference = true
             break
         }

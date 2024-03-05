@@ -3,11 +3,19 @@ import Room from "../../src/client/components/rooms"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "../api/auth/[...nextauth]"
 import axios from "axios"
+import RoomWebsocketProvider from "../../src/client/components/rooms/Websocket"
 
-export default function RoomView({ room, WEBSOCKET_URL }) {
+export default function RoomView({ room, user }) {
     // send a message to the server
 
-    if (room) return <Room data={room} WEBSOCKET_URL={WEBSOCKET_URL} />
+    if (room)
+        return (
+            <>
+                <RoomWebsocketProvider room={room} user={user}>
+                    <Room data={room} />
+                </RoomWebsocketProvider>
+            </>
+        )
     else return <></>
 }
 
@@ -30,11 +38,11 @@ export async function getServerSideProps(context) {
         return {
             props: {
                 room: data,
+                user: session?.user || null,
                 WEBSOCKET_URL: process.env.WEBSOCKET_URL,
             },
         }
     } catch (error) {
-        console.log(error.message)
         return {
             redirect: {
                 destination: "/feed",

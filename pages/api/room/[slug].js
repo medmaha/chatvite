@@ -60,7 +60,7 @@ export default async function handler(req, res) {
             createdAt: -1,
         })
         .skip(0)
-        .limit(20)
+        .limit(30)
 
     res.status(200).send(
         JSON.stringify({

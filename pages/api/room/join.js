@@ -1,10 +1,17 @@
+import { NextResponse } from "next/server"
 import Authenticate from "../../../src/server/authenticate"
 import { User, Room } from "../../../src/server/mongodb/collections"
 
 export default async function handler(req, res) {
     const user = await Authenticate(req, res)
+
+    res.setHeader("content-type", "application/json")
     if (!user) {
-        return Promise.resolve()
+        return res.status(401).send(
+            JSON.stringify({
+                message: "You are unauthorize for this request",
+            }),
+        )
     }
 
     const { id, room: returnRoom } = req.body
@@ -12,9 +19,8 @@ export default async function handler(req, res) {
     const room = await Room.findById(id).populate("members")
 
     if (!room) {
-        res.setHeader("content-type", "application/json")
         res.status(400).send(JSON.stringify({ message: "Room does not exist" }))
-        return
+        return res.end()
     }
 
     const isMember = room.members.find((member) => {

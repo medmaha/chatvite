@@ -25,7 +25,7 @@ export default async function handler(
     } = urlStringToObject(url)
 
     const pageIndex = page || 0
-    const maxPageData = 25
+    const maxPageData = 30
 
     res.setHeader("Content-Type", "application/json")
 
@@ -138,7 +138,7 @@ export default async function handler(
 async function getChatviteRooms({
     queryList,
     pageIndex = 0,
-    maxPageData = 25,
+    maxPageData = 30,
 }) {
     const urlPath = "/api/feed"
     const paginatorResponse = await getPaginatorResponse({
@@ -161,8 +161,8 @@ async function getChatviteRooms({
             populate: [
                 {
                     path: "members",
-                    select: ["_id", "avatar", "username"],
-                    limit: 20,
+                    select: ["_id", "avatar"],
+                    limit: 30,
                 },
             ],
         },

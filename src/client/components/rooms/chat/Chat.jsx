@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect, useContext } from "react"
-import { useSession } from "next-auth/react"
+import { format } from "date-fns"
 import { GlobalContext } from "../../../contexts"
 import Image from "next/image"
 import Link from "next/link"
@@ -27,6 +27,16 @@ export default function Chat({ fuse: chat }) {
                 text = text.replace(
                     url,
                     `<a href="${url}" target='blank' class="text-sky-500 cursor-pointer">${url}</a>`,
+                )
+            })
+        }
+        const mentionRegex = /@[^\s]+/gi
+        const mentions = text.match(mentionRegex)
+        if (mentions) {
+            mentions.forEach((mention) => {
+                text = text.replace(
+                    mention,
+                    `<span class="px-0.5 bg-slate-700 text-xs rounded-[2px]">${mention}</span>`,
                 )
             })
         }
@@ -149,11 +159,20 @@ export default function Chat({ fuse: chat }) {
                                 myFuse && "justify-end"
                             }`}
                         >
-                            <span className="'text-sm">
-                                {chat.createdAt && (
-                                    <DateFormatter data={chat.createdAt} />
-                                )}
-                            </span>
+                            {chat.createdAt && (
+                                <span
+                                    className="'text-sm"
+                                    title={format(
+                                        new Date(chat.createdAt),
+                                        "PPPPpp",
+                                    )}
+                                >
+                                    <DateFormatter
+                                        data={chat.createdAt}
+                                        distance
+                                    />
+                                </span>
+                            )}
                         </div>
                     </div>
                 </div>

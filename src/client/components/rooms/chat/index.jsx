@@ -4,6 +4,7 @@ import React, {
     useRef,
     useState,
     useMemo,
+    useCallback,
 } from "react"
 import ChatCollections from "./ChatCollections"
 import { useSession } from "next-auth/react"
@@ -13,6 +14,7 @@ import { useRouter } from "next/router"
 import Popup from "../../UI/Popup"
 import Pending from "../../UI/Pending"
 import Meta from "../../../contexts/Meta"
+import { useChatWebsocket } from "../Websocket"
 
 const queuedUnsentMessages = []
 let cachedMessages
@@ -20,18 +22,16 @@ let privateRoomAiResponseTimeout
 
 let AutoScroll = true
 
-export default function ChatVite({
-    socket,
-    room,
-    roomId,
-    joinChatRoom,
-    isMember,
-}) {
+// prettier-ignore
+export default function ChatVite({  room, roomId, joinChatRoom, isMember }) {
     const outgoingMsgSound = useMemo(() => {
         const sound = new Audio("/audio/msg-outgoing.mp3")
         sound.volume = 0.6
         return sound
     }, [])
+
+    const {socket} = useChatWebsocket()
+
     const incomingMsgSound = useMemo(
         () => new Audio("/audio/msg-incoming.mp3"),
         [],
@@ -65,6 +65,40 @@ export default function ChatVite({
     }, [room])
 
     useEffect(() => {
+        const update = (chat) => {
+            incomingMsgSound.play()
+            setMessages((prev) => [...prev, chat])
+        }
+
+        socket?.on("chat", update) 
+      
+
+        return () => {
+            socket?.off("chat", update)
+        }
+    }, [room, socket, incomingMsgSound])
+
+    const scrollToBottom = useCallback(
+        function () {
+            if (!Boolean(messages.length)) return
+            const element = chatContainerRef.current
+
+            // element.scrollTop = -element.screenHeight
+            // element.scrollTo(0, 500)
+
+            if (element && AutoScroll) {
+                // const maxScrollTop = element.firstChild.clientHeight
+
+                element.scrollTo({
+                    behavior: "smooth",
+                    top: 5000,
+                })
+            }
+        },
+        [messages],
+    )
+
+    useEffect(() => {
         const messageRenderingDelay = setTimeout(() => {
             scrollToBottom()
         }, 300)
@@ -73,39 +107,7 @@ export default function ChatVite({
         return () => {
             clearTimeout(messageRenderingDelay)
         }
-    }, [messages])
-
-    useEffect(() => {
-        const update = (chat) => {
-            incomingMsgSound.play()
-            setMessages((prev) => [...prev, chat])
-        }
-        if (!room.isPrivate && socket) {
-            socket?.on("chatvite", update)
-            socket?.on("chatvite-ai", update)
-        }
-        return () => {
-            socket?.off("chatvite", update)
-            socket?.off("chatvite-ai", update)
-        }
-    }, [socket, room, incomingMsgSound])
-
-    function scrollToBottom() {
-        if (!Boolean(messages.length)) return
-        const element = chatContainerRef.current
-
-        // element.scrollTop = -element.screenHeight
-        // element.scrollTo(0, 500)
-
-        if (element) {
-            // const maxScrollTop = element.firstChild.clientHeight
-
-            element.scrollTo({
-                behavior: "smooth",
-                top: 5000,
-            })
-        }
-    }
+    }, [messages, scrollToBottom])
 
     function updateMessages(data) {
         AutoScroll = true
@@ -127,19 +129,13 @@ export default function ChatVite({
                 ...session.data?.user,
                 _id: session.data?.user._id,
             },
-            // createdAt: new Date().toUTCString(),
         }
         updateMessages(data)
         return data
     }
 
-    async function createChat(
-        message,
-        callback,
-        display = true,
-        resendElement,
-        chatObject,
-    ) {
+    // prettier-ignore
+    async function createChat(message, callback, display = true, resendElement, chatObject) {
         if (!message?.length) return
 
         const _userId = session.data?.user._id
@@ -154,6 +150,7 @@ export default function ChatVite({
         }
 
         let chat
+        
         if (display) {
             chat = displayChat(message)
         }
@@ -161,9 +158,9 @@ export default function ChatVite({
         callback()
 
         try {
-            // if (room.isPrivate) outgoingMsgSound.play()
+            outgoingMsgSound.play()
 
-            const { data, statusText } = await axios.post(
+            const { data } = await axios.post(
                 "/api/room/chat",
                 {
                     chat: message,
@@ -176,43 +173,19 @@ export default function ChatVite({
                     timeout: 30000,
                 },
             )
-            if (data._id) {
-                if (!room.isPrivate && socket) {
-                    socket.emit("new-chat", room.slug, data)
-                }
-                if (display) {
-                    AutoScroll = true
-                    updateIndividualChat(chat, data)
-                } else {
-                    AutoScroll = false
-                    updateIndividualChat(chatObject, data)
-                }
-                callback()
-            }
-            if (room.isPrivate) {
-                const last_chat = data[0]
-                const aiChat = data[1]
-
-                setMessages((prev) => {
-                    if (display) prev.pop()
-                    let _data = [...prev, last_chat]
-                    return _data
-                })
-
-                if (privateRoomAiResponseTimeout) {
-                    clearTimeout(privateRoomAiResponseTimeout)
-                }
-                if (aiChat)
-                    privateRoomAiResponseTimeout = setTimeout(() => {
-                        incomingMsgSound.play()
-                        setMessages((prev) => {
-                            if (display) prev.pop()
-                            let _data = [...prev, last_chat, data[1]]
-                            return _data
-                        })
-                    }, 1500)
-                callback()
-            }
+          
+             if (socket?.connected) {
+                 socket.emit("chat", room.slug, data)
+             }
+             if (display) {
+                 AutoScroll = true
+                 updateIndividualChat(chat, data)
+             } else {
+                 AutoScroll = false
+                 updateIndividualChat(chatObject, data)
+             }
+             callback()
+            
         } catch (err) {
             handleFailedMessageResubmission(
                 message,
