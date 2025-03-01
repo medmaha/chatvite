@@ -5,8 +5,8 @@ import {
 } from "../../../../src/server/mongodb/collections"
 import {
     buildPromptBody,
-    getChatGPTResponse,
-} from "../../../../src/server/chatGPT"
+    getAiResponse,
+} from "../../../../src/server/ai"
 
 import connectToDatabase from "../../../../src/server/db"
 
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     const prompt = await buildPromptBody(chat.fuse, room, chat.sender.name)
 
     if (Boolean(prompt) && prompt !== "no-need") {
-        const aiMessage = await getChatGPTResponse(prompt)
+        const aiMessage = await getAiResponse(prompt)
         if (aiMessage && typeof aiMessage === "string") {
             const aiChat = await Chat.create({
                 fuse: aiMessage,

@@ -4,8 +4,8 @@ import { User, Room, Chat } from "../../../src/server/mongodb/collections"
 import {
     promptHeader,
     buildPromptBody,
-    getChatGPTResponse,
-} from "../../../src/server/chatGPT"
+    getAiResponse,
+} from "../../../src/server/ai"
 
 export const config = {
     api: {
@@ -72,7 +72,7 @@ async function createAIResponse(slug, fuse, user_id, socket_id, socketIO) {
         if (prompt !== "no-need") {
             let introduction = `A new member just join the group chat username="${user.username}"\nIntroduce yourself to the new member and explain the whole essence of the to him/her\n also remind him/her to be ethical with chat's\nAI:`
             prompt += introduction
-            // const aiResponse = await getChatGPTResponse(prompt)
+            // const aiResponse = await getAiResponse(prompt)
             // if (typeof aiResponse === "string") {
             //     socketIO.to(socket_id).emit("fusechat-ai", {
             //         id: Math.random().toString(),

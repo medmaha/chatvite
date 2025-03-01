@@ -3,7 +3,7 @@ import slugify from "slugify"
 import User from "./users"
 import Chat from "./chat"
 
-import { promptHeader, getChatGPTResponse } from "../../chatGPT/prompts"
+import { promptHeader, getAiResponse } from "../../ai/prompts"
 
 const RoomSchema = new mongoose.Schema({
     name: { type: String, capitalize: true },
@@ -119,13 +119,13 @@ RoomSchema.post("save", async function (doc, next) {
 
         const initialPromptHeader =
             promptHeader(this, host, this.isPrivate) + "ai:"
-        const chatGPTIntroduction = await getChatGPTResponse(
+        const aiIntroduction = await getAiResponse(
             initialPromptHeader,
         )
 
-        if (typeof chatGPTIntroduction === "string") {
+        if (typeof aiIntroduction === "string") {
             const chat = await Chat.create({
-                fuse: chatGPTIntroduction,
+                fuse: aiIntroduction,
                 sender: aiUser._id,
                 room: this._id,
             })

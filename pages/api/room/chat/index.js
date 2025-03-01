@@ -6,8 +6,8 @@ import {
 } from "../../../../src/server/mongodb/collections"
 import {
     buildPromptBody,
-    getChatGPTResponse,
-} from "../../../../src/server/chatGPT"
+    getAiResponse,
+} from "../../../../src/server/ai"
 
 import axios from "axios"
 

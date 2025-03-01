@@ -1,6 +1,6 @@
 //
 import { Chat } from "../mongodb/collections"
-import { getChatGPTResponse } from "./response"
+import { getAiResponse } from "./response"
 
 function promptHeader(room, host, isPrivate = false) {
     const appName = "ChatVite"
@@ -37,7 +37,7 @@ For Mahamed Toure's portfolio, visit https://portfolio-mahamed.vercel.app.
 - Encourage each other to stay on topic.
 
 For AI model:
-- We're using the ChatGPT model to assist with the conversation.
+- We're using the Ai model to assist with the conversation.
 - You may initiate the conversation.
 - Share your thoughts on the topic.
 - Consider the host's perspective when responding.
@@ -130,4 +130,4 @@ async function buildPromptBody(chatMessage, room, authorName) {
     return prompt
 }
 
-export { promptHeader, buildPromptBody, getChatGPTResponse }
+export { promptHeader, buildPromptBody, getAiResponse }
